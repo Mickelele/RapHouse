@@ -1,0 +1,23 @@
+const WORDS = ["Rap", "Hip-Hop", "Music", "Culture", "Community", "RapHouse"];
+
+export function Marquee() {
+  const run = [...WORDS, ...WORDS, ...WORDS, ...WORDS];
+  return (
+    <div className="surface-deep overflow-hidden border-y border-border py-6">
+      <div className="animate-marquee flex w-max items-center gap-8 whitespace-nowrap">
+        {[0, 1].map((dup) => (
+          <div key={dup} className="flex items-center gap-8">
+            {run.map((word, i) => (
+              <span key={`${dup}-${i}`} className="flex items-center gap-8">
+                <span className="font-display text-3xl text-muted-foreground md:text-5xl">
+                  {word}
+                </span>
+                <span className="size-2 rounded-full bg-primary" />
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
