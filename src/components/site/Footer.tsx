@@ -1,3 +1,4 @@
+import logo from "@/assets/raphouse-logo.png";
 import { contact, nav } from "@/data/raphouse";
 
 export function Footer() {
@@ -5,11 +6,7 @@ export function Footer() {
     <footer className="surface-deep border-t border-border">
       <div className="mx-auto max-w-[1400px] px-5 py-16 md:px-10 md:py-20">
         <div className="grid gap-12 md:grid-cols-[1fr_auto_auto]">
-          <p className="font-display text-[clamp(4rem,14vw,11rem)] leading-[0.82]">
-            Rap
-            <br />
-            <span className="text-primary">House</span>
-          </p>
+          <img src={logo} alt="RapHouse" className="w-[clamp(10rem,30vw,20rem)] h-auto" />
 
           <nav className="flex flex-col gap-3">
             {nav.map((item) => (

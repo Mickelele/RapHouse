@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import heroStudio from "@/assets/hero-studio.jpg";
+import logo from "@/assets/raphouse-logo.png";
 
 export function Hero() {
   const [offset, setOffset] = useState(0);
@@ -55,7 +56,7 @@ export function Hero() {
         <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
           <span>Warsaw / Poland</span>
           <span className="hidden md:inline">Recording • Mix • Mastering</span>
-          <span className="text-foreground">RapHouse</span>
+          <img src={logo} alt="RapHouse" className="h-8 w-auto" />
         </div>
       </div>
     </section>

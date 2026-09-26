@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import logo from "@/assets/raphouse-logo.png";
 import { nav } from "@/data/raphouse";
 import { cn } from "@/lib/utils";
 
@@ -24,8 +25,8 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-5 md:px-10">
-        <a href="#top" className="font-display text-2xl tracking-tight">
-          Rap<span className="text-primary">House</span>
+        <a href="#top" aria-label="RapHouse — strona główna">
+          <img src={logo} alt="RapHouse" className="h-12 w-auto" />
         </a>
 
         <nav className="hidden items-center gap-8 lg:flex">

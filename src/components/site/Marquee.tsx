@@ -1,3 +1,5 @@
+import logo from "@/assets/raphouse-logo.png";
+
 const WORDS = ["Rap", "Hip-Hop", "Music", "Culture", "Community", "RapHouse"];
 
 export function Marquee() {
@@ -9,9 +11,13 @@ export function Marquee() {
           <div key={dup} className="flex items-center gap-8">
             {run.map((word, i) => (
               <span key={`${dup}-${i}`} className="flex items-center gap-8">
-                <span className="font-display text-3xl text-muted-foreground md:text-5xl">
-                  {word}
-                </span>
+                {word === "RapHouse" ? (
+                  <img src={logo} alt="RapHouse" className="h-10 w-auto opacity-60 md:h-14" />
+                ) : (
+                  <span className="font-display text-3xl text-muted-foreground md:text-5xl">
+                    {word}
+                  </span>
+                )}
                 <span className="size-2 rounded-full bg-primary" />
               </span>
             ))}
