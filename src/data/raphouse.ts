@@ -180,7 +180,7 @@ export const crew = [
 export const stats = [
   { value: "14+", label: "Lat doświadczenia" },
   { value: "Rap / Hip-Hop", label: "Nasza specjalizacja" },
-  { value: "Rec / Mix / Master", label: "Pełen proces" },
+  { value: "Nagranie / Mix / Master", label: "Pełen proces" },
   { value: "Warszawa", label: "Targówek, Łojewska 22" },
 ];
 

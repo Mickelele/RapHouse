@@ -6,13 +6,13 @@ export function Movement() {
     <section id="studio" className="mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-32">
       <div className="grid gap-12 lg:grid-cols-2 lg:items-end">
         <Reveal>
-          <p className="eyebrow mb-6">Movement</p>
+          <p className="eyebrow mb-6">Ruch</p>
           <h2 className="font-display text-[clamp(2.5rem,6vw,5.5rem)]">
             To nie jest
             <br />
             tylko studio.
             <br />
-            <span className="text-primary">To movement.</span>
+            <span className="text-primary">To ruch.</span>
           </h2>
         </Reveal>
         <Reveal delay={120}>

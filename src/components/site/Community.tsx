@@ -7,11 +7,11 @@ export function Community() {
     <section className="mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-32">
       <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
         <Reveal>
-          <p className="eyebrow mb-6">Community</p>
+          <p className="eyebrow mb-6">Społeczność</p>
           <h2 className="font-display text-[clamp(2.5rem,6vw,5rem)]">
-            More than
+            Więcej niż
             <br />
-            <span className="text-primary">recording.</span>
+            <span className="text-primary">nagrania.</span>
           </h2>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">
             Muzyka to dopiero początek. Na naszym kanale publikujemy najlepsze numery, robimy
@@ -42,9 +42,9 @@ export function Community() {
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               { title: "Numery z RapHouse", tag: "Video" },
-              { title: "Transmisje live", tag: "Stream" },
-              { title: "Feedback Waszych tracków", tag: "Live" },
-              { title: "Kulisy sesji", tag: "Backstage" },
+              { title: "Transmisje live", tag: "Transmisja" },
+              { title: "Feedback Waszych tracków", tag: "Na żywo" },
+              { title: "Kulisy sesji", tag: "Kulisy" },
             ].map((card) => (
               <a
                 key={card.title}

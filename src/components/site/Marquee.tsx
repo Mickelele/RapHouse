@@ -1,6 +1,6 @@
 import logo from "@/assets/raphouse-logo.png";
 
-const WORDS = ["Rap", "Hip-Hop", "Music", "Culture", "Community", "RapHouse"];
+const WORDS = ["Rap", "Hip-Hop", "Muzyka", "Kultura", "Społeczność", "RapHouse"];
 
 export function Marquee() {
   const run = [...WORDS, ...WORDS, ...WORDS, ...WORDS];

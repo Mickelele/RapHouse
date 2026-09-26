@@ -8,9 +8,9 @@ export function About() {
         <Reveal>
           <p className="eyebrow mb-6">O nas</p>
           <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-            Built by artists.
+            Stworzone przez artystów.
             <br />
-            <span className="text-primary">For artists.</span>
+            <span className="text-primary">Dla artystów.</span>
           </h2>
         </Reveal>
 

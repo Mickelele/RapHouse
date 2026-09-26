@@ -54,8 +54,8 @@ export function Hero() {
         </div>
 
         <div className="mt-16 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-6 text-[11px] font-semibold uppercase tracking-[0.28em] text-muted-foreground">
-          <span>Warsaw / Poland</span>
-          <span className="hidden md:inline">Recording • Mix • Mastering</span>
+          <span>Warszawa / Polska</span>
+          <span className="hidden md:inline">Nagrania • Mix • Mastering</span>
           <img src={logo} alt="RapHouse" className="h-8 w-auto" />
         </div>
       </div>

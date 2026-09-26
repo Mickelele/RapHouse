@@ -24,7 +24,7 @@ export function Portfolio() {
         <Reveal>
           <p className="eyebrow mb-6">Realizacje</p>
           <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-            What's been <span className="text-primary">made here.</span>
+            Co tu <span className="text-primary">powstało.</span>
           </h2>
         </Reveal>
 

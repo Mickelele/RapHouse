@@ -26,7 +26,7 @@ export function Studio() {
 
         <div className="flex flex-col gap-6 md:col-span-5">
           <Reveal delay={100}>
-            <p className="eyebrow mb-5">The Gear</p>
+            <p className="eyebrow mb-5">Sprzęt</p>
             <h2 className="font-display text-[clamp(2.5rem,6vw,4.5rem)]">
               Sprzęt, który
               <br />
