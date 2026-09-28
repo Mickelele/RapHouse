@@ -45,11 +45,23 @@ export type Project = {
   created_at: string;
 };
 
-export const BEAT_CATEGORIES = [
-  "Bangery / Mroczne",
-  "RnB / Pop / Club / 80s",
-  "Spokojne / Klimatyczne",
-];
+export type BeatCategory = { id: string; name: string; sort_order: number };
+
+export function useBeatCategories() {
+  return useQuery({
+    queryKey: ["beat_categories"],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("beat_categories")
+        .select("id, name, sort_order")
+        .order("sort_order")
+        .order("name");
+      if (error) throw error;
+      return data as BeatCategory[];
+    },
+  });
+}
 
 export function useNews() {
   return useQuery({

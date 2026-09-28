@@ -14,22 +14,34 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { LinkItem } from "@/lib/content";
+import { useBeatCategories, type LinkItem } from "@/lib/content";
 import { MEDIA_BUCKET, supabase } from "@/lib/supabase";
 
 export type Field = {
   name: string;
   label: string;
-  type: "text" | "textarea" | "number" | "url" | "audio" | "image" | "links" | "datetime";
+  type:
+    | "text"
+    | "textarea"
+    | "number"
+    | "url"
+    | "audio"
+    | "image"
+    | "links"
+    | "datetime"
+    | "beat-category";
   required?: boolean;
   placeholder?: string;
   hint?: string;
-  suggestions?: string[];
 };
 
 export type CollectionConfig = {
-  table: "news" | "beats" | "projects";
+  table: "news" | "beats" | "projects" | "beat_categories";
   label: string;
+  // Tabela bez kolumny "published" (np. kategorie).
+  noPublish?: boolean;
+  // Inne zapytania do odświeżenia po zmianie (np. bity po zmianie nazwy kategorii).
+  alsoInvalidate?: string[][];
   fields: Field[];
   orderBy: { column: string; ascending: boolean }[];
   rowTitle: (row: Row) => string;
@@ -60,6 +72,7 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
   const refresh = () => {
     qc.invalidateQueries({ queryKey: key });
     qc.invalidateQueries({ queryKey: [config.table] });
+    for (const k of config.alsoInvalidate ?? []) qc.invalidateQueries({ queryKey: k });
   };
 
   const save = useMutation({
@@ -93,7 +106,7 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
   });
 
   const newRow = (): Row => {
-    const row: Row = { published: true };
+    const row: Row = config.noPublish ? {} : { published: true };
     for (const f of config.fields) row[f.name] = f.type === "links" ? [] : null;
     return row;
   };
@@ -124,18 +137,20 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
               )}
             </div>
             <div className="flex shrink-0 items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                title={row.published ? "Ukryj" : "Opublikuj"}
-                onClick={() => save.mutate({ id: row.id, published: !row.published })}
-              >
-                {row.published ? (
-                  <Eye className="size-4" />
-                ) : (
-                  <EyeOff className="size-4 text-muted-foreground" />
-                )}
-              </Button>
+              {!config.noPublish && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={row.published ? "Ukryj" : "Opublikuj"}
+                  onClick={() => save.mutate({ id: row.id, published: !row.published })}
+                >
+                  {row.published ? (
+                    <Eye className="size-4" />
+                  ) : (
+                    <EyeOff className="size-4 text-muted-foreground" />
+                  )}
+                </Button>
+              )}
               <Button variant="ghost" size="icon" title="Edytuj" onClick={() => setEditing(row)}>
                 <Pencil className="size-4" />
               </Button>
@@ -206,10 +221,12 @@ function EditDialog({
               onChange={(v) => set(f.name, v)}
             />
           ))}
-          <label className="flex items-center gap-3">
-            <Switch checked={!!row.published} onCheckedChange={(v) => set("published", v)} />
-            <span className="text-sm">Opublikowane (widoczne na stronie)</span>
-          </label>
+          {!config.noPublish && (
+            <label className="flex items-center gap-3">
+              <Switch checked={!!row.published} onCheckedChange={(v) => set("published", v)} />
+              <span className="text-sm">Opublikowane (widoczne na stronie)</span>
+            </label>
+          )}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
               Anuluj
@@ -278,26 +295,19 @@ function FieldInput({
     case "links":
       control = <LinksField value={(value as LinkItem[]) ?? []} onChange={onChange} />;
       break;
+    case "beat-category":
+      control = <CategorySelect id={id} value={str} onChange={onChange} />;
+      break;
     default:
       control = (
-        <>
-          <Input
-            id={id}
-            type={field.type === "url" ? "url" : "text"}
-            value={str}
-            required={field.required}
-            placeholder={field.placeholder}
-            list={field.suggestions ? `${id}-list` : undefined}
-            onChange={(e) => onChange(e.target.value || null)}
-          />
-          {field.suggestions && (
-            <datalist id={`${id}-list`}>
-              {field.suggestions.map((s) => (
-                <option key={s} value={s} />
-              ))}
-            </datalist>
-          )}
-        </>
+        <Input
+          id={id}
+          type={field.type === "url" ? "url" : "text"}
+          value={str}
+          required={field.required}
+          placeholder={field.placeholder}
+          onChange={(e) => onChange(e.target.value || null)}
+        />
       );
   }
 
@@ -310,6 +320,33 @@ function FieldInput({
       {control}
       {field.hint && <p className="text-xs text-muted-foreground">{field.hint}</p>}
     </div>
+  );
+}
+
+function CategorySelect({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string | null) => void;
+}) {
+  const { data } = useBeatCategories();
+  return (
+    <select
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value || null)}
+      className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+    >
+      <option value="">— bez kategorii —</option>
+      {data?.map((c) => (
+        <option key={c.id} value={c.name}>
+          {c.name}
+        </option>
+      ))}
+    </select>
   );
 }
 

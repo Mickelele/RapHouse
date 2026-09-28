@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CollectionEditor, type CollectionConfig } from "@/components/admin/CollectionEditor";
-import { BEAT_CATEGORIES } from "@/lib/content";
 import { formatDate } from "@/lib/media";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import logo from "@/assets/raphouse-logo.png";
@@ -66,9 +65,8 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         {
           name: "category",
           label: "Kategoria",
-          type: "text",
-          suggestions: BEAT_CATEGORIES,
-          hint: "Wybierz z listy albo wpisz nową.",
+          type: "beat-category",
+          hint: "Nowe kategorie dodasz w zakładce „Kategorie bitów”.",
         },
         { name: "bpm", label: "BPM", type: "number" },
         { name: "price", label: "Cena", type: "text", placeholder: "np. 400 PLN" },
@@ -82,6 +80,38 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           label: "Kolejność",
           type: "number",
           hint: "Mniejsza liczba = wyżej na liście.",
+        },
+      ],
+    },
+  },
+  {
+    value: "beat_categories",
+    label: "Kategorie bitów",
+    config: {
+      table: "beat_categories",
+      label: "Kategoria bitów",
+      noPublish: true,
+      alsoInvalidate: [["beats"], ["admin", "beats"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "name", ascending: true },
+      ],
+      rowTitle: (r) => r["name"] as string,
+      rowSubtitle: (r) => `Kolejność: ${r["sort_order"]}`,
+      fields: [
+        {
+          name: "name",
+          label: "Nazwa",
+          type: "text",
+          required: true,
+          placeholder: "np. Drill / UK",
+          hint: "Zmiana nazwy przeniesie się na wszystkie bity z tej kategorii.",
+        },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wcześniej na liście filtrów.",
         },
       ],
     },

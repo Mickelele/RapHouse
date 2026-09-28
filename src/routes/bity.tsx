@@ -5,7 +5,7 @@ import { EmptyState, PageLayout } from "@/components/site/PageLayout";
 import { AudioPlayer, LinkList, VideoEmbed } from "@/components/site/Media";
 import { Reveal } from "@/components/site/Reveal";
 import { contact, pricing } from "@/data/raphouse";
-import { useBeats } from "@/lib/content";
+import { useBeatCategories, useBeats } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 const title = "Bity — katalog i bity na zamówienie | RapHouse Warszawa";
@@ -43,12 +43,14 @@ function BeatsPage() {
 
 function Catalog() {
   const { data, isLoading, isError } = useBeats();
+  const { data: allCategories } = useBeatCategories();
   const [category, setCategory] = useState<string | null>(null);
 
-  const categories = useMemo(
-    () => [...new Set((data ?? []).map((b) => b.category).filter(Boolean))] as string[],
-    [data],
-  );
+  // Tylko kategorie, w których są bity — w kolejności ustawionej w panelu.
+  const categories = useMemo(() => {
+    const used = new Set((data ?? []).map((b) => b.category));
+    return (allCategories ?? []).map((c) => c.name).filter((n) => used.has(n));
+  }, [data, allCategories]);
   const beats = (data ?? []).filter((b) => !category || b.category === category);
 
   return (
@@ -61,8 +63,8 @@ function Catalog() {
           </h2>
           <p className="mt-6 max-w-2xl leading-relaxed text-muted-foreground">
             Bity w różnych klimatach, brzmieniach i tempach
-            {price("Bity z katalogu") && <> — w cenach {price("Bity z katalogu")}</>}. Spodobał Ci się
-            któryś? Zadzwoń albo napisz, podając tytuł bitu — wrócimy z finalną wyceną.
+            {price("Bity z katalogu") && <> — w cenach {price("Bity z katalogu")}</>}. Spodobał Ci
+            się któryś? Zadzwoń albo napisz, podając tytuł bitu — wrócimy z finalną wyceną.
           </p>
         </Reveal>
 
