@@ -25,11 +25,11 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-5 md:px-10">
-        <a href="#top" aria-label="RapHouse — strona główna">
+        <a href="/" aria-label="RapHouse — strona główna">
           <img src={logo} alt="RapHouse" className="h-12 w-auto" />
         </a>
 
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-6 xl:gap-8 lg:flex">
           {nav.map((item) => (
             <a
               key={item.href}
@@ -42,7 +42,7 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <a href="#kontakt" className="btn-base btn-accent hidden sm:inline-flex">
+          <a href="/#kontakt" className="btn-base btn-accent hidden sm:inline-flex">
             Rezerwuj sesję
           </a>
           <button

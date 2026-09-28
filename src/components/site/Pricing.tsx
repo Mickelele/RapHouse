@@ -25,7 +25,10 @@ export function Pricing() {
               </div>
               <ul className="mt-8 space-y-2 border-t border-border pt-5">
                 {item.lines.map((line) => (
-                  <li key={line.price + (line.label ?? "")} className="flex items-baseline justify-between gap-4">
+                  <li
+                    key={line.price + (line.label ?? "")}
+                    className="flex items-baseline justify-between gap-4"
+                  >
                     {line.label && (
                       <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                         {line.label}

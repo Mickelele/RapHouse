@@ -31,7 +31,7 @@ export function Services() {
           {services.map((s, i) => (
             <Reveal key={s.no} delay={i * 90}>
               <a
-                href="#kontakt"
+                href={"href" in s ? s.href : "#kontakt"}
                 className="card-surface group flex h-full flex-col justify-between gap-10 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary md:p-10"
               >
                 <div className="flex items-start justify-between gap-6">

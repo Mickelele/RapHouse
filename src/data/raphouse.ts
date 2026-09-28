@@ -12,8 +12,7 @@ export const contact = {
   youtube: "https://www.youtube.com/@RapHousewwa",
   facebook: "https://www.facebook.com/RapHouseWwa",
   maps: "https://www.google.com/maps/search/?api=1&query=RapHouse%20%C5%81ojewska%2022%20Warszawa",
-  mapEmbed:
-    "https://www.google.com/maps?q=%C5%81ojewska%2022,%2003-392%20Warszawa&output=embed",
+  mapEmbed: "https://www.google.com/maps?q=%C5%81ojewska%2022,%2003-392%20Warszawa&output=embed",
 };
 
 export const services = [
@@ -40,6 +39,7 @@ export const services = [
     title: "Bity",
     desc: "Przeglądaj katalog produkcji albo zamów bit tworzony od podstaw pod Twój numer.",
     cta: "Przeglądaj",
+    href: "/bity",
   },
 ];
 
@@ -100,8 +100,16 @@ export const pricing: PriceItem[] = [
 ];
 
 export const process = [
-  { no: "01", title: "Rezerwujesz", desc: "Dzwonisz lub piszesz — ustalamy termin i zakres sesji." },
-  { no: "02", title: "Nagrywasz", desc: "Kabina, Apollo Twin, własny miks słuchawkowy z UAD Console." },
+  {
+    no: "01",
+    title: "Rezerwujesz",
+    desc: "Dzwonisz lub piszesz — ustalamy termin i zakres sesji.",
+  },
+  {
+    no: "02",
+    title: "Nagrywasz",
+    desc: "Kabina, Apollo Twin, własny miks słuchawkowy z UAD Console.",
+  },
   { no: "03", title: "Mixujemy", desc: "Strojenie, efekty, przestrzeń — numer zaczyna brzmieć." },
   { no: "04", title: "Masterujemy", desc: "Głośność, dynamika i spójność na każdym systemie." },
   { no: "05", title: "Publikujesz", desc: "Dostajesz pliki gotowe do wypuszczenia w serwisach." },
@@ -185,10 +193,12 @@ export const stats = [
 ];
 
 export const nav = [
-  { label: "Studio", href: "#studio" },
-  { label: "Oferta", href: "#oferta" },
-  { label: "Cennik", href: "#cennik" },
-  { label: "Realizacje", href: "#realizacje" },
-  { label: "O nas", href: "#o-nas" },
-  { label: "Kontakt", href: "#kontakt" },
+  { label: "Studio", href: "/#studio" },
+  { label: "Oferta", href: "/#oferta" },
+  { label: "Cennik", href: "/#cennik" },
+  { label: "Bity", href: "/bity" },
+  { label: "Realizacje", href: "/#realizacje" },
+  { label: "Aktualności", href: "/aktualnosci" },
+  { label: "O nas", href: "/#o-nas" },
+  { label: "Kontakt", href: "/#kontakt" },
 ];

@@ -48,7 +48,12 @@ export function Footer() {
 
         <div className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
           <span>Warszawa / Polska</span>
-          <span>© {new Date().getFullYear()} RapHouse</span>
+          <span className="flex items-center gap-6">
+            <span>© {new Date().getFullYear()} RapHouse</span>
+            <a href="/admin" className="transition-colors hover:text-foreground">
+              Zaloguj
+            </a>
+          </span>
         </div>
       </div>
     </footer>
