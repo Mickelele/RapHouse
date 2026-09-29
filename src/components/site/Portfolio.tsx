@@ -102,7 +102,11 @@ export function Portfolio() {
                   <p className="text-sm leading-relaxed text-muted-foreground">
                     {track.description}
                   </p>
-                  {track.audio_url ? <AudioPlayer src={track.audio_url} /> : !open && <Waveform />}
+                  {track.audio_url ? (
+                    <AudioPlayer src={track.audio_url} title={track.title} />
+                  ) : (
+                    !open && <Waveform />
+                  )}
                   <LinkList links={track.links} />
                 </div>
               </Reveal>

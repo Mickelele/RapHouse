@@ -1,7 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import type { LinkItem } from "@/lib/content";
 import { toEmbedUrl } from "@/lib/media";
-import { cn } from "@/lib/utils";
 
 export function VideoEmbed({ url, title }: { url: string | null; title: string }) {
   const embed = toEmbedUrl(url);
@@ -20,14 +19,7 @@ export function VideoEmbed({ url, title }: { url: string | null; title: string }
   );
 }
 
-export function AudioPlayer({ src, className }: { src: string | null; className?: string }) {
-  if (!src) return null;
-  return (
-    <audio controls preload="none" src={src} className={cn("w-full", className)}>
-      Twoja przeglądarka nie obsługuje odtwarzania audio.
-    </audio>
-  );
-}
+export { AudioPlayer } from "./AudioPlayer";
 
 export function LinkList({ links }: { links: LinkItem[] | null | undefined }) {
   const items = (links ?? []).filter((l) => l.url);

@@ -132,7 +132,7 @@ function Catalog() {
                         {beat.description}
                       </p>
                     )}
-                    <AudioPlayer src={beat.audio_url} />
+                    <AudioPlayer src={beat.audio_url} title={beat.title} />
                     <VideoEmbed url={beat.video_url} title={beat.title} />
                     <LinkList links={beat.links} />
                     <a
