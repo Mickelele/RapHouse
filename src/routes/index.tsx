@@ -8,6 +8,8 @@ import { Pricing } from "@/components/site/Pricing";
 import { Process } from "@/components/site/Process";
 import { Studio } from "@/components/site/Studio";
 import { Portfolio } from "@/components/site/Portfolio";
+import { LatestBeats } from "@/components/site/LatestBeats";
+import { LatestNews } from "@/components/site/LatestNews";
 import { Community } from "@/components/site/Community";
 import { About } from "@/components/site/About";
 import { Contact } from "@/components/site/Contact";
@@ -42,9 +44,11 @@ function Index() {
         <Marquee />
         <Services />
         <Pricing />
+        <LatestBeats />
         <Process />
         <Studio />
         <Portfolio />
+        <LatestNews />
         <Community />
         <About />
         <Contact />

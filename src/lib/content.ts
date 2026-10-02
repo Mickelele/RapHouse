@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { pricing as staticPricing, type PriceItem } from "@/data/raphouse";
 import { supabase } from "./supabase";
 
 export type LinkItem = { label: string; url: string };
@@ -11,6 +12,7 @@ export type NewsPost = {
   video_url: string | null;
   links: LinkItem[];
   published: boolean;
+  pinned: boolean;
   published_at: string;
   created_at: string;
 };
@@ -72,6 +74,7 @@ export function useNews() {
         .from("news")
         .select("*")
         .eq("published", true)
+        .order("pinned", { ascending: false })
         .order("published_at", { ascending: false });
       if (error) throw error;
       return data as NewsPost[];
@@ -111,4 +114,45 @@ export function useProjects() {
       return data as Project[];
     },
   });
+}
+
+// Najnowsze bity (po dacie dodania) — sekcja na stronie głównej.
+export function useLatestBeats(limit = 3) {
+  return useQuery({
+    queryKey: ["beats", "latest", limit],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("beats")
+        .select("*")
+        .eq("published", true)
+        .order("created_at", { ascending: false })
+        // Bity wgrane jednym zapytaniem mają tę samą datę — wtedy rozstrzyga kolejność.
+        .order("sort_order", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return data as Beat[];
+    },
+  });
+}
+
+type PricingRow = PriceItem & { id: string };
+
+// Cennik z bazy; dopóki baza nie odpowie (albo jest pusta), statyczny z data/raphouse.ts.
+export function usePricing(): PriceItem[] {
+  const { data } = useQuery({
+    queryKey: ["pricing"],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("pricing")
+        .select("id, title, note, lines")
+        .eq("published", true)
+        .order("sort_order")
+        .order("created_at");
+      if (error) throw error;
+      return data as PricingRow[];
+    },
+  });
+  return data?.length ? data : staticPricing;
 }

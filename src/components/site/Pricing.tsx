@@ -1,7 +1,8 @@
-import { pricing } from "@/data/raphouse";
+import { usePricing } from "@/lib/content";
 import { Reveal } from "./Reveal";
 
 export function Pricing() {
+  const pricing = usePricing();
   return (
     <section id="cennik" className="mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-32">
       <Reveal>
@@ -13,9 +14,14 @@ export function Pricing() {
         </h2>
       </Reveal>
 
-      <div className="mt-14 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {/* Flex zamiast grida: ostatni rząd rozciąga się na całą szerokość niezależnie od liczby kart. */}
+      <div className="mt-14 flex flex-wrap gap-4">
         {pricing.map((item, i) => (
-          <Reveal key={item.title} delay={(i % 4) * 80}>
+          <Reveal
+            key={item.title}
+            delay={(i % 4) * 80}
+            className="grow basis-full md:basis-[calc(50%-0.5rem)] xl:basis-[calc(25%-0.75rem)]"
+          >
             <div className="card-surface flex h-full flex-col justify-between p-7 transition-colors duration-300 hover:border-primary">
               <div>
                 <h3 className="font-display text-2xl">{item.title}</h3>

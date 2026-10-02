@@ -43,14 +43,18 @@
   --font-display-family: "Anton", "Arial Black", sans-serif;
   --font-body-family: "Barlow", system-ui, sans-serif;
 
+  /* Kolor marki — zmień tutaj, a zmieni się w całej stronie. Zielony ze starej raphouse.pl. */
+  --brand: #8cc53f;
+  --brand-foreground: oklch(0.14 0.005 285);
+
   --background: oklch(0.14 0.005 285);
   --foreground: oklch(0.96 0.005 90);
   --card: oklch(0.18 0.006 285);
   --card-foreground: oklch(0.96 0.005 90);
   --popover: oklch(0.18 0.006 285);
   --popover-foreground: oklch(0.96 0.005 90);
-  --primary: oklch(0.58 0.235 27.5);
-  --primary-foreground: oklch(0.98 0.005 90);
+  --primary: var(--brand);
+  --primary-foreground: var(--brand-foreground);
   --secondary: oklch(0.24 0.006 285);
   --secondary-foreground: oklch(0.96 0.005 90);
   --muted: oklch(0.22 0.005 285);
@@ -61,7 +65,7 @@
   --destructive-foreground: oklch(0.98 0.005 90);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.58 0.235 27.5);
+  --ring: var(--brand);
 
   --surface-deep: oklch(0.1 0.004 285);
   --gradient-fade: linear-gradient(
@@ -73,7 +77,7 @@
   --gradient-accent: linear-gradient(
     135deg,
     var(--primary),
-    color-mix(in oklab, var(--primary) 60%, oklch(0.35 0.12 15))
+    color-mix(in oklab, var(--primary) 65%, oklch(0.42 0.12 140))
   );
   --shadow-accent: 0 20px 60px -20px color-mix(in oklab, var(--primary) 55%, transparent);
   --shadow-card: 0 24px 60px -30px oklch(0 0 0 / 80%);

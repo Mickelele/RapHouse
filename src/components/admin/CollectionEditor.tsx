@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, EyeOff, Loader2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
+import { Eye, EyeOff, Loader2, Pencil, Pin, PinOff, Plus, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,8 @@ export type Field = {
     | "image"
     | "links"
     | "datetime"
+    | "boolean"
+    | "price-lines"
     | "beat-category";
   required?: boolean;
   placeholder?: string;
@@ -36,12 +38,14 @@ export type Field = {
 };
 
 export type CollectionConfig = {
-  table: "news" | "beats" | "projects" | "beat_categories";
+  table: "news" | "beats" | "projects" | "beat_categories" | "pricing";
   label: string;
   // Tabela bez kolumny "published" (np. kategorie).
   noPublish?: boolean;
   // Inne zapytania do odświeżenia po zmianie (np. bity po zmianie nazwy kategorii).
   alsoInvalidate?: string[][];
+  // Wpisy można przypinać (kolumna "pinned"; baza pilnuje, by przypięty był najwyżej jeden).
+  pinnable?: boolean;
   fields: Field[];
   orderBy: { column: string; ascending: boolean }[];
   rowTitle: (row: Row) => string;
@@ -51,7 +55,17 @@ export type CollectionConfig = {
 type Row = Record<string, unknown> & { id?: string | undefined; published?: boolean | undefined };
 
 // Kolumny NOT NULL z wartością domyślną w bazie — pustych nie wysyłamy.
-const NOT_NULL = new Set(["published_at", "sort_order", "body", "description", "links"]);
+const NOT_NULL = new Set([
+  "published_at",
+  "sort_order",
+  "body",
+  "description",
+  "links",
+  "lines",
+  "pinned",
+]);
+
+type PriceLine = { label: string; price: string };
 
 export function CollectionEditor({ config }: { config: CollectionConfig }) {
   const qc = useQueryClient();
@@ -80,6 +94,11 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
       const { id, created_at: _c, ...values } = row;
       for (const k of Object.keys(values))
         if (values[k] == null && NOT_NULL.has(k)) delete values[k];
+      // Puste wiersze linków / cen nie trafiają do bazy.
+      if (Array.isArray(values["links"]))
+        values["links"] = (values["links"] as LinkItem[]).filter((l) => l.url.trim());
+      if (Array.isArray(values["lines"]))
+        values["lines"] = (values["lines"] as PriceLine[]).filter((l) => l.price.trim());
       const res = id
         ? await supabase!.from(config.table).update(values).eq("id", id)
         : await supabase!.from(config.table).insert(values);
@@ -107,7 +126,15 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
 
   const newRow = (): Row => {
     const row: Row = config.noPublish ? {} : { published: true };
-    for (const f of config.fields) row[f.name] = f.type === "links" ? [] : null;
+    for (const f of config.fields)
+      row[f.name] =
+        f.type === "links"
+          ? []
+          : f.type === "price-lines"
+            ? [{ label: "", price: "" }]
+            : f.type === "boolean"
+              ? false
+              : null;
     return row;
   };
 
@@ -131,12 +158,33 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
             className="card-surface flex items-center justify-between gap-4 px-5 py-4"
           >
             <div className="min-w-0">
-              <p className="truncate font-semibold">{config.rowTitle(row)}</p>
+              <p className="flex items-center gap-2 font-semibold">
+                {config.pinnable && row["pinned"] === true && (
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
+                    <Pin className="size-3" /> Przypięte
+                  </span>
+                )}
+                <span className="truncate">{config.rowTitle(row)}</span>
+              </p>
               {config.rowSubtitle && (
                 <p className="truncate text-sm text-muted-foreground">{config.rowSubtitle(row)}</p>
               )}
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              {config.pinnable && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={row["pinned"] ? "Odepnij" : "Przypnij na stronie głównej"}
+                  onClick={() => save.mutate({ id: row.id, pinned: !row["pinned"] })}
+                >
+                  {row["pinned"] ? (
+                    <PinOff className="size-4 text-primary" />
+                  ) : (
+                    <Pin className="size-4 text-muted-foreground" />
+                  )}
+                </Button>
+              )}
               {!config.noPublish && (
                 <Button
                   variant="ghost"
@@ -295,6 +343,17 @@ function FieldInput({
     case "links":
       control = <LinksField value={(value as LinkItem[]) ?? []} onChange={onChange} />;
       break;
+    case "boolean":
+      return (
+        <label className="flex items-center gap-3">
+          <Switch id={id} checked={value === true} onCheckedChange={(v) => onChange(v)} />
+          <span className="text-sm">{field.label}</span>
+          {field.hint && <span className="text-xs text-muted-foreground">{field.hint}</span>}
+        </label>
+      );
+    case "price-lines":
+      control = <PriceLinesField value={(value as PriceLine[]) ?? []} onChange={onChange} />;
+      break;
     case "beat-category":
       control = <CategorySelect id={id} value={str} onChange={onChange} />;
       break;
@@ -423,6 +482,54 @@ function FileField({
         ) : (
           <img src={value} alt="" className="h-32 w-fit rounded-md object-cover" />
         ))}
+    </div>
+  );
+}
+
+function PriceLinesField({
+  value,
+  onChange,
+}: {
+  value: PriceLine[];
+  onChange: (v: PriceLine[]) => void;
+}) {
+  const update = (i: number, patch: Partial<PriceLine>) =>
+    onChange(value.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+
+  return (
+    <div className="flex flex-col gap-2">
+      {value.map((l, i) => (
+        <div key={i} className="flex gap-2">
+          <Input
+            className="w-1/2"
+            placeholder="Opis (np. 1h – 2h) — opcjonalnie"
+            value={l.label ?? ""}
+            onChange={(e) => update(i, { label: e.target.value })}
+          />
+          <Input
+            placeholder="Cena (np. 120 PLN/h)"
+            value={l.price}
+            onChange={(e) => update(i, { price: e.target.value })}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => onChange(value.filter((_, j) => j !== i))}
+          >
+            <X className="size-4" />
+          </Button>
+        </div>
+      ))}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="w-fit"
+        onClick={() => onChange([...value, { label: "", price: "" }])}
+      >
+        <Plus className="size-4" /> Dodaj wariant ceny
+      </Button>
     </div>
   );
 }

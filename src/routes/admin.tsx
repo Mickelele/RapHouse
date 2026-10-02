@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Session } from "@supabase/supabase-js";
-import { Loader2, LogOut } from "lucide-react";
+import { Clock, Loader2, LogOut } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CollectionEditor, type CollectionConfig } from "@/components/admin/CollectionEditor";
+import {
+  clearLogoutReason,
+  resetActivity,
+  takeLogoutReason,
+  useIdleLogout,
+} from "@/components/admin/useIdleLogout";
 import { formatDate } from "@/lib/media";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import logo from "@/assets/raphouse-logo.png";
@@ -29,7 +35,11 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "news",
       label: "Aktualność",
-      orderBy: [{ column: "published_at", ascending: false }],
+      pinnable: true,
+      orderBy: [
+        { column: "pinned", ascending: false },
+        { column: "published_at", ascending: false },
+      ],
       rowTitle: (r) => r["title"] as string,
       rowSubtitle: (r) => formatDate(r["published_at"] as string),
       fields: [
@@ -43,6 +53,12 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           label: "Data publikacji",
           type: "datetime",
           hint: "Puste = teraz.",
+        },
+        {
+          name: "pinned",
+          label: "Przypnij na stronie głównej",
+          type: "boolean",
+          hint: "Poprzednio przypięta zostanie odpięta.",
         },
       ],
     },
@@ -117,6 +133,40 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     },
   },
   {
+    value: "pricing",
+    label: "Cennik",
+    config: {
+      table: "pricing",
+      label: "Pozycja cennika",
+      alsoInvalidate: [["pricing"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: true },
+      ],
+      rowTitle: (r) => r["title"] as string,
+      rowSubtitle: (r) =>
+        ((r["lines"] as { label?: string; price: string }[]) ?? [])
+          .map((l) => (l.label ? `${l.label}: ${l.price}` : l.price))
+          .join(" · "),
+      fields: [
+        { name: "title", label: "Nazwa usługi", type: "text", required: true },
+        { name: "note", label: "Opis", type: "textarea" },
+        {
+          name: "lines",
+          label: "Ceny",
+          type: "price-lines",
+          hint: "Jedna cena albo kilka wariantów (np. 1h – 2h: 120 PLN/h). Pozycje „Bity z katalogu” i „Bit na zamówienie” pokazują się też na stronie /bity.",
+        },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wcześniej w cenniku.",
+        },
+      ],
+    },
+  },
+  {
     value: "projects",
     label: "Realizacje",
     config: {
@@ -166,6 +216,13 @@ function AdminPage() {
     supabase!.rpc("is_admin").then(({ data }) => setIsAdmin(!!data));
   }, [session]);
 
+  const { secondsLeft, stayLoggedIn } = useIdleLogout(!!session && isAdmin === true);
+
+  const signOut = () => {
+    clearLogoutReason();
+    void supabase!.auth.signOut();
+  };
+
   let content: React.ReactNode;
   if (!isSupabaseConfigured) {
     content = (
@@ -182,7 +239,7 @@ function AdminPage() {
     content = (
       <Notice>
         Konto {session.user.email} nie ma uprawnień administratora.
-        <Button variant="outline" className="mt-6" onClick={() => supabase!.auth.signOut()}>
+        <Button variant="outline" className="mt-6" onClick={signOut}>
           Wyloguj
         </Button>
       </Notice>
@@ -215,14 +272,40 @@ function AdminPage() {
             <span className="eyebrow">Panel admina</span>
           </a>
           {session && (
-            <Button variant="ghost" size="sm" onClick={() => supabase!.auth.signOut()}>
+            <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="size-4" /> Wyloguj
             </Button>
           )}
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-5 py-12">{content}</main>
+      {secondsLeft !== null && <IdleWarning seconds={secondsLeft} onStay={stayLoggedIn} />}
       <Toaster />
+    </div>
+  );
+}
+
+function IdleWarning({ seconds, onStay }: { seconds: number; onStay: () => void }) {
+  return (
+    <div
+      role="alertdialog"
+      aria-labelledby="idle-title"
+      aria-describedby="idle-desc"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm"
+    >
+      <div className="card-surface flex w-full max-w-sm flex-col items-center gap-5 p-8 text-center">
+        <Clock className="size-8 text-primary" />
+        <h2 id="idle-title" className="font-display text-3xl">
+          Jesteś tam?
+        </h2>
+        <p id="idle-desc" className="text-muted-foreground">
+          Z powodu braku aktywności wylogujemy Cię za{" "}
+          <span className="font-semibold tabular-nums text-foreground">{seconds} s</span>.
+        </p>
+        <Button autoFocus onClick={onStay} className="w-full">
+          Zostań zalogowany
+        </Button>
+      </div>
     </div>
   );
 }
@@ -240,6 +323,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [notice] = useState(takeLogoutReason);
 
   return (
     <form
@@ -248,12 +332,22 @@ function LoginForm() {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        resetActivity();
         const { error } = await supabase!.auth.signInWithPassword({ email, password });
         setLoading(false);
         if (error) setError("Nieprawidłowy email lub hasło.");
+        else clearLogoutReason();
       }}
     >
       <h1 className="font-display text-4xl">Zaloguj się</h1>
+      {notice && (
+        <p
+          role="status"
+          className="rounded border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-foreground"
+        >
+          {notice}
+        </p>
+      )}
       <div className="flex flex-col gap-2">
         <Label htmlFor="email">Email</Label>
         <Input

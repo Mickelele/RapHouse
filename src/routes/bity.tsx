@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
 import { EmptyState, PageLayout } from "@/components/site/PageLayout";
-import { AudioPlayer, LinkList, VideoEmbed } from "@/components/site/Media";
+import { BeatCard } from "@/components/site/BeatCard";
 import { Reveal } from "@/components/site/Reveal";
-import { contact, pricing } from "@/data/raphouse";
-import { useBeatCategories, useBeats } from "@/lib/content";
+import { contact } from "@/data/raphouse";
+import { useBeatCategories, useBeats, usePricing } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 const title = "Bity — katalog i bity na zamówienie | RapHouse Warszawa";
@@ -24,7 +23,10 @@ export const Route = createFileRoute("/bity")({
   component: BeatsPage,
 });
 
-const price = (name: string) => pricing.find((p) => p.title === name)?.lines[0]?.price;
+// Cena z cennika (edytowalnego w panelu) po tytule pozycji.
+function usePrice(name: string) {
+  return usePricing().find((p) => p.title === name)?.lines[0]?.price;
+}
 
 function BeatsPage() {
   return (
@@ -43,6 +45,7 @@ function BeatsPage() {
 
 function Catalog() {
   const { data, isLoading, isError } = useBeats();
+  const catalogPrice = usePrice("Bity z katalogu");
   const { data: allCategories } = useBeatCategories();
   const [category, setCategory] = useState<string | null>(null);
 
@@ -63,8 +66,8 @@ function Catalog() {
           </h2>
           <p className="mt-6 max-w-2xl leading-relaxed text-muted-foreground">
             Bity w różnych klimatach, brzmieniach i tempach
-            {price("Bity z katalogu") && <> — w cenach {price("Bity z katalogu")}</>}. Spodobał Ci
-            się któryś? Zadzwoń albo napisz, podając tytuł bitu — wrócimy z finalną wyceną.
+            {catalogPrice && <> — w cenach {catalogPrice}</>}. Spodobał Ci się któryś? Zadzwoń albo
+            napisz, podając tytuł bitu — wrócimy z finalną wyceną.
           </p>
         </Reveal>
 
@@ -104,44 +107,7 @@ function Catalog() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {beats.map((beat, i) => (
                 <Reveal key={beat.id} delay={(i % 3) * 80}>
-                  <article className="card-surface flex h-full flex-col gap-5 p-6">
-                    <div className="flex gap-4">
-                      {beat.image_url && (
-                        <img
-                          src={beat.image_url}
-                          alt={beat.title}
-                          loading="lazy"
-                          className="size-20 shrink-0 rounded-md object-cover"
-                        />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        {beat.category && (
-                          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
-                            {beat.category}
-                          </p>
-                        )}
-                        <h3 className="font-display mt-2 text-2xl leading-tight">{beat.title}</h3>
-                        <p className="mt-2 flex flex-wrap gap-x-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                          {beat.bpm && <span>{beat.bpm} BPM</span>}
-                          {beat.price && <span className="text-foreground">{beat.price}</span>}
-                        </p>
-                      </div>
-                    </div>
-                    {beat.description && (
-                      <p className="text-sm leading-relaxed text-muted-foreground">
-                        {beat.description}
-                      </p>
-                    )}
-                    <AudioPlayer src={beat.audio_url} title={beat.title} />
-                    <VideoEmbed url={beat.video_url} title={beat.title} />
-                    <LinkList links={beat.links} />
-                    <a
-                      href={contact.phoneHref}
-                      className="mt-auto inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary"
-                    >
-                      Zapytaj o ten bit <ArrowRight className="size-4" />
-                    </a>
-                  </article>
+                  <BeatCard beat={beat} />
                 </Reveal>
               ))}
             </div>
@@ -153,47 +119,31 @@ function Catalog() {
 }
 
 function CustomBeat() {
+  const customPrice = usePrice("Bit na zamówienie");
   return (
     <section id="na-zamowienie" className="mx-auto max-w-[1400px] px-5 py-20 md:px-10 md:py-28">
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Reveal>
-          <div className="card-surface flex h-full flex-col justify-between gap-8 p-8 md:p-10">
-            <div>
-              <p className="eyebrow">Bit na zamówienie</p>
-              <h2 className="font-display mt-4 text-4xl md:text-5xl">
-                Od zera, <span className="text-primary">pod Ciebie.</span>
-              </h2>
-              <p className="mt-6 leading-relaxed text-muted-foreground">
-                Producent tworzy bit od podstaw — pod Twój numer, klimat, tempo, a nawet pod gotową
-                acapellę. Masz realny wpływ na każdy element brzmienia.
-              </p>
-            </div>
-            <p className="font-display text-4xl text-primary">{price("Bit na zamówienie")}</p>
+      <Reveal>
+        <div className="card-surface grid gap-10 p-8 md:p-12 lg:grid-cols-[1.4fr_1fr] lg:items-end">
+          <div>
+            <p className="eyebrow">Bit na zamówienie</p>
+            <h2 className="font-display mt-4 text-4xl md:text-6xl">
+              Od zera, <span className="text-primary">pod Ciebie.</span>
+            </h2>
+            <p className="mt-6 max-w-xl leading-relaxed text-muted-foreground">
+              Producent tworzy bit od podstaw — pod Twój numer, klimat, tempo, a nawet pod gotową
+              acapellę. Masz realny wpływ na każdy element brzmienia.
+            </p>
           </div>
-        </Reveal>
-        <Reveal delay={90}>
-          <div className="card-surface flex h-full flex-col justify-between gap-8 p-8 md:p-10">
-            <div>
-              <p className="eyebrow">Spotkanie z producentem</p>
-              <h2 className="font-display mt-4 text-4xl md:text-5xl">
-                Siądź <span className="text-primary">za konsolą.</span>
-              </h2>
-              <p className="mt-6 leading-relaxed text-muted-foreground">
-                Pracujesz razem z producentem nad docelowym brzmieniem bitu i przy okazji
-                podpatrujesz techniki produkcji.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <p className="font-display text-4xl text-primary">
-                {price("Spotkanie z producentem")}
-              </p>
-              <a href={contact.phoneHref} className="btn-base btn-accent">
-                Zadzwoń
-              </a>
-            </div>
+          <div className="flex flex-wrap items-center justify-between gap-6 lg:flex-col lg:items-end">
+            {customPrice && (
+              <p className="font-display text-4xl text-primary md:text-5xl">{customPrice}</p>
+            )}
+            <a href={contact.phoneHref} className="btn-base btn-accent">
+              Zadzwoń i zamów
+            </a>
           </div>
-        </Reveal>
-      </div>
+        </div>
+      </Reveal>
     </section>
   );
 }

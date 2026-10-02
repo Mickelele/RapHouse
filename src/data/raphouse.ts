@@ -1,5 +1,6 @@
 // Jedyne miejsce do aktualizacji treści i cen RapHouse.
-// Ceny pochodzą z aktualnego cennika raphouse.pl.
+// Ceny pochodzą z aktualnego cennika raphouse.pl. Cennik jest edytowalny w panelu admina —
+// poniższa lista to tylko zapas, gdy baza danych jest niedostępna.
 
 export const contact = {
   name: "RapHouse",
@@ -45,8 +46,8 @@ export const services = [
 
 export type PriceItem = {
   title: string;
-  note?: string;
-  lines: { label?: string; price: string }[];
+  note?: string | null;
+  lines: { label?: string | null; price: string }[];
 };
 
 export const pricing: PriceItem[] = [
@@ -91,11 +92,6 @@ export const pricing: PriceItem[] = [
     title: "Bit na zamówienie",
     note: "Producent tworzy bit od podstaw, również pod konkretną acapellę.",
     lines: [{ price: "400 – 750 PLN" }],
-  },
-  {
-    title: "Spotkanie z producentem",
-    note: "Realny wpływ na docelowe brzmienie bitu i garść technik produkcji.",
-    lines: [{ price: "250 PLN/h" }],
   },
 ];
 

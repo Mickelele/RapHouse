@@ -76,6 +76,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
+      { name: "theme-color", content: "#0d0d10" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "RapHouse — studio nagrań Warszawa" },
       { name: "description", content: "Studio nagrań rap i hip-hop w Warszawie." },
@@ -93,7 +94,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico?v=2", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico?v=3", sizes: "16x16 32x32 48x48" },
+      { rel: "icon", href: "/favicon-32.png?v=3", type: "image/png", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png?v=3", sizes: "180x180" },
     ],
   }),
   shellComponent: RootShell,

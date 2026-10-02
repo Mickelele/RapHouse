@@ -1,9 +1,12 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Pin } from "lucide-react";
 import { EmptyState, PageLayout } from "@/components/site/PageLayout";
 import { LinkList, VideoEmbed } from "@/components/site/Media";
 import { Reveal } from "@/components/site/Reveal";
 import { useNews } from "@/lib/content";
 import { formatDate } from "@/lib/media";
+import { cn } from "@/lib/utils";
 
 const title = "Aktualności — RapHouse, studio nagrań Warszawa";
 const description = "Nowości ze studia RapHouse: premiery, sesje, transmisje i wydarzenia.";
@@ -23,6 +26,12 @@ export const Route = createFileRoute("/aktualnosci")({
 function NewsPage() {
   const { data, isLoading, isError } = useNews();
 
+  // Wpisy dochodzą z bazy po załadowaniu strony, więc #kotwicę trzeba przewinąć ręcznie.
+  useEffect(() => {
+    if (!data?.length || !location.hash) return;
+    document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+  }, [data]);
+
   return (
     <PageLayout
       eyebrow="Aktualności"
@@ -41,8 +50,19 @@ function NewsPage() {
           <div className="flex flex-col gap-6">
             {data.map((post) => (
               <Reveal key={post.id}>
-                <article className="card-surface flex flex-col gap-6 p-7 md:p-10">
+                <article
+                  id={post.id}
+                  className={cn(
+                    "card-surface flex scroll-mt-28 flex-col gap-6 p-7 md:p-10",
+                    post.pinned && "border-primary/50",
+                  )}
+                >
                   <header>
+                    {post.pinned && (
+                      <span className="mr-3 inline-flex items-center align-middle gap-1.5 rounded bg-primary px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-primary-foreground">
+                        <Pin className="size-3.5" /> Przypięte
+                      </span>
+                    )}
                     <time
                       dateTime={post.published_at}
                       className="text-xs font-bold uppercase tracking-[0.22em] text-primary"
