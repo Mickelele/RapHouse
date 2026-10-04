@@ -97,6 +97,8 @@ export type PriceItem = {
   title: string;
   note?: string | null;
   lines: { label?: string | null; price: string }[];
+  // Znacznik pozycji czekającej na dane od klienta (nie jest wyświetlany).
+  todo?: string;
 };
 
 export const pricing: PriceItem[] = [
@@ -142,7 +144,31 @@ export const pricing: PriceItem[] = [
     note: "Producent tworzy bit od podstaw, również pod konkretną acapellę.",
     lines: [{ price: "400 – 750 PLN" }],
   },
+  {
+    title: "Klipy",
+    note: "Realizacja teledysku — koncepcja, zdjęcia, montaż.",
+    lines: [{ price: "Wycena indywidualna" }],
+    todo: "TODO: cena klipów od klienta",
+  },
+  {
+    title: "Promo + opakowanie",
+    note: "Rolki, sesja foto, opisy, okładka, miniaturka, strategia publikacji, dystrybucja.",
+    lines: [{ price: "Wycena indywidualna" }],
+    todo: "TODO: cena pakietu promo od klienta",
+  },
+  {
+    title: "Pisanie tekstów",
+    note: "Pomoc przy tekstach lub ghostwriting.",
+    lines: [{ price: "Wycena indywidualna" }],
+    todo: "TODO: cena pisania tekstów od klienta",
+  },
 ];
+
+// Dopisek pod cennikiem.
+export const pricingFootnote = {
+  text: "Dokładna wycena mixu/masteringu następuje po otrzymaniu plików i referencji — cena zaczyna się od",
+  price: "350 PLN",
+};
 
 export const process = [
   {
