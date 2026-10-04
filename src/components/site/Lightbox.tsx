@@ -92,7 +92,7 @@ export function Lightbox({
         onClick={(e) => e.target === e.currentTarget && onClose()}
       >
         <img
-          key={img.file}
+          key={img.id}
           src={gallerySrc(img, 1280)}
           srcSet={gallerySrcSet(img)}
           sizes="100vw"

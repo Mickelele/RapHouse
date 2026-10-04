@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { galleryImages } from "@/data/gallery";
+import { useGalleryImages } from "@/lib/content";
 import { GalleryGrid } from "./GalleryGrid";
 import { Reveal } from "./Reveal";
 
@@ -7,6 +7,7 @@ const TEASER_COUNT = 4;
 
 // Zajawka galerii na stronie głównej — kilka zdjęć pod sekcją sprzętu.
 export function GalleryTeaser() {
+  const galleryImages = useGalleryImages();
   if (!galleryImages.length) return null;
   return (
     <section id="galeria" className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">

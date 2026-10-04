@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Eye, EyeOff, Loader2, Pencil, Pin, PinOff, Plus, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useBeatCategories, type LinkItem } from "@/lib/content";
+import { uploadGalleryImage } from "@/lib/gallery-upload";
 import { MEDIA_BUCKET, supabase } from "@/lib/supabase";
 
 export type Field = {
@@ -33,7 +34,9 @@ export type Field = {
     | "price-lines"
     | "beat-category"
     | "select"
-    | "date";
+    | "date"
+    // Zdjęcie galerii: wgrywa WebP 640/1280 i ustawia src_640, src_1280, width, height.
+    | "gallery-image";
   required?: boolean;
   // Dla type "select" — pierwsza opcja jest domyślna przy nowym wpisie.
   options?: { value: string; label: string }[];
@@ -42,7 +45,7 @@ export type Field = {
 };
 
 export type CollectionConfig = {
-  table: "news" | "beats" | "projects" | "beat_categories" | "pricing";
+  table: "news" | "beats" | "projects" | "beat_categories" | "pricing" | "gear" | "gallery_images";
   label: string;
   // Tabela bez kolumny "published" (np. kategorie).
   noPublish?: boolean;
@@ -50,13 +53,24 @@ export type CollectionConfig = {
   alsoInvalidate?: string[][];
   // Wpisy można przypinać (kolumna "pinned"; baza pilnuje, by przypięty był najwyżej jeden).
   pinnable?: boolean;
+  // Zakładka pokazuje tylko wpisy z tą wartością kolumny; nowe wpisy dostają ją automatycznie.
+  filter?: { column: string; value: string };
+  // Dodatkowe przyciski nad listą (np. wgrywanie wielu zdjęć naraz).
+  toolbar?: (refresh: () => void) => ReactNode;
+  // Sprzątanie po usunięciu wpisu (np. pliki zdjęć w storage).
+  onDelete?: (row: Row) => Promise<void>;
+  // Miniatura na liście wpisów.
+  rowImage?: (row: Row) => string | null;
   fields: Field[];
   orderBy: { column: string; ascending: boolean }[];
   rowTitle: (row: Row) => string;
   rowSubtitle?: (row: Row) => string;
 };
 
-type Row = Record<string, unknown> & { id?: string | undefined; published?: boolean | undefined };
+export type Row = Record<string, unknown> & {
+  id?: string | undefined;
+  published?: boolean | undefined;
+};
 
 // Kolumny NOT NULL z wartością domyślną w bazie — pustych nie wysyłamy.
 const NOT_NULL = new Set([
@@ -80,6 +94,7 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
     queryKey: key,
     queryFn: async () => {
       let q = supabase!.from(config.table).select("*");
+      if (config.filter) q = q.eq(config.filter.column, config.filter.value);
       for (const o of config.orderBy) q = q.order(o.column, { ascending: o.ascending });
       const { data, error } = await q;
       if (error) throw error;
@@ -117,9 +132,10 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
   });
 
   const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase!.from(config.table).delete().eq("id", id);
+    mutationFn: async (row: Row) => {
+      const { error } = await supabase!.from(config.table).delete().eq("id", row.id!);
       if (error) throw error;
+      await config.onDelete?.(row);
     },
     onSuccess: () => {
       toast.success("Usunięto");
@@ -141,6 +157,7 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
               : f.type === "select"
                 ? (f.options?.[0]?.value ?? null)
                 : null;
+    if (config.filter) row[config.filter.column] = config.filter.value;
     return row;
   };
 
@@ -150,9 +167,12 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
         <p className="text-sm text-muted-foreground">
           {data ? `${data.length} wpisów` : isLoading ? "Ładowanie…" : ""}
         </p>
-        <Button onClick={() => setEditing(newRow())}>
-          <Plus className="size-4" /> Dodaj
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          {config.toolbar?.(refresh)}
+          <Button onClick={() => setEditing(newRow())}>
+            <Plus className="size-4" /> Dodaj
+          </Button>
+        </div>
       </div>
 
       {error && <p className="text-destructive">Błąd: {(error as Error).message}</p>}
@@ -163,7 +183,15 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
             key={row.id}
             className="card-surface flex items-center justify-between gap-4 px-5 py-4"
           >
-            <div className="min-w-0">
+            {config.rowImage?.(row) && (
+              <img
+                src={config.rowImage(row)!}
+                alt=""
+                loading="lazy"
+                className="size-14 shrink-0 rounded object-cover"
+              />
+            )}
+            <div className="min-w-0 flex-1">
               <p className="flex items-center gap-2 font-semibold">
                 {config.pinnable && row["pinned"] === true && (
                   <span className="inline-flex shrink-0 items-center gap-1 rounded bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
@@ -213,7 +241,7 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
                 size="icon"
                 title="Usuń"
                 onClick={() => {
-                  if (confirm(`Usunąć „${config.rowTitle(row)}”?`)) remove.mutate(row.id!);
+                  if (confirm(`Usunąć „${config.rowTitle(row)}”?`)) remove.mutate(row);
                 }}
               >
                 <Trash2 className="size-4 text-destructive" />
@@ -264,6 +292,14 @@ function EditDialog({
           className="flex flex-col gap-5"
           onSubmit={(e) => {
             e.preventDefault();
+            // Pola z plikiem nie mają natywnej walidacji "required".
+            const missing = config.fields.find(
+              (f) => f.required && f.type === "gallery-image" && !row[f.name],
+            );
+            if (missing) {
+              toast.error(`Uzupełnij pole „${missing.label}”.`);
+              return;
+            }
             onSave(row);
           }}
         >
@@ -272,7 +308,11 @@ function EditDialog({
               key={f.name}
               field={f}
               value={row[f.name]}
-              onChange={(v) => set(f.name, v)}
+              onChange={(v) =>
+                f.type === "gallery-image"
+                  ? setRow((r) => ({ ...r, ...(v as Partial<Row>) }))
+                  : set(f.name, v)
+              }
             />
           ))}
           {!config.noPublish && (
@@ -369,6 +409,9 @@ function FieldInput({
       control = (
         <Input id={id} type="date" value={str} onChange={(e) => onChange(e.target.value || null)} />
       );
+      break;
+    case "gallery-image":
+      control = <GalleryImageField id={id} value={str} onChange={onChange} />;
       break;
     case "boolean":
       return (
@@ -509,6 +552,53 @@ function FileField({
         ) : (
           <img src={value} alt="" className="h-32 w-fit rounded-md object-cover" />
         ))}
+    </div>
+  );
+}
+
+function GalleryImageField({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (patch: Record<string, unknown>) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+
+  const upload = async (file: File) => {
+    setUploading(true);
+    try {
+      onChange(await uploadGalleryImage(file));
+      toast.success("Zdjęcie wgrane");
+    } catch (e) {
+      toast.error(`Nie udało się wgrać zdjęcia: ${(e as Error).message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-3">
+      {value && <img src={value} alt="" className="max-h-56 w-fit rounded-md object-contain" />}
+      <Button type="button" variant="outline" className="w-fit" asChild disabled={uploading}>
+        <label htmlFor={id} className="cursor-pointer">
+          {uploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
+          {value ? "Zmień zdjęcie" : "Wybierz zdjęcie"}
+          <input
+            id={id}
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void upload(f);
+              e.target.value = "";
+            }}
+          />
+        </label>
+      </Button>
     </div>
   );
 }

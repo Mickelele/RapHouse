@@ -1,12 +1,13 @@
 import { useState } from "react";
 import studioMic from "@/assets/studio-mic.jpg";
 import studioDetail from "@/assets/studio-detail.jpg";
-import { gear } from "@/data/raphouse";
+import { useGear } from "@/lib/content";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
 export function Studio() {
   const [active, setActive] = useState(0);
+  const gear = useGear();
 
   return (
     <section className="mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-32">
@@ -42,7 +43,7 @@ export function Studio() {
           <Reveal delay={160}>
             <ul className="divide-y divide-border border-y border-border">
               {gear.map((g, i) => (
-                <li key={g.name}>
+                <li key={`${g.name}-${i}`}>
                   <button
                     type="button"
                     onMouseEnter={() => setActive(i)}

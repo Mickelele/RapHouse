@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { pricing as staticPricing, type PriceItem } from "@/data/raphouse";
+import { galleryImages as staticGallery, type GalleryImage } from "@/data/gallery";
+import { gear as staticGear, pricing as staticPricing, type PriceItem } from "@/data/raphouse";
 import { supabase } from "./supabase";
 
 export type LinkItem = { label: string; url: string };
@@ -158,4 +159,60 @@ export function usePricing(): PriceItem[] {
     },
   });
   return data?.length ? data : staticPricing;
+}
+
+type GalleryRow = {
+  id: string;
+  alt: string;
+  src_640: string;
+  src_1280: string;
+  width: number;
+  height: number;
+};
+
+// Zdjęcia galerii z bazy; dopóki baza nie odpowie (albo jest pusta), placeholdery.
+export function useGalleryImages(): GalleryImage[] {
+  const { data } = useQuery({
+    queryKey: ["gallery_images"],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("gallery_images")
+        .select("id, alt, src_640, src_1280, width, height")
+        .eq("published", true)
+        .order("sort_order")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data as GalleryRow[]).map((r) => ({
+        id: r.id,
+        alt: r.alt,
+        width: r.width,
+        height: r.height,
+        src640: r.src_640,
+        src1280: r.src_1280,
+      }));
+    },
+  });
+  return data?.length ? data : staticGallery;
+}
+
+export type GearItem = { name: string; tag: string | null };
+
+// Lista sprzętu z bazy; zapasowo statyczna z data/raphouse.ts.
+export function useGear(): GearItem[] {
+  const { data } = useQuery({
+    queryKey: ["gear"],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("gear")
+        .select("name, tag")
+        .eq("published", true)
+        .order("sort_order")
+        .order("created_at");
+      if (error) throw error;
+      return data as GearItem[];
+    },
+  });
+  return data?.length ? data : staticGear;
 }

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { GalleryGrid } from "@/components/site/GalleryGrid";
 import { PageLayout } from "@/components/site/PageLayout";
-import { galleryImages } from "@/data/gallery";
+import { useGalleryImages } from "@/lib/content";
 
 const title = "Galeria — studio nagrań RapHouse Warszawa";
 const description =
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/galeria")({
 });
 
 function GalleryPage() {
+  const galleryImages = useGalleryImages();
   return (
     <PageLayout
       eyebrow="Galeria"

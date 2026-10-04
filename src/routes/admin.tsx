@@ -14,7 +14,9 @@ import {
   takeLogoutReason,
   useIdleLogout,
 } from "@/components/admin/useIdleLogout";
-import { formatDate } from "@/lib/media";
+import { GalleryBulkUpload } from "@/components/admin/GalleryBulkUpload";
+import { removeGalleryFiles } from "@/lib/gallery-upload";
+import { formatDate, youTubeId } from "@/lib/media";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import logo from "@/assets/raphouse-logo.png";
 
@@ -168,43 +170,150 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
   },
   {
     value: "projects",
-    label: "Realizacje",
+    label: "Realizacje (audio)",
     config: {
       table: "projects",
-      label: "Realizacja",
+      label: "Realizacja audio",
+      filter: { column: "category", value: "audio" },
       orderBy: [
         { column: "sort_order", ascending: true },
         { column: "created_at", ascending: false },
       ],
       rowTitle: (r) => `${r["artist"]} — ${r["title"]}`,
-      rowSubtitle: (r) =>
-        [r["category"] === "video" ? "Video" : "Audio", r["description"]]
-          .filter(Boolean)
-          .join(" · "),
+      rowSubtitle: (r) => r["description"] as string,
       fields: [
-        {
-          name: "category",
-          label: "Kategoria",
-          type: "select",
-          options: [
-            { value: "audio", label: "Audio (nagranie / mix / master)" },
-            { value: "video", label: "Video (klip)" },
-          ],
-          hint: "Video: wklej link do YouTube w polu „Teledysk” — na stronie pokaże się miniatura z przyciskiem play.",
-        },
         { name: "artist", label: "Wykonawca", type: "text", required: true },
         { name: "title", label: "Tytuł numeru", type: "text", required: true },
         { name: "description", label: "Opis", type: "textarea" },
-        { name: "video_url", label: "Teledysk", type: "url", hint: videoHint },
-        { name: "released_on", label: "Data premiery", type: "date", hint: "Opcjonalnie." },
         { name: "audio_url", label: "Plik audio (mp3)", type: "audio" },
+        { name: "video_url", label: "Teledysk", type: "url", hint: videoHint },
         { name: "image_url", label: "Okładka", type: "image" },
+        { name: "released_on", label: "Data premiery", type: "date", hint: "Opcjonalnie." },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
         {
           name: "sort_order",
           label: "Kolejność",
           type: "number",
           hint: "Mniejsza liczba = wyżej na liście.",
+        },
+      ],
+    },
+  },
+  {
+    value: "clips",
+    label: "Klipy (video)",
+    config: {
+      table: "projects",
+      label: "Klip",
+      filter: { column: "category", value: "video" },
+      alsoInvalidate: [["admin", "projects"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: false },
+      ],
+      rowTitle: (r) => `${r["artist"]} — ${r["title"]}`,
+      rowSubtitle: (r) =>
+        r["released_on"] ? formatDate(r["released_on"] as string) : "Bez daty premiery",
+      rowImage: (r) => {
+        const id = youTubeId(r["video_url"] as string | null);
+        return id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : null;
+      },
+      fields: [
+        { name: "artist", label: "Wykonawca", type: "text", required: true },
+        { name: "title", label: "Tytuł klipu", type: "text", required: true },
+        {
+          name: "video_url",
+          label: "Link do YouTube",
+          type: "url",
+          required: true,
+          placeholder: "https://www.youtube.com/watch?v=…",
+          hint: "Działa każdy link do filmu (także youtu.be i shorts). Pokaże się w Realizacjach → Video.",
+        },
+        { name: "released_on", label: "Data premiery", type: "date", hint: "Opcjonalnie." },
+        { name: "description", label: "Opis", type: "textarea" },
+        { name: "links", label: "Linki", type: "links", hint: linksHint },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wyżej na liście.",
+        },
+      ],
+    },
+  },
+  {
+    value: "gear",
+    label: "Sprzęt",
+    config: {
+      table: "gear",
+      label: "Sprzęt",
+      alsoInvalidate: [["gear"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: true },
+      ],
+      rowTitle: (r) => r["name"] as string,
+      rowSubtitle: (r) => (r["tag"] as string | null) ?? "",
+      fields: [
+        {
+          name: "name",
+          label: "Nazwa",
+          type: "text",
+          required: true,
+          placeholder: "np. Apollo Twin",
+        },
+        {
+          name: "tag",
+          label: "Rodzaj",
+          type: "text",
+          placeholder: "np. Interface, DAW, Wtyczki",
+        },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wyżej na liście.",
+        },
+      ],
+    },
+  },
+  {
+    value: "gallery",
+    label: "Galeria",
+    config: {
+      table: "gallery_images",
+      label: "Zdjęcie galerii",
+      alsoInvalidate: [["gallery_images"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: false },
+      ],
+      rowTitle: (r) => r["alt"] as string,
+      rowSubtitle: (r) => `${r["width"]}×${r["height"]} px`,
+      rowImage: (r) => r["src_640"] as string,
+      toolbar: (refresh) => <GalleryBulkUpload onDone={refresh} />,
+      onDelete: (r) => removeGalleryFiles([r["src_640"] as string, r["src_1280"] as string]),
+      fields: [
+        {
+          name: "src_1280",
+          label: "Zdjęcie",
+          type: "gallery-image",
+          required: true,
+          hint: "Zostanie zmniejszone do 640 i 1280 px (WebP) — oryginał nie trafia na serwer.",
+        },
+        {
+          name: "alt",
+          label: "Opis zdjęcia (alt)",
+          type: "text",
+          required: true,
+          placeholder: "np. Kabina nagraniowa z mikrofonem",
+          hint: "Krótko, co widać na zdjęciu — dla niewidomych i dla Google.",
+        },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wcześniej w galerii. Pierwsze 4 pokazują się na stronie głównej.",
         },
       ],
     },
@@ -261,7 +370,7 @@ function AdminPage() {
   } else {
     content = (
       <Tabs defaultValue="news">
-        <TabsList className="mb-8">
+        <TabsList className="mb-8 h-auto flex-wrap justify-start">
           {collections.map((c) => (
             <TabsTrigger key={c.value} value={c.value}>
               {c.label}

@@ -13,7 +13,7 @@ export function GalleryGrid({ images, className }: { images: GalleryImage[]; cla
         className={cn("grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 xl:grid-cols-4", className)}
       >
         {images.map((img, i) => (
-          <li key={img.file}>
+          <li key={img.id}>
             <button
               type="button"
               onClick={() => setOpen(i)}

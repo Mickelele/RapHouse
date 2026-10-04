@@ -1,54 +1,49 @@
-// Zdjęcia galerii studia. Pliki: public/galeria/<file>-640.webp i <file>-1280.webp
-// (generuje je scripts/galeria.py z oryginałów wrzuconych do galeria-zrodla/).
-// width/height = wymiary największej wersji — potrzebne, żeby strona nie skakała przy ładowaniu.
+// Zdjęcia galerii studia. Docelowo dodawane w panelu admina (zakładka Galeria → tabela
+// gallery_images). Poniższa lista to placeholdery pokazywane, dopóki w bazie nie ma zdjęć.
+// Pliki placeholderów: public/galeria/<file>-640.webp i <file>-1280.webp (scripts/galeria.py).
 
 export type GalleryImage = {
-  file: string;
+  id: string;
   alt: string;
+  // Wymiary największej wersji — potrzebne, żeby strona nie skakała przy ładowaniu.
   width: number;
   height: number;
+  src640: string;
+  src1280: string;
 };
 
-export const GALLERY_WIDTHS = [640, 1280] as const;
+function placeholder(file: string, alt: string, width: number, height: number): GalleryImage {
+  return {
+    id: file,
+    alt,
+    width,
+    height,
+    src640: `/galeria/${file}-640.webp`,
+    src1280: `/galeria/${file}-1280.webp`,
+  };
+}
 
-// TODO: zdjęcia od klienta — poniższe to placeholdery wycięte z obecnych zdjęć strony.
+// TODO: zdjęcia od klienta — placeholdery wycięte z obecnych zdjęć strony.
 export const galleryImages: GalleryImage[] = [
-  {
-    file: "placeholder-01",
-    alt: "Kabina nagraniowa RapHouse z mikrofonem",
-    width: 1280,
-    height: 960,
-  },
-  {
-    file: "placeholder-02",
-    alt: "Mikrofon pojemnościowy w kabinie",
-    width: 1024,
-    height: 1280,
-  },
-  { file: "placeholder-03", alt: "Stanowisko realizatora w studiu", width: 1280, height: 960 },
-  {
-    file: "placeholder-04",
-    alt: "Odsłuchy studyjne i adaptacja akustyczna",
-    width: 1024,
-    height: 1024,
-  },
-  { file: "placeholder-05", alt: "Wnętrze kabiny nagraniowej", width: 864, height: 1152 },
-  { file: "placeholder-06", alt: "Konsola i monitor realizatora", width: 960, height: 960 },
-  { file: "placeholder-07", alt: "Mikrofon z filtrem pop", width: 1024, height: 768 },
-  { file: "placeholder-08", alt: "Detal odsłuchów studyjnych", width: 640, height: 640 },
+  placeholder("placeholder-01", "Kabina nagraniowa RapHouse z mikrofonem", 1280, 960),
+  placeholder("placeholder-02", "Mikrofon pojemnościowy w kabinie", 1024, 1280),
+  placeholder("placeholder-03", "Stanowisko realizatora w studiu", 1280, 960),
+  placeholder("placeholder-04", "Odsłuchy studyjne i adaptacja akustyczna", 1024, 1024),
+  placeholder("placeholder-05", "Wnętrze kabiny nagraniowej", 864, 1152),
+  placeholder("placeholder-06", "Konsola i monitor realizatora", 960, 960),
+  placeholder("placeholder-07", "Mikrofon z filtrem pop", 1024, 768),
+  placeholder("placeholder-08", "Detal odsłuchów studyjnych", 640, 640),
 ];
 
-export function gallerySrc(img: GalleryImage, width: number = GALLERY_WIDTHS[0]) {
-  return `/galeria/${img.file}-${width}.webp`;
+export function gallerySrc(img: GalleryImage, width: 640 | 1280 = 640) {
+  return width === 1280 ? img.src1280 : img.src640;
 }
 
 export function gallerySrcSet(img: GalleryImage) {
-  // Plik "-1280" przy mniejszym oryginale ma faktyczną szerokość oryginału.
-  const seen = new Set<number>();
-  return GALLERY_WIDTHS.flatMap((w) => {
-    const real = Math.min(w, img.width);
-    if (seen.has(real)) return [];
-    seen.add(real);
-    return [`${gallerySrc(img, w)} ${real}w`];
-  }).join(", ");
+  // Wersja "1280" przy mniejszym oryginale ma faktyczną szerokość oryginału.
+  const small = Math.min(640, img.width);
+  const large = Math.min(1280, img.width);
+  return large > small
+    ? `${img.src640} ${small}w, ${img.src1280} ${large}w`
+    : `${img.src640} ${small}w`;
 }
