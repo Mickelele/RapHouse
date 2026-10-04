@@ -48,8 +48,8 @@ export function Hero() {
           <a href="#kontakt" className="btn-base btn-accent">
             Zarezerwuj sesję
           </a>
-          <a href="#oferta" className="btn-base btn-ghost-line">
-            Poznaj ofertę
+          <a href="#cennik" className="btn-base btn-ghost-line">
+            Zobacz cennik
           </a>
         </div>
 

@@ -3,7 +3,6 @@ import { Header } from "@/components/site/Header";
 import { Hero } from "@/components/site/Hero";
 import { Movement } from "@/components/site/Movement";
 import { Marquee } from "@/components/site/Marquee";
-import { Services } from "@/components/site/Services";
 import { Pricing } from "@/components/site/Pricing";
 import { Process } from "@/components/site/Process";
 import { Studio } from "@/components/site/Studio";
@@ -16,7 +15,6 @@ import { LiveStreams } from "@/components/site/LiveStreams";
 import { Backstage } from "@/components/site/Backstage";
 import { TrackFeedback } from "@/components/site/TrackFeedback";
 import { features } from "@/data/features";
-import { About } from "@/components/site/About";
 import { Contact } from "@/components/site/Contact";
 import { Footer } from "@/components/site/Footer";
 import { MobileCta } from "@/components/site/MobileCta";
@@ -50,7 +48,6 @@ function Index() {
         <Hero />
         <Movement />
         <Marquee />
-        <Services />
         <Pricing />
         <LatestBeats />
         <Process />
@@ -62,7 +59,6 @@ function Index() {
         {features.liveStreams && <LiveStreams />}
         {features.backstage && <Backstage />}
         {features.trackFeedback && <TrackFeedback />}
-        <About />
         <Contact />
       </main>
       <Footer />

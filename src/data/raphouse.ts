@@ -16,83 +16,6 @@ export const contact = {
   mapEmbed: "https://www.google.com/maps?q=%C5%81ojewska%2022,%2003-392%20Warszawa&output=embed",
 };
 
-export type Service = {
-  no: string;
-  title: string;
-  desc: string;
-  cta: string;
-  // Domyślnie "#kontakt".
-  href?: string;
-  // Składowe usługi / pakietu - pokazywane jako lista w karcie.
-  items?: string[];
-  // Cena albo "Wycena indywidualna"; brak = nie pokazujemy.
-  price?: string;
-  // Znacznik treści do potwierdzenia z klientem (nie jest wyświetlany).
-  todo?: string;
-};
-
-export const services: Service[] = [
-  {
-    no: "01",
-    title: "Sesje z realizatorem",
-    desc: "Profesjonalna sesja nagraniowa z realizatorem, który pomoże Ci uzyskać najlepsze możliwe brzmienie.",
-    cta: "Umów sesję",
-  },
-  {
-    no: "02",
-    title: "Samoobsługa",
-    desc: "Wynajmij studio bez realizatora i pracuj po swojemu - sam lub ze znajomymi.",
-    cta: "Rezerwuj",
-  },
-  {
-    no: "03",
-    title: "Mix / Mastering",
-    desc: "Doprowadź swój numer do profesjonalnego, publikowalnego brzmienia.",
-    cta: "Zamów",
-  },
-  {
-    no: "04",
-    title: "Bity",
-    desc: "Przeglądaj katalog produkcji albo zamów bit tworzony od podstaw pod Twój numer.",
-    cta: "Przeglądaj",
-    href: "/bity",
-  },
-  {
-    no: "05",
-    title: "Klipy",
-    desc: "Realizacja teledysków - od pomysłu i scenariusza, przez zdjęcia, po montaż i kolor.",
-    items: ["Koncepcja i scenariusz", "Zdjęcia", "Montaż i korekcja barwna"],
-    price: "Wycena indywidualna",
-    cta: "Zapytaj o klip",
-    todo: "TODO: treść od klienta - opis, zakres (items) i cena klipów",
-  },
-  {
-    no: "06",
-    title: "Promo + opakowanie",
-    desc: "Kompletne opakowanie premiery - wszystko, czego numer potrzebuje, żeby wyjść do ludzi.",
-    items: [
-      "Rolki",
-      "Sesja foto",
-      "Opisy",
-      "Okładka",
-      "Miniaturka",
-      "Strategia publikacji",
-      "Dystrybucja",
-    ],
-    price: "Wycena indywidualna",
-    cta: "Zapytaj o pakiet",
-    todo: "TODO: treść od klienta - opis pakietu i cena",
-  },
-  {
-    no: "07",
-    title: "Pisanie tekstów",
-    desc: "Pomoc przy tekstach albo ghostwriting - od poprawek zwrotek po numer napisany od zera.",
-    price: "Wycena indywidualna",
-    cta: "Porozmawiajmy",
-    todo: "TODO: treść od klienta - opis usługi i cena",
-  },
-];
-
 export type PriceItem = {
   title: string;
   note?: string | null;
@@ -276,13 +199,7 @@ export const nav: NavItem[] = [
       { label: "O nas", href: "/#o-nas" },
     ],
   },
-  {
-    label: "Oferta",
-    children: [
-      { label: "Usługi", href: "/#oferta" },
-      { label: "Cennik", href: "/#cennik" },
-    ],
-  },
+  { label: "Cennik", href: "/#cennik" },
   { label: "Bity", href: "/bity" },
   {
     label: "Realizacje",
