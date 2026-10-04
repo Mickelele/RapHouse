@@ -12,6 +12,10 @@ import { Portfolio } from "@/components/site/Portfolio";
 import { LatestBeats } from "@/components/site/LatestBeats";
 import { LatestNews } from "@/components/site/LatestNews";
 import { Community } from "@/components/site/Community";
+import { LiveStreams } from "@/components/site/LiveStreams";
+import { Backstage } from "@/components/site/Backstage";
+import { TrackFeedback } from "@/components/site/TrackFeedback";
+import { features } from "@/data/features";
 import { About } from "@/components/site/About";
 import { Contact } from "@/components/site/Contact";
 import { Footer } from "@/components/site/Footer";
@@ -55,6 +59,9 @@ function Index() {
         <Portfolio />
         <LatestNews />
         <Community />
+        {features.liveStreams && <LiveStreams />}
+        {features.backstage && <Backstage />}
+        {features.trackFeedback && <TrackFeedback />}
         <About />
         <Contact />
       </main>
