@@ -22,6 +22,9 @@ const description =
   "Profesjonalne studio nagrań rap i hip-hop w Warszawie (Łojewska 22). Sesje z realizatorem, samoobsługa, mix/mastering i bity.";
 
 export const Route = createFileRoute("/")({
+  // ?kategoria=video otwiera zakładkę Video w Realizacjach; każda inna wartość = Audio.
+  validateSearch: (search: Record<string, unknown>): { kategoria?: "video" } =>
+    search["kategoria"] === "video" ? { kategoria: "video" } : {},
   head: () => ({
     meta: [
       { title },

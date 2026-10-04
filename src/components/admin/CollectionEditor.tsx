@@ -31,8 +31,12 @@ export type Field = {
     | "datetime"
     | "boolean"
     | "price-lines"
-    | "beat-category";
+    | "beat-category"
+    | "select"
+    | "date";
   required?: boolean;
+  // Dla type "select" — pierwsza opcja jest domyślna przy nowym wpisie.
+  options?: { value: string; label: string }[];
   placeholder?: string;
   hint?: string;
 };
@@ -134,7 +138,9 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
             ? [{ label: "", price: "" }]
             : f.type === "boolean"
               ? false
-              : null;
+              : f.type === "select"
+                ? (f.options?.[0]?.value ?? null)
+                : null;
     return row;
   };
 
@@ -342,6 +348,27 @@ function FieldInput({
       break;
     case "links":
       control = <LinksField value={(value as LinkItem[]) ?? []} onChange={onChange} />;
+      break;
+    case "select":
+      control = (
+        <select
+          id={id}
+          value={str}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        >
+          {field.options?.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      );
+      break;
+    case "date":
+      control = (
+        <Input id={id} type="date" value={str} onChange={(e) => onChange(e.target.value || null)} />
+      );
       break;
     case "boolean":
       return (

@@ -45,6 +45,9 @@ export type Project = {
   published: boolean;
   sort_order: number;
   created_at: string;
+  // Brak kolumny (przed migracją) = "audio".
+  category?: "audio" | "video";
+  released_on?: string | null;
 };
 
 export type BeatCategory = { id: string; name: string; sort_order: number };

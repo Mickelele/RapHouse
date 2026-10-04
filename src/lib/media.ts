@@ -19,6 +19,25 @@ export function toEmbedUrl(url: string | null | undefined): string | null {
   return null;
 }
 
+// ID filmu YouTube z linku (watch, youtu.be, shorts, embed, live) albo samo 11-znakowe ID.
+export function youTubeId(input: string | null | undefined): string | null {
+  if (!input) return null;
+  const raw = input.trim();
+  if (/^[\w-]{11}$/.test(raw)) return raw;
+  try {
+    const u = new URL(raw);
+    const host = u.hostname.replace(/^www\.|^m\./, "");
+    let id: string | null | undefined = null;
+    if (host === "youtu.be") id = u.pathname.split("/")[1];
+    else if (host.endsWith("youtube.com") || host.endsWith("youtube-nocookie.com"))
+      id =
+        u.searchParams.get("v") ?? u.pathname.match(/^\/(?:embed|shorts|live)\/([\w-]{11})/)?.[1];
+    return id && /^[\w-]{11}$/.test(id) ? id : null;
+  } catch {
+    return null;
+  }
+}
+
 export function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("pl-PL", {
     day: "numeric",

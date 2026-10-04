@@ -177,12 +177,26 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { column: "created_at", ascending: false },
       ],
       rowTitle: (r) => `${r["artist"]} — ${r["title"]}`,
-      rowSubtitle: (r) => r["description"] as string,
+      rowSubtitle: (r) =>
+        [r["category"] === "video" ? "Video" : "Audio", r["description"]]
+          .filter(Boolean)
+          .join(" · "),
       fields: [
+        {
+          name: "category",
+          label: "Kategoria",
+          type: "select",
+          options: [
+            { value: "audio", label: "Audio (nagranie / mix / master)" },
+            { value: "video", label: "Video (klip)" },
+          ],
+          hint: "Video: wklej link do YouTube w polu „Teledysk” — na stronie pokaże się miniatura z przyciskiem play.",
+        },
         { name: "artist", label: "Wykonawca", type: "text", required: true },
         { name: "title", label: "Tytuł numeru", type: "text", required: true },
         { name: "description", label: "Opis", type: "textarea" },
         { name: "video_url", label: "Teledysk", type: "url", hint: videoHint },
+        { name: "released_on", label: "Data premiery", type: "date", hint: "Opcjonalnie." },
         { name: "audio_url", label: "Plik audio (mp3)", type: "audio" },
         { name: "image_url", label: "Okładka", type: "image" },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
