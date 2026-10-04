@@ -5,7 +5,7 @@ import { Reveal } from "./Reveal";
 
 const TEASER_COUNT = 4;
 
-// Zajawka galerii na stronie głównej — kilka zdjęć pod sekcją sprzętu.
+// Zajawka galerii na stronie głównej - kilka zdjęć pod sekcją sprzętu.
 export function GalleryTeaser() {
   const galleryImages = useGalleryImages();
   if (!galleryImages.length) return null;

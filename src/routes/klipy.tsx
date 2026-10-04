@@ -3,7 +3,7 @@ import { EmptyState, PageLayout } from "@/components/site/PageLayout";
 import { VideoGrid } from "@/components/site/Portfolio";
 import { useProjects } from "@/lib/content";
 
-const title = "Klipy — teledyski z RapHouse | Studio nagrań Warszawa";
+const title = "Klipy - teledyski z RapHouse | Studio nagrań Warszawa";
 const description =
   "Teledyski i klipy artystów nagrywających w RapHouse. Realizacja klipów od pomysłu po montaż.";
 

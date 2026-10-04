@@ -12,7 +12,7 @@ export function Lightbox({
 }: {
   images: GalleryImage[];
   index: number;
-  // Aktualizacja funkcyjna — kilka szybkich naciśnięć strzałki nie liczy od starego indeksu.
+  // Aktualizacja funkcyjna - kilka szybkich naciśnięć strzałki nie liczy od starego indeksu.
   onIndex: (update: (i: number) => number) => void;
   onClose: () => void;
 }) {

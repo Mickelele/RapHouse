@@ -120,7 +120,7 @@ export function useProjects() {
   });
 }
 
-// Najnowsze bity (po dacie dodania) — sekcja na stronie głównej.
+// Najnowsze bity (po dacie dodania) - sekcja na stronie głównej.
 export function useLatestBeats(limit = 3) {
   return useQuery({
     queryKey: ["beats", "latest", limit],
@@ -131,7 +131,7 @@ export function useLatestBeats(limit = 3) {
         .select("*")
         .eq("published", true)
         .order("created_at", { ascending: false })
-        // Bity wgrane jednym zapytaniem mają tę samą datę — wtedy rozstrzyga kolejność.
+        // Bity wgrane jednym zapytaniem mają tę samą datę - wtedy rozstrzyga kolejność.
         .order("sort_order", { ascending: false })
         .limit(limit);
       if (error) throw error;

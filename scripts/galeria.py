@@ -4,7 +4,7 @@ Przygotowanie zdjęć do galerii.
 1. Wrzuć oryginały (jpg/png/webp/heic->jpg) do katalogu  galeria-zrodla/  w głównym folderze projektu.
 2. Uruchom:  python scripts/galeria.py      (wymaga Pillow:  python -m pip install pillow)
 3. Skrypt zapisze wersje WebP 640 px i 1280 px w  public/galeria/  i wypisze wpisy
-   do wklejenia w  src/data/gallery.ts  — uzupełnij w nich opis (alt) każdego zdjęcia.
+   do wklejenia w  src/data/gallery.ts  - uzupełnij w nich opis (alt) każdego zdjęcia.
 
 Nazwa pliku wynikowego pochodzi od nazwy oryginału (małe litery, bez polskich znaków i spacji).
 """

@@ -3,7 +3,7 @@ import { GalleryGrid } from "@/components/site/GalleryGrid";
 import { PageLayout } from "@/components/site/PageLayout";
 import { useGalleryImages } from "@/lib/content";
 
-const title = "Galeria — studio nagrań RapHouse Warszawa";
+const title = "Galeria - studio nagrań RapHouse Warszawa";
 const description =
   "Zobacz studio RapHouse od środka: kabina nagraniowa, stanowisko realizatora, sprzęt.";
 

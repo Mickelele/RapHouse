@@ -41,7 +41,7 @@ export function Hero() {
           <span className="text-primary">Co masz</span> w głowie.
         </h1>
         <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-          Profesjonalne studio nagrań w Warszawie dla artystów, którzy chcą brzmieć dobrze — od
+          Profesjonalne studio nagrań w Warszawie dla artystów, którzy chcą brzmieć dobrze - od
           pierwszego take'a po finalny master.
         </p>
         <div className="mt-10 flex flex-wrap gap-3">

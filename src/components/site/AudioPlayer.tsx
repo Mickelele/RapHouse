@@ -7,7 +7,7 @@ const BARS = 48;
 // Naraz gra tylko jeden odtwarzacz na stronie.
 let current: HTMLAudioElement | null = null;
 
-// Stały "waveform" wyliczony z adresu pliku — każdy utwór wygląda inaczej, ale zawsze tak samo.
+// Stały "waveform" wyliczony z adresu pliku - każdy utwór wygląda inaczej, ale zawsze tak samo.
 function barHeights(seed: string) {
   let h = 2166136261;
   for (let i = 0; i < seed.length; i++) h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
@@ -67,7 +67,7 @@ export function AudioPlayer({
   const seekTo = (ratio: number) => {
     const a = audio.current!;
     if (!Number.isFinite(a.duration)) {
-      // Plik jeszcze nie wczytany — najpierw start, potem przewinięcie.
+      // Plik jeszcze nie wczytany - najpierw start, potem przewinięcie.
       a.addEventListener("loadedmetadata", () => (a.currentTime = ratio * a.duration), {
         once: true,
       });

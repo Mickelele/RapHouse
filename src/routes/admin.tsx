@@ -22,12 +22,12 @@ import logo from "@/assets/raphouse-logo.png";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
-    meta: [{ title: "Panel admina — RapHouse" }, { name: "robots", content: "noindex" }],
+    meta: [{ title: "Panel admina - RapHouse" }, { name: "robots", content: "noindex" }],
   }),
   component: AdminPage,
 });
 
-const videoHint = "Link do YouTube lub Vimeo — film pokaże się na stronie.";
+const videoHint = "Link do YouTube lub Vimeo - film pokaże się na stronie.";
 const linksHint = "Np. Spotify, YouTube, Instagram, Tidal.";
 
 const collections: { value: string; label: string; config: CollectionConfig }[] = [
@@ -179,7 +179,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { column: "sort_order", ascending: true },
         { column: "created_at", ascending: false },
       ],
-      rowTitle: (r) => `${r["artist"]} — ${r["title"]}`,
+      rowTitle: (r) => `${r["artist"]} - ${r["title"]}`,
       rowSubtitle: (r) => r["description"] as string,
       fields: [
         { name: "artist", label: "Wykonawca", type: "text", required: true },
@@ -211,7 +211,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { column: "sort_order", ascending: true },
         { column: "created_at", ascending: false },
       ],
-      rowTitle: (r) => `${r["artist"]} — ${r["title"]}`,
+      rowTitle: (r) => `${r["artist"]} - ${r["title"]}`,
       rowSubtitle: (r) =>
         r["released_on"] ? formatDate(r["released_on"] as string) : "Bez daty premiery",
       rowImage: (r) => {
@@ -299,7 +299,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           label: "Zdjęcie",
           type: "gallery-image",
           required: true,
-          hint: "Zostanie zmniejszone do 640 i 1280 px (WebP) — oryginał nie trafia na serwer.",
+          hint: "Zostanie zmniejszone do 640 i 1280 px (WebP) - oryginał nie trafia na serwer.",
         },
         {
           name: "alt",
@@ -307,7 +307,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           type: "text",
           required: true,
           placeholder: "np. Kabina nagraniowa z mikrofonem",
-          hint: "Krótko, co widać na zdjęciu — dla niewidomych i dla Google.",
+          hint: "Krótko, co widać na zdjęciu - dla niewidomych i dla Google.",
         },
         {
           name: "sort_order",

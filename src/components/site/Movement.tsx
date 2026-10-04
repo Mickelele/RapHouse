@@ -28,7 +28,7 @@ export function Movement() {
         <div className="grain overflow-hidden rounded-lg border border-border">
           <img
             src={studioDesk}
-            alt="Realizatorka RapHouse — konsola, interface Apollo Twin i odsłuchy"
+            alt="Realizatorka RapHouse - konsola, interface Apollo Twin i odsłuchy"
             width={1280}
             height={960}
             loading="lazy"

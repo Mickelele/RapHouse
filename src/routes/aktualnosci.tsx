@@ -8,7 +8,7 @@ import { useNews } from "@/lib/content";
 import { formatDate } from "@/lib/media";
 import { cn } from "@/lib/utils";
 
-const title = "Aktualności — RapHouse, studio nagrań Warszawa";
+const title = "Aktualności - RapHouse, studio nagrań Warszawa";
 const description = "Nowości ze studia RapHouse: premiery, sesje, transmisje i wydarzenia.";
 
 export const Route = createFileRoute("/aktualnosci")({
@@ -45,7 +45,7 @@ function NewsPage() {
         ) : isError ? (
           <EmptyState>Nie udało się pobrać aktualności. Spróbuj odświeżyć stronę.</EmptyState>
         ) : !data?.length ? (
-          <EmptyState>Na razie nic tu nie ma — zajrzyj wkrótce.</EmptyState>
+          <EmptyState>Na razie nic tu nie ma - zajrzyj wkrótce.</EmptyState>
         ) : (
           <div className="flex flex-col gap-6">
             {data.map((post) => (

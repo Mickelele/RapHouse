@@ -1,5 +1,5 @@
 // Jedyne miejsce do aktualizacji treści i cen RapHouse.
-// Ceny pochodzą z aktualnego cennika raphouse.pl. Cennik jest edytowalny w panelu admina —
+// Ceny pochodzą z aktualnego cennika raphouse.pl. Cennik jest edytowalny w panelu admina -
 // poniższa lista to tylko zapas, gdy baza danych jest niedostępna.
 
 export const contact = {
@@ -23,7 +23,7 @@ export type Service = {
   cta: string;
   // Domyślnie "#kontakt".
   href?: string;
-  // Składowe usługi / pakietu — pokazywane jako lista w karcie.
+  // Składowe usługi / pakietu - pokazywane jako lista w karcie.
   items?: string[];
   // Cena albo "Wycena indywidualna"; brak = nie pokazujemy.
   price?: string;
@@ -41,7 +41,7 @@ export const services: Service[] = [
   {
     no: "02",
     title: "Samoobsługa",
-    desc: "Wynajmij studio bez realizatora i pracuj po swojemu — sam lub ze znajomymi.",
+    desc: "Wynajmij studio bez realizatora i pracuj po swojemu - sam lub ze znajomymi.",
     cta: "Rezerwuj",
   },
   {
@@ -60,16 +60,16 @@ export const services: Service[] = [
   {
     no: "05",
     title: "Klipy",
-    desc: "Realizacja teledysków — od pomysłu i scenariusza, przez zdjęcia, po montaż i kolor.",
+    desc: "Realizacja teledysków - od pomysłu i scenariusza, przez zdjęcia, po montaż i kolor.",
     items: ["Koncepcja i scenariusz", "Zdjęcia", "Montaż i korekcja barwna"],
     price: "Wycena indywidualna",
     cta: "Zapytaj o klip",
-    todo: "TODO: treść od klienta — opis, zakres (items) i cena klipów",
+    todo: "TODO: treść od klienta - opis, zakres (items) i cena klipów",
   },
   {
     no: "06",
     title: "Promo + opakowanie",
-    desc: "Kompletne opakowanie premiery — wszystko, czego numer potrzebuje, żeby wyjść do ludzi.",
+    desc: "Kompletne opakowanie premiery - wszystko, czego numer potrzebuje, żeby wyjść do ludzi.",
     items: [
       "Rolki",
       "Sesja foto",
@@ -81,15 +81,15 @@ export const services: Service[] = [
     ],
     price: "Wycena indywidualna",
     cta: "Zapytaj o pakiet",
-    todo: "TODO: treść od klienta — opis pakietu i cena",
+    todo: "TODO: treść od klienta - opis pakietu i cena",
   },
   {
     no: "07",
     title: "Pisanie tekstów",
-    desc: "Pomoc przy tekstach albo ghostwriting — od poprawek zwrotek po numer napisany od zera.",
+    desc: "Pomoc przy tekstach albo ghostwriting - od poprawek zwrotek po numer napisany od zera.",
     price: "Wycena indywidualna",
     cta: "Porozmawiajmy",
-    todo: "TODO: treść od klienta — opis usługi i cena",
+    todo: "TODO: treść od klienta - opis usługi i cena",
   },
 ];
 
@@ -146,7 +146,7 @@ export const pricing: PriceItem[] = [
   },
   {
     title: "Klipy",
-    note: "Realizacja teledysku — koncepcja, zdjęcia, montaż.",
+    note: "Realizacja teledysku - koncepcja, zdjęcia, montaż.",
     lines: [{ price: "Wycena indywidualna" }],
     todo: "TODO: cena klipów od klienta",
   },
@@ -166,7 +166,7 @@ export const pricing: PriceItem[] = [
 
 // Dopisek pod cennikiem.
 export const pricingFootnote = {
-  text: "Dokładna wycena mixu/masteringu następuje po otrzymaniu plików i referencji — cena zaczyna się od",
+  text: "Dokładna wycena mixu/masteringu następuje po otrzymaniu plików i referencji - cena zaczyna się od",
   price: "350 PLN",
 };
 
@@ -174,14 +174,14 @@ export const process = [
   {
     no: "01",
     title: "Rezerwujesz",
-    desc: "Dzwonisz lub piszesz — ustalamy termin i zakres sesji.",
+    desc: "Dzwonisz lub piszesz - ustalamy termin i zakres sesji.",
   },
   {
     no: "02",
     title: "Nagrywasz",
     desc: "Kabina, Apollo Twin, własny miks słuchawkowy z UAD Console.",
   },
-  { no: "03", title: "Mixujemy", desc: "Strojenie, efekty, przestrzeń — numer zaczyna brzmieć." },
+  { no: "03", title: "Mixujemy", desc: "Strojenie, efekty, przestrzeń - numer zaczyna brzmieć." },
   { no: "04", title: "Masterujemy", desc: "Głośność, dynamika i spójność na każdym systemie." },
   { no: "05", title: "Publikujesz", desc: "Dostajesz pliki gotowe do wypuszczenia w serwisach." },
 ];
@@ -224,12 +224,12 @@ export const portfolio = [
   {
     artist: "Pszczoła x Jezzy",
     title: "Świetnie sobie radzę",
-    desc: "Oldschoolowa nawijka w nowoczesnym brzmieniu — ozdobne efekty na podbitkach i adlibach.",
+    desc: "Oldschoolowa nawijka w nowoczesnym brzmieniu - ozdobne efekty na podbitkach i adlibach.",
   },
   {
     artist: "Pszczoła",
     title: "NCPC?",
-    desc: "Dużo przerw w nawijce, więc dużo delayów — przejrzystość i bounce bez chaosu.",
+    desc: "Dużo przerw w nawijce, więc dużo delayów - przejrzystość i bounce bez chaosu.",
   },
   {
     artist: "BSNB",
@@ -252,7 +252,7 @@ export const crew = [
   {
     name: "Dominik",
     role: "Realizator",
-    bio: "Muzyka od zawsze — najpierw wokal, potem fascynacja tym, jak mix i mastering uwalniają pełnię brzmienia. Prowadzi studio razem z Adamem i nieustannie rozwija własny warsztat.",
+    bio: "Muzyka od zawsze - najpierw wokal, potem fascynacja tym, jak mix i mastering uwalniają pełnię brzmienia. Prowadzi studio razem z Adamem i nieustannie rozwija własny warsztat.",
   },
 ];
 

@@ -35,7 +35,7 @@ export function Studio() {
             </h2>
             <p className="mt-6 leading-relaxed text-muted-foreground">
               Apollo Twin pozwala sterować odsłuchem z kabiny przez UAD Console i nagrywać z
-              przedwzmacniaczami UNISON oraz efektami w czasie rzeczywistym — bez odczuwalnych
+              przedwzmacniaczami UNISON oraz efektami w czasie rzeczywistym - bez odczuwalnych
               opóźnień. Ślady zostają czyste, więc na miksie masz pełną swobodę.
             </p>
           </Reveal>

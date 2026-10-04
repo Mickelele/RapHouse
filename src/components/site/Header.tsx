@@ -28,7 +28,7 @@ export function Header() {
       )}
     >
       <div className="mx-auto flex h-20 max-w-[1400px] items-center justify-between px-5 md:px-10">
-        <a href="/" aria-label="RapHouse — strona główna">
+        <a href="/" aria-label="RapHouse - strona główna">
           <img src={logo} alt="RapHouse" className="h-12 w-auto" />
         </a>
 

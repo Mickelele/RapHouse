@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { uploadGalleryImage } from "@/lib/gallery-upload";
 import { supabase } from "@/lib/supabase";
 
-// "IMG_2034 kabina.jpg" -> "IMG 2034 kabina" — tymczasowy opis do poprawienia w edycji.
+// "IMG_2034 kabina.jpg" -> "IMG 2034 kabina" - tymczasowy opis do poprawienia w edycji.
 function altFromName(name: string) {
   return (
     name
@@ -45,7 +45,7 @@ export function GalleryBulkUpload({ onDone }: { onDone: () => void }) {
     setProgress(null);
     onDone();
     const ok = files.length - failed;
-    if (ok) toast.success(`Wgrano ${ok} ${photos(ok)} — uzupełnij opisy (alt).`);
+    if (ok) toast.success(`Wgrano ${ok} ${photos(ok)} - uzupełnij opisy (alt).`);
   };
 
   return (

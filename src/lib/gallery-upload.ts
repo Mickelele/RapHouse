@@ -38,7 +38,7 @@ export async function uploadGalleryImage(file: File): Promise<UploadedGalleryIma
       canvas.height = Math.round(bitmap.height * scale);
       canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
       const blob = await toBlob(canvas);
-      // Starsze Safari nie koduje WebP i zwraca PNG — rozszerzenie zgodne z faktycznym typem.
+      // Starsze Safari nie koduje WebP i zwraca PNG - rozszerzenie zgodne z faktycznym typem.
       const ext = blob.type === "image/webp" ? "webp" : "png";
       const path = `gallery/${id}-${size}.${ext}`;
       const { error } = await supabase!.storage

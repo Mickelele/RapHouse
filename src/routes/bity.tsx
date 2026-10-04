@@ -7,7 +7,7 @@ import { contact } from "@/data/raphouse";
 import { useBeatCategories, useBeats, usePricing } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-const title = "Bity — katalog i bity na zamówienie | RapHouse Warszawa";
+const title = "Bity - katalog i bity na zamówienie | RapHouse Warszawa";
 const description =
   "Katalog bitów RapHouse w różnych klimatach oraz bity produkowane od podstaw na zamówienie. Producent Jezzy.C.";
 
@@ -34,7 +34,7 @@ function BeatsPage() {
       eyebrow="Bity"
       title="Bity"
       accent="z RapHouse."
-      intro="Wybierz bit z katalogu albo zamów produkcję od podstaw — pod Twój numer, klimat i tempo."
+      intro="Wybierz bit z katalogu albo zamów produkcję od podstaw - pod Twój numer, klimat i tempo."
     >
       <Catalog />
       <CustomBeat />
@@ -49,7 +49,7 @@ function Catalog() {
   const { data: allCategories } = useBeatCategories();
   const [category, setCategory] = useState<string | null>(null);
 
-  // Tylko kategorie, w których są bity — w kolejności ustawionej w panelu.
+  // Tylko kategorie, w których są bity - w kolejności ustawionej w panelu.
   const categories = useMemo(() => {
     const used = new Set((data ?? []).map((b) => b.category));
     return (allCategories ?? []).map((c) => c.name).filter((n) => used.has(n));
@@ -66,8 +66,8 @@ function Catalog() {
           </h2>
           <p className="mt-6 max-w-2xl leading-relaxed text-muted-foreground">
             Bity w różnych klimatach, brzmieniach i tempach
-            {catalogPrice && <> — w cenach {catalogPrice}</>}. Spodobał Ci się któryś? Zadzwoń albo
-            napisz, podając tytuł bitu — wrócimy z finalną wyceną.
+            {catalogPrice && <> - w cenach {catalogPrice}</>}. Spodobał Ci się któryś? Zadzwoń albo
+            napisz, podając tytuł bitu - wrócimy z finalną wyceną.
           </p>
         </Reveal>
 
@@ -130,7 +130,7 @@ function CustomBeat() {
               Od zera, <span className="text-primary">pod Ciebie.</span>
             </h2>
             <p className="mt-6 max-w-xl leading-relaxed text-muted-foreground">
-              Producent tworzy bit od podstaw — pod Twój numer, klimat, tempo, a nawet pod gotową
+              Producent tworzy bit od podstaw - pod Twój numer, klimat, tempo, a nawet pod gotową
               acapellę. Masz realny wpływ na każdy element brzmienia.
             </p>
           </div>
@@ -170,7 +170,7 @@ function Producer() {
               <dt className="eyebrow mb-3">Wykształcenie</dt>
               <dd className="leading-relaxed text-muted-foreground">
                 Państwowa Szkoła Muzyczna I stopnia w Sanoku (perkusja, fortepian, keyboard) oraz
-                studia „Music Production BSc” w Derby (UK) — produkcja i realizacja muzyki,
+                studia „Music Production BSc” w Derby (UK) - produkcja i realizacja muzyki,
                 akustyka, prawo autorskie.
               </dd>
             </div>

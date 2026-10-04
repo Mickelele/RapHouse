@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * RapHouse design system — dark, premium, underground.
+ * RapHouse design system - dark, premium, underground.
  * Colors in oklch. Display type: Anton. Body: Barlow.
  */
 
@@ -43,7 +43,7 @@
   --font-display-family: "Anton", "Arial Black", sans-serif;
   --font-body-family: "Barlow", system-ui, sans-serif;
 
-  /* Kolor marki — zmień tutaj, a zmieni się w całej stronie. Zielony ze starej raphouse.pl. */
+  /* Kolor marki - zmień tutaj, a zmieni się w całej stronie. Zielony ze starej raphouse.pl. */
   --brand: #8cc53f;
   --brand-foreground: oklch(0.14 0.005 285);
 

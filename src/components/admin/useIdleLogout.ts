@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
-// Czas bezczynności, po którym panel wylogowuje — zmień tutaj.
+// Czas bezczynności, po którym panel wylogowuje - zmień tutaj.
 export const IDLE_TIMEOUT_MS = 10 * 60 * 1000;
 // Na ile wcześniej pokazać ostrzeżenie.
 export const IDLE_WARNING_MS = 60 * 1000;
@@ -10,7 +10,7 @@ const ACTIVITY_KEY = "rh-admin-last-activity";
 const LOGOUT_REASON_KEY = "rh-admin-logout-reason";
 const CHANNEL = "rh-admin-activity";
 const EVENTS = ["mousemove", "keydown", "click", "scroll", "touchstart"] as const;
-// Zapis aktywności najczęściej co tyle — mousemove strzela setki razy na sekundę.
+// Zapis aktywności najczęściej co tyle - mousemove strzela setki razy na sekundę.
 const WRITE_THROTTLE_MS = 2000;
 
 function readLastActivity() {
@@ -25,11 +25,11 @@ function writeLastActivity(t: number) {
   try {
     localStorage.setItem(ACTIVITY_KEY, String(t));
   } catch {
-    /* tryb prywatny itp. — zostaje licznik w pamięci karty */
+    /* tryb prywatny itp. - zostaje licznik w pamięci karty */
   }
 }
 
-// Komunikat dla ekranu logowania — czytany raz, potem kasowany.
+// Komunikat dla ekranu logowania - czytany raz, potem kasowany.
 export function takeLogoutReason(): string | null {
   try {
     const raw = localStorage.getItem(LOGOUT_REASON_KEY);
@@ -43,7 +43,7 @@ export function takeLogoutReason(): string | null {
   }
 }
 
-// Świeże logowanie — stara znacznik aktywności z poprzedniej sesji nie może od razu wylogować.
+// Świeże logowanie - stara znacznik aktywności z poprzedniej sesji nie może od razu wylogować.
 export function resetActivity() {
   writeLastActivity(Date.now());
 }
@@ -96,7 +96,7 @@ export function useIdleLogout(enabled: boolean) {
       },
     );
 
-    // Powrót po długiej przerwie (np. zamknięta przeglądarka) — licznik ze storage.
+    // Powrót po długiej przerwie (np. zamknięta przeglądarka) - licznik ze storage.
     const stored = readLastActivity();
     last.current = stored || Date.now();
     if (!stored) markActive(true);

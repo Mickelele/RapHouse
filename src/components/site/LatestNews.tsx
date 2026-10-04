@@ -9,7 +9,7 @@ export function LatestNews() {
   const { data } = useNews();
   if (!data?.length) return null;
 
-  // Przypięta + 2 najnowsze nieprzypięte; bez przypiętej — 3 najnowsze.
+  // Przypięta + 2 najnowsze nieprzypięte; bez przypiętej - 3 najnowsze.
   const pinned = data.find((p) => p.pinned) ?? null;
   const rest = data.filter((p) => p !== pinned).slice(0, pinned ? 2 : 3);
 

@@ -21,7 +21,7 @@ import { Contact } from "@/components/site/Contact";
 import { Footer } from "@/components/site/Footer";
 import { MobileCta } from "@/components/site/MobileCta";
 
-const title = "RapHouse — studio nagrań w Warszawie | Nagrania, mix, mastering";
+const title = "RapHouse - studio nagrań w Warszawie | Nagrania, mix, mastering";
 const description =
   "Profesjonalne studio nagrań rap i hip-hop w Warszawie (Łojewska 22). Sesje z realizatorem, samoobsługa, mix/mastering i bity.";
 

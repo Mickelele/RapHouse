@@ -5,7 +5,7 @@
 export type GalleryImage = {
   id: string;
   alt: string;
-  // Wymiary największej wersji — potrzebne, żeby strona nie skakała przy ładowaniu.
+  // Wymiary największej wersji - potrzebne, żeby strona nie skakała przy ładowaniu.
   width: number;
   height: number;
   src640: string;
@@ -23,7 +23,7 @@ function placeholder(file: string, alt: string, width: number, height: number): 
   };
 }
 
-// TODO: zdjęcia od klienta — placeholdery wycięte z obecnych zdjęć strony.
+// TODO: zdjęcia od klienta - placeholdery wycięte z obecnych zdjęć strony.
 export const galleryImages: GalleryImage[] = [
   placeholder("placeholder-01", "Kabina nagraniowa RapHouse z mikrofonem", 1280, 960),
   placeholder("placeholder-02", "Mikrofon pojemnościowy w kabinie", 1024, 1280),

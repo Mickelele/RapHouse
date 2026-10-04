@@ -135,7 +135,7 @@ function AudioGrid({ items }: { items: AudioItem[] }) {
               {track.image_url && !open && (
                 <img
                   src={track.image_url}
-                  alt={`${track.artist} — ${track.title}`}
+                  alt={`${track.artist} - ${track.title}`}
                   loading="lazy"
                   className="aspect-square w-full rounded-md object-cover"
                 />
@@ -208,7 +208,7 @@ export function VideoGrid({ items }: { items: Project[] }) {
       {items.map((clip, i) => (
         <Reveal key={clip.id} delay={(i % 3) * 80}>
           <article className="card-surface flex h-full flex-col gap-5 p-5 md:p-6">
-            <YouTubeLite video={clip.video_url} title={`${clip.artist} — ${clip.title}`} />
+            <YouTubeLite video={clip.video_url} title={`${clip.artist} - ${clip.title}`} />
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary">
                 {clip.artist}

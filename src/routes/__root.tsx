@@ -79,7 +79,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "theme-color", content: "#0d0d10" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "RapHouse — studio nagrań Warszawa" },
+      { title: "RapHouse - studio nagrań Warszawa" },
       { name: "description", content: "Studio nagrań rap i hip-hop w Warszawie." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

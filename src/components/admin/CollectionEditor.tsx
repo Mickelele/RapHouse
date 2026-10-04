@@ -38,7 +38,7 @@ export type Field = {
     // Zdjęcie galerii: wgrywa WebP 640/1280 i ustawia src_640, src_1280, width, height.
     | "gallery-image";
   required?: boolean;
-  // Dla type "select" — pierwsza opcja jest domyślna przy nowym wpisie.
+  // Dla type "select" - pierwsza opcja jest domyślna przy nowym wpisie.
   options?: { value: string; label: string }[];
   placeholder?: string;
   hint?: string;
@@ -72,7 +72,7 @@ export type Row = Record<string, unknown> & {
   published?: boolean | undefined;
 };
 
-// Kolumny NOT NULL z wartością domyślną w bazie — pustych nie wysyłamy.
+// Kolumny NOT NULL z wartością domyślną w bazie - pustych nie wysyłamy.
 const NOT_NULL = new Set([
   "published_at",
   "sort_order",
@@ -285,7 +285,7 @@ function EditDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>
-            {initial.id ? "Edytuj" : "Dodaj"} — {config.label}
+            {initial.id ? "Edytuj" : "Dodaj"} - {config.label}
           </DialogTitle>
         </DialogHeader>
         <form
@@ -469,7 +469,7 @@ function CategorySelect({
       onChange={(e) => onChange(e.target.value || null)}
       className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm shadow-xs focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
     >
-      <option value="">— bez kategorii —</option>
+      <option value="">- bez kategorii -</option>
       {data?.map((c) => (
         <option key={c.id} value={c.name}>
           {c.name}
@@ -619,7 +619,7 @@ function PriceLinesField({
         <div key={i} className="flex gap-2">
           <Input
             className="w-1/2"
-            placeholder="Opis (np. 1h – 2h) — opcjonalnie"
+            placeholder="Opis (np. 1h – 2h) - opcjonalnie"
             value={l.label ?? ""}
             onChange={(e) => update(i, { label: e.target.value })}
           />
