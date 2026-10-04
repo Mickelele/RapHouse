@@ -211,8 +211,3 @@ export const nav: NavItem[] = [
   { label: "Aktualności", href: "/aktualnosci" },
   { label: "Kontakt", href: "/#kontakt" },
 ];
-
-// Wszystkie linki menu po kolei (stopka).
-export const navLinks: NavLink[] = nav.flatMap((item) =>
-  "children" in item ? item.children : [item],
-);

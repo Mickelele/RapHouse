@@ -16,7 +16,6 @@ import { Backstage } from "@/components/site/Backstage";
 import { TrackFeedback } from "@/components/site/TrackFeedback";
 import { features } from "@/data/features";
 import { About } from "@/components/site/About";
-import { Contact } from "@/components/site/Contact";
 import { Footer } from "@/components/site/Footer";
 import { MobileCta } from "@/components/site/MobileCta";
 
@@ -61,7 +60,6 @@ function Index() {
         {features.backstage && <Backstage />}
         {features.trackFeedback && <TrackFeedback />}
         <About />
-        <Contact />
       </main>
       <Footer />
       <MobileCta />
