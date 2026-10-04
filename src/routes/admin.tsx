@@ -14,6 +14,7 @@ import {
   takeLogoutReason,
   useIdleLogout,
 } from "@/components/admin/useIdleLogout";
+import { useServerSession } from "@/components/admin/useServerSession";
 import { GalleryBulkUpload } from "@/components/admin/GalleryBulkUpload";
 import { removeGalleryFiles } from "@/lib/gallery-upload";
 import { formatDate, youTubeId } from "@/lib/media";
@@ -339,9 +340,10 @@ function AdminPage() {
     supabase!.rpc("is_admin").then(({ data }) => setIsAdmin(!!data));
   }, [session]);
 
-  const { secondsLeft, stayLoggedIn, expired, resetExpired } = useIdleLogout(
-    !!session && isAdmin === true,
-  );
+  const adminActive = !!session && isAdmin === true;
+  const { secondsLeft, stayLoggedIn, expired, resetExpired, logOut } = useIdleLogout(adminActive);
+  // Serwer też pilnuje bezczynności (endpoint logout_idle_admins wołany przez cron).
+  useServerSession(adminActive && !expired, () => void logOut());
   // Po upływie czasu bezczynności panel znika od razu, nawet zanim serwer potwierdzi wylogowanie.
   const loggedIn = !!session && !expired;
 

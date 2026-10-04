@@ -187,5 +187,5 @@ export function useIdleLogout(enabled: boolean) {
     };
   }, [enabled, markActive, logOut]);
 
-  return { secondsLeft, stayLoggedIn, expired, resetExpired };
+  return { secondsLeft, stayLoggedIn, expired, resetExpired, logOut };
 }
