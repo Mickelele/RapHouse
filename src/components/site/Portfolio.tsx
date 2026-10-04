@@ -186,7 +186,7 @@ function AudioGrid({ items }: { items: AudioItem[] }) {
   );
 }
 
-function VideoGrid({ items }: { items: Project[] }) {
+export function VideoGrid({ items }: { items: Project[] }) {
   if (!items.length) {
     return (
       <div className="card-surface flex flex-col items-center gap-6 p-10 text-center text-muted-foreground">

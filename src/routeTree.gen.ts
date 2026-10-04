@@ -14,6 +14,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AktualnosciRouteImport } from './routes/aktualnosci'
 import { Route as BityRouteImport } from './routes/bity'
 import { Route as GaleriaRouteImport } from './routes/galeria'
+import { Route as KlipyRouteImport } from './routes/klipy'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const GaleriaRoute = GaleriaRouteImport.update({
   path: '/galeria',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KlipyRoute = KlipyRouteImport.update({
+  id: '/klipy',
+  path: '/klipy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/aktualnosci': typeof AktualnosciRoute
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
+  '/klipy': typeof KlipyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/aktualnosci': typeof AktualnosciRoute
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
+  '/klipy': typeof KlipyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,21 @@ export interface FileRoutesById {
   '/aktualnosci': typeof AktualnosciRoute
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
+  '/klipy': typeof KlipyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria'
+  fullPaths: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria' | '/klipy'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria'
-  id: '__root__' | '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria'
+  to: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria' | '/klipy'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/aktualnosci'
+    | '/bity'
+    | '/galeria'
+    | '/klipy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +93,7 @@ export interface RootRouteChildren {
   AktualnosciRoute: typeof AktualnosciRoute
   BityRoute: typeof BityRoute
   GaleriaRoute: typeof GaleriaRoute
+  KlipyRoute: typeof KlipyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +133,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GaleriaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/klipy': {
+      id: '/klipy'
+      path: '/klipy'
+      fullPath: '/klipy'
+      preLoaderRoute: typeof KlipyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +149,7 @@ const rootRouteChildren: RootRouteChildren = {
   AktualnosciRoute: AktualnosciRoute,
   BityRoute: BityRoute,
   GaleriaRoute: GaleriaRoute,
+  KlipyRoute: KlipyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

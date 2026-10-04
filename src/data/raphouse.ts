@@ -272,6 +272,7 @@ export const nav: { label: string; href: string; wideOnly?: boolean }[] = [
   { label: "Cennik", href: "/#cennik" },
   { label: "Bity", href: "/bity" },
   { label: "Realizacje", href: "/#realizacje" },
+  { label: "Klipy", href: "/klipy", wideOnly: true },
   { label: "Aktualności", href: "/aktualnosci" },
   { label: "O nas", href: "/#o-nas" },
   { label: "Kontakt", href: "/#kontakt" },
