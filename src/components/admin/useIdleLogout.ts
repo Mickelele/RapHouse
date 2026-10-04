@@ -21,6 +21,17 @@ function readLastActivity() {
   }
 }
 
+// Twarde usunięcie sesji Supabase z przeglądarki - gdy wylogowanie przez serwer się nie uda
+// (np. brak sieci), sesja i tak nie może zostać.
+function removeStoredSession() {
+  try {
+    for (const key of Object.keys(localStorage))
+      if (/^sb-.+-auth-token/.test(key)) localStorage.removeItem(key);
+  } catch {
+    /* ignoruj */
+  }
+}
+
 function writeLastActivity(t: number) {
   try {
     localStorage.setItem(ACTIVITY_KEY, String(t));
@@ -59,10 +70,14 @@ export function clearLogoutReason() {
 /**
  * Wylogowuje po IDLE_TIMEOUT_MS bez aktywności. Ostatnia aktywność jest wspólna dla wszystkich
  * kart (localStorage + BroadcastChannel), więc praca w jednej karcie nie wyloguje drugiej.
- * Zwraca liczbę sekund do wylogowania, gdy trwa ostrzeżenie (inaczej null), i funkcję „zostań”.
+ * Zwraca liczbę sekund do wylogowania, gdy trwa ostrzeżenie (inaczej null), funkcję „zostań”
+ * oraz `expired` - po upływie czasu panel ma pokazać ekran logowania od razu, bez czekania
+ * na odpowiedź serwera.
  */
 export function useIdleLogout(enabled: boolean) {
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [expired, setExpired] = useState(false);
+  const loggingOut = useRef(false);
   const last = useRef(0);
   const lastWrite = useRef(0);
   const warning = useRef(false);
@@ -75,6 +90,36 @@ export function useIdleLogout(enabled: boolean) {
       lastWrite.current = now;
       writeLastActivity(now);
       channel.current?.postMessage({ type: "activity", at: now });
+    }
+  }, []);
+
+  // Po ponownym zalogowaniu.
+  const resetExpired = useCallback(() => {
+    loggingOut.current = false;
+    setExpired(false);
+  }, []);
+
+  const logOut = useCallback(async () => {
+    if (loggingOut.current) return;
+    loggingOut.current = true;
+    // Komunikat zapisany przed pokazaniem ekranu logowania, który go odczyta.
+    try {
+      localStorage.setItem(LOGOUT_REASON_KEY, JSON.stringify({ reason: "idle", at: Date.now() }));
+    } catch {
+      /* ignoruj */
+    }
+    warning.current = false;
+    setSecondsLeft(null);
+    setExpired(true);
+    // "local": wylogowuje tę przeglądarkę; inne urządzenia zostają zalogowane.
+    const res = await supabase?.auth
+      .signOut({ scope: "local" })
+      .catch((e: Error) => ({ error: e }));
+    if (res?.error) removeStoredSession();
+    try {
+      localStorage.removeItem(ACTIVITY_KEY);
+    } catch {
+      /* ignoruj */
     }
   }, []);
 
@@ -120,19 +165,7 @@ export function useIdleLogout(enabled: boolean) {
 
       if (left <= 0) {
         clearInterval(tick);
-        try {
-          localStorage.setItem(
-            LOGOUT_REASON_KEY,
-            JSON.stringify({ reason: "idle", at: Date.now() }),
-          );
-          localStorage.removeItem(ACTIVITY_KEY);
-        } catch {
-          /* ignoruj */
-        }
-        warning.current = false;
-        setSecondsLeft(null);
-        // Supabase czyści sesję we wszystkich kartach; panel wraca do ekranu logowania.
-        void supabase?.auth.signOut();
+        void logOut();
       } else if (left <= IDLE_WARNING_MS) {
         warning.current = true;
         setSecondsLeft(Math.ceil(left / 1000));
@@ -152,7 +185,7 @@ export function useIdleLogout(enabled: boolean) {
       warning.current = false;
       setSecondsLeft(null);
     };
-  }, [enabled, markActive]);
+  }, [enabled, markActive, logOut]);
 
-  return { secondsLeft, stayLoggedIn };
+  return { secondsLeft, stayLoggedIn, expired, resetExpired };
 }

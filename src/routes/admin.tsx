@@ -339,7 +339,11 @@ function AdminPage() {
     supabase!.rpc("is_admin").then(({ data }) => setIsAdmin(!!data));
   }, [session]);
 
-  const { secondsLeft, stayLoggedIn } = useIdleLogout(!!session && isAdmin === true);
+  const { secondsLeft, stayLoggedIn, expired, resetExpired } = useIdleLogout(
+    !!session && isAdmin === true,
+  );
+  // Po upływie czasu bezczynności panel znika od razu, nawet zanim serwer potwierdzi wylogowanie.
+  const loggedIn = !!session && !expired;
 
   const signOut = () => {
     clearLogoutReason();
@@ -354,10 +358,12 @@ function AdminPage() {
         <code>VITE_SUPABASE_ANON_KEY</code> w pliku <code>.env</code>.
       </Notice>
     );
-  } else if (session === undefined || (session && isAdmin === null)) {
+  } else if (session === undefined) {
     content = <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />;
-  } else if (!session) {
-    content = <LoginForm />;
+  } else if (!loggedIn) {
+    content = <LoginForm onLoggedIn={resetExpired} />;
+  } else if (isAdmin === null) {
+    content = <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />;
   } else if (!isAdmin) {
     content = (
       <Notice>
@@ -394,7 +400,7 @@ function AdminPage() {
             <img src={logo} alt="RapHouse" className="h-10 w-auto" />
             <span className="eyebrow">Panel admina</span>
           </a>
-          {session && (
+          {loggedIn && (
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="size-4" /> Wyloguj
             </Button>
@@ -441,7 +447,7 @@ function Notice({ children }: { children: React.ReactNode }) {
   );
 }
 
-function LoginForm() {
+function LoginForm({ onLoggedIn }: { onLoggedIn: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -459,7 +465,10 @@ function LoginForm() {
         const { error } = await supabase!.auth.signInWithPassword({ email, password });
         setLoading(false);
         if (error) setError("Nieprawidłowy email lub hasło.");
-        else clearLogoutReason();
+        else {
+          clearLogoutReason();
+          onLoggedIn();
+        }
       }}
     >
       <h1 className="font-display text-4xl">Zaloguj się</h1>
