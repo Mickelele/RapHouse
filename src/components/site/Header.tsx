@@ -34,7 +34,10 @@ export function Header() {
             <a
               key={item.href}
               href={item.href}
-              className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground"
+              className={cn(
+                "text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-foreground",
+                item.wideOnly && "hidden xl:inline",
+              )}
             >
               {item.label}
             </a>

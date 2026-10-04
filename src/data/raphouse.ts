@@ -263,8 +263,11 @@ export const stats = [
   { value: "Warszawa", label: "Targówek, Łojewska 22" },
 ];
 
-export const nav = [
+// wideOnly: w górnym pasku dopiero od 1280 px (inaczej menu nie mieści się w jednej linii);
+// w menu mobilnym i stopce zawsze.
+export const nav: { label: string; href: string; wideOnly?: boolean }[] = [
   { label: "Studio", href: "/#studio" },
+  { label: "Galeria", href: "/galeria", wideOnly: true },
   { label: "Oferta", href: "/#oferta" },
   { label: "Cennik", href: "/#cennik" },
   { label: "Bity", href: "/bity" },

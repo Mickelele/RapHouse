@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AktualnosciRouteImport } from './routes/aktualnosci'
 import { Route as BityRouteImport } from './routes/bity'
+import { Route as GaleriaRouteImport } from './routes/galeria'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const BityRoute = BityRouteImport.update({
   path: '/bity',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GaleriaRoute = GaleriaRouteImport.update({
+  id: '/galeria',
+  path: '/galeria',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/aktualnosci': typeof AktualnosciRoute
   '/bity': typeof BityRoute
+  '/galeria': typeof GaleriaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/aktualnosci': typeof AktualnosciRoute
   '/bity': typeof BityRoute
+  '/galeria': typeof GaleriaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/aktualnosci': typeof AktualnosciRoute
   '/bity': typeof BityRoute
+  '/galeria': typeof GaleriaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/aktualnosci' | '/bity'
+  fullPaths: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/aktualnosci' | '/bity'
-  id: '__root__' | '/' | '/admin' | '/aktualnosci' | '/bity'
+  to: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria'
+  id: '__root__' | '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +76,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AktualnosciRoute: typeof AktualnosciRoute
   BityRoute: typeof BityRoute
+  GaleriaRoute: typeof GaleriaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galeria': {
+      id: '/galeria'
+      path: '/galeria'
+      fullPath: '/galeria'
+      preLoaderRoute: typeof GaleriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AktualnosciRoute: AktualnosciRoute,
   BityRoute: BityRoute,
+  GaleriaRoute: GaleriaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

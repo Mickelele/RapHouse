@@ -7,6 +7,7 @@ import { Services } from "@/components/site/Services";
 import { Pricing } from "@/components/site/Pricing";
 import { Process } from "@/components/site/Process";
 import { Studio } from "@/components/site/Studio";
+import { GalleryTeaser } from "@/components/site/GalleryTeaser";
 import { Portfolio } from "@/components/site/Portfolio";
 import { LatestBeats } from "@/components/site/LatestBeats";
 import { LatestNews } from "@/components/site/LatestNews";
@@ -47,6 +48,7 @@ function Index() {
         <LatestBeats />
         <Process />
         <Studio />
+        <GalleryTeaser />
         <Portfolio />
         <LatestNews />
         <Community />
