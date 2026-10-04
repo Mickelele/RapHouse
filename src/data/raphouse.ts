@@ -263,17 +263,39 @@ export const stats = [
   { value: "Warszawa", label: "Targówek, Łojewska 22" },
 ];
 
-// wideOnly: w górnym pasku dopiero od 1280 px (inaczej menu nie mieści się w jednej linii);
-// w menu mobilnym i stopce zawsze.
-export const nav: { label: string; href: string; wideOnly?: boolean }[] = [
-  { label: "Studio", href: "/#studio" },
-  { label: "Galeria", href: "/galeria", wideOnly: true },
-  { label: "Oferta", href: "/#oferta" },
-  { label: "Cennik", href: "/#cennik" },
+export type NavLink = { label: string; href: string };
+export type NavItem = NavLink | { label: string; children: NavLink[] };
+
+// Menu: grupy rozwijane + najważniejsze pozycje pojedynczo.
+export const nav: NavItem[] = [
+  {
+    label: "Studio",
+    children: [
+      { label: "O studiu", href: "/#studio" },
+      { label: "Galeria", href: "/galeria" },
+      { label: "O nas", href: "/#o-nas" },
+    ],
+  },
+  {
+    label: "Oferta",
+    children: [
+      { label: "Usługi", href: "/#oferta" },
+      { label: "Cennik", href: "/#cennik" },
+    ],
+  },
   { label: "Bity", href: "/bity" },
-  { label: "Realizacje", href: "/#realizacje" },
-  { label: "Klipy", href: "/klipy", wideOnly: true },
+  {
+    label: "Realizacje",
+    children: [
+      { label: "Nagrania", href: "/#realizacje" },
+      { label: "Klipy", href: "/klipy" },
+    ],
+  },
   { label: "Aktualności", href: "/aktualnosci" },
-  { label: "O nas", href: "/#o-nas" },
   { label: "Kontakt", href: "/#kontakt" },
 ];
+
+// Wszystkie linki menu po kolei (stopka).
+export const navLinks: NavLink[] = nav.flatMap((item) =>
+  "children" in item ? item.children : [item],
+);

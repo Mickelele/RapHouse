@@ -1,5 +1,5 @@
 import logo from "@/assets/raphouse-logo.png";
-import { contact, nav } from "@/data/raphouse";
+import { contact, navLinks } from "@/data/raphouse";
 
 export function Footer() {
   return (
@@ -9,7 +9,7 @@ export function Footer() {
           <img src={logo} alt="RapHouse" className="w-[clamp(10rem,30vw,20rem)] h-auto" />
 
           <nav className="flex flex-col gap-3">
-            {nav.map((item) => (
+            {navLinks.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
