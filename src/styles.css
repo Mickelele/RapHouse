@@ -269,3 +269,16 @@
     will-change: transform;
   }
 }
+
+/* Ekran ładowania: awaryjne schowanie bez JS (z JS chowa się sam, gdy klatki są wczytane). */
+@keyframes loader-failsafe-hide {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@utility loader-failsafe {
+  animation: loader-failsafe-hide 0.5s ease 15s forwards;
+}
