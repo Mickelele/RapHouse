@@ -47,7 +47,11 @@ export function Hero() {
         <div className="pointer-events-none absolute inset-0 lg:relative lg:inset-auto lg:order-2">
           <div className="sticky top-0 ml-auto flex h-[100svh] w-[70%] items-center justify-center pt-20 opacity-45 sm:w-[55%] lg:w-full lg:opacity-100">
             <div className="absolute size-[60%] rounded-full bg-primary/15 blur-3xl" />
-            <MicSequence getProgress={getProgress} className="relative h-[82%] w-full" />
+            {/* Klatki mają czarne tło - "lighten" chowa je w ciemnym tle strony. */}
+            <MicSequence
+              getProgress={getProgress}
+              className="relative h-[82%] w-full mix-blend-lighten"
+            />
           </div>
         </div>
 
