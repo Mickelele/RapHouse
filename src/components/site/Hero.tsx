@@ -42,15 +42,19 @@ export function Hero() {
         <div className="absolute inset-0 bg-background/40" />
       </div>
 
+      {/* Desktop: prawa strona (pas z mikrofonem) jednolicie czarna, do krawędzi ekranu. */}
+      <div className="absolute inset-y-0 right-0 hidden bg-black lg:block lg:left-[54%]" />
+
       <div className="relative mx-auto grid max-w-[1400px] px-5 md:px-10 lg:grid-cols-[1.15fr_1fr] lg:gap-10">
         {/* Mikrofon: prawa kolumna na desktopie, tło za tekstem na telefonie. */}
         <div className="pointer-events-none absolute inset-0 lg:relative lg:inset-auto lg:order-2">
           <div className="sticky top-0 ml-auto flex h-[100svh] w-[70%] items-center justify-center pt-20 opacity-45 sm:w-[55%] lg:w-full lg:opacity-100">
-            <div className="absolute size-[60%] rounded-full bg-primary/15 blur-3xl" />
-            {/* Klatki mają czarne tło - "lighten" chowa je w ciemnym tle strony. */}
+            <div className="absolute size-[60%] rounded-full bg-primary/15 blur-3xl lg:hidden" />
+            {/* Klatki mają czarne tło: na desktopie stoją na czarnym pasie, na telefonie "lighten"
+                chowa je w tle za tekstem. */}
             <MicSequence
               getProgress={getProgress}
-              className="relative h-[82%] w-full mix-blend-lighten"
+              className="relative h-[82%] w-full mix-blend-lighten lg:mix-blend-normal"
             />
           </div>
         </div>
