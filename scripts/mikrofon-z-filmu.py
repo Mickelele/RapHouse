@@ -2,7 +2,7 @@
 Film z mikrofonem na białym tle -> 144 klatki PNG z przezroczystym tłem (do mikrofon-zrodla/).
 
 Użycie:  python scripts/mikrofon-z-filmu.py ŚCIEŻKA_DO_FILMU.mp4
-Wymaga:  python -m pip install opencv-python numpy
+Wymaga:  python -m pip install opencv-python numpy "rembg[cpu]"  (model u2net ~176 MB pobiera się sam)
 Potem wersje na stronę (przycięte, 760 px, WebP) idą do public/mikrofon/frame_001…144.webp.
 
 1. Dekodowanie i zmniejszenie do 1080x1920 (INTER_AREA - przy okazji tłumi szum kompresji).
@@ -32,6 +32,14 @@ HARD = 22  # powyżej: na pewno obiekt
 SOFT_LO, SOFT_HI = 7, 70  # miękka krawędź
 RING_DARK = 120  # średnia jasność otoczenia wyspy poniżej = prześwit (tło)
 MIN_SPECK = 40  # drobne plamki szumu kompresji (px) usuwane
+# "Jasne, szare i gładkie" piksele na skraju obiektu = zacienione tło (np. w uchwycie), a nie
+# krawędź mikrofonu - nie dostają półprzezroczystości (inaczej zostaje szara mgiełka).
+LIGHT_LUM = 205
+LIGHT_SAT = 28
+LIGHT_STD = 6
+# Piksele, które model AI może usunąć (tylko jasne i szarawe - nigdy ciemny metal).
+ML_LIGHT_LUM = 150
+ML_LIGHT_SAT = 40
 
 
 def read_frames():
@@ -80,12 +88,34 @@ def background_plate(img):
     return cv2.resize(plate, (W, H), interpolation=cv2.INTER_LINEAR).astype(np.float32)
 
 
+_session = None
+
+
+def ml_mask(img):
+    """Maska przedmiotu z modelu u2net (rembg); 0-255."""
+    global _session
+    from PIL import Image
+    from rembg import new_session, remove
+
+    if _session is None:
+        _session = new_session("u2net")
+    rgb = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    return np.array(remove(rgb, session=_session, only_mask=True))
+
+
 def matte(img):
     bg = background_plate(img)
     f = img.astype(np.float32)
     dist = np.linalg.norm(f - bg, axis=2)
     lum = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.float32)
 
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    mean = cv2.blur(lum, (5, 5))
+    std = np.sqrt(np.maximum(cv2.blur(lum * lum, (5, 5)) - mean * mean, 0))
+    light_smooth = (lum > LIGHT_LUM) & (hsv[..., 1] < LIGHT_SAT) & (std < LIGHT_STD)
+
+    # light_smooth NIE wycina pełnych fragmentów (tak wyglądają też refleksy na metalu),
+    # tylko zeruje półprzezroczystą mgiełkę zacienionego tła - patrz `soft` niżej.
     obj = (dist > HARD).astype(np.uint8)
     # drobny szum kompresji wokół krawędzi
     n, lab, stats, _ = cv2.connectedComponentsWithStats(obj, 8)
@@ -115,11 +145,22 @@ def matte(img):
 
     # alfa: wnętrze pełne, krawędzie miękkie wg odległości od koloru tła
     soft = np.clip((dist - SOFT_LO) / (SOFT_HI - SOFT_LO), 0, 1)
+    soft[light_smooth] = 0
     inner = cv2.erode(solid, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
     near = cv2.dilate(solid, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
     alpha = np.where(inner > 0, 1.0, soft) * (near > 0)
     # wyspy uznane za metal: pełne krycie (inaczej byłyby półprzezroczyste)
     alpha = np.maximum(alpha, (solid > 0) & (obj == 0)).astype(np.float32)
+
+    # Model AI (u2net) rozstrzyga to, czego nie da się poznać po kolorze: jasny fragment
+    # otoczony czarnym metalem to albo cień tła w szczelinie uchwytu, albo refleks na metalu.
+    # Model może usunąć wyłącznie JASNE piksele i tylko tam, gdzie z zapasem widzi tło -
+    # ciemne krawędzie, siatka i prześwity między częściami zostają z metody kolorowej.
+    ml = ml_mask(img)
+    ml_fg = cv2.dilate((ml > 127).astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+    light = (lum > ML_LIGHT_LUM) & (hsv[..., 1] < ML_LIGHT_SAT)
+    alpha[(ml_fg == 0) & light] = 0
+
     alpha = cv2.GaussianBlur(alpha, (3, 3), 0)
 
     # usunięcie białej poświaty: C = a*F + (1-a)*B  ->  F = (C - (1-a)*B) / a
