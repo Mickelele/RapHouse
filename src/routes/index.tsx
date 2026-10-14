@@ -15,6 +15,7 @@ import { LiveStreams } from "@/components/site/LiveStreams";
 import { Backstage } from "@/components/site/Backstage";
 import { TrackFeedback } from "@/components/site/TrackFeedback";
 import { features } from "@/data/features";
+import { frameSrc } from "@/lib/mic-frames";
 import { About } from "@/components/site/About";
 import { Footer } from "@/components/site/Footer";
 import { MobileCta } from "@/components/site/MobileCta";
@@ -36,6 +37,8 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    // Pierwsza klatka mikrofonu pobiera się razem z HTML, zanim ruszą skrypty.
+    links: [{ rel: "preload", as: "image", href: frameSrc(0), type: "image/webp" }],
   }),
   component: Index,
 });

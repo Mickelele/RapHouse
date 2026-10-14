@@ -1,22 +1,40 @@
-// Klatki animacji mikrofonu: public/mikrofon/000.webp … 143.webp (przezroczyste tło).
-// Wspólny magazyn: wczytuje je raz, a animacja i ekran ładowania tylko z niego korzystają.
+// Klatki animacji mikrofonu: public/mikrofon/frame_001.webp … frame_144.webp (przezroczyste tło,
+// zoptymalizowane; oryginały w mikrofon-zrodla/). Wspólny magazyn: wczytuje je raz, a animacja
+// i ekran ładowania tylko z niego korzystają.
 
 export const MIC_FRAMES = 144;
+// Co która klatka jest "kluczowa" - te idą pierwsze i tylko na nie czeka ekran ładowania.
+// Reszta dociąga się w tle, a animacja do tego czasu przenika między kluczowymi.
+const KEY_STEP = 6;
 // Ile klatek pobierać naraz.
 const CONCURRENCY = 8;
+// Pojedyncza klatka nie może zablokować całego ładowania (np. zawieszone połączenie).
+const FRAME_TIMEOUT_MS = 10_000;
+
+export const frameSrc = (i: number) => `/mikrofon/frame_${String(i + 1).padStart(3, "0")}.webp`;
+
+const keyFrames = new Set([
+  ...Array.from({ length: Math.ceil(MIC_FRAMES / KEY_STEP) }, (_, k) => k * KEY_STEP),
+  MIC_FRAMES - 1,
+]);
+export const KEY_FRAMES = keyFrames.size;
 
 const frames: (HTMLImageElement | null)[] = Array(MIC_FRAMES).fill(null);
-let done = 0; // wczytane albo nieudane - po MIC_FRAMES ładowanie jest skończone
+let done = 0; // wszystkie klatki: wczytane albo nieudane
+let keyDone = 0; // tylko kluczowe
 let started = false;
 const listeners = new Set<() => void>();
-
-const frameSrc = (i: number) => `/mikrofon/${String(i).padStart(3, "0")}.webp`;
 
 export function getFrame(i: number) {
   return frames[i] ?? null;
 }
 
-/** Ile klatek jest już gotowych (0 … MIC_FRAMES). */
+/** Ile kluczowych klatek jest gotowych (0 … KEY_FRAMES) - na tym czeka ekran ładowania. */
+export function getKeyDone() {
+  return keyDone;
+}
+
+/** Ile wszystkich klatek jest gotowych (0 … MIC_FRAMES). */
 export function getDone() {
   return done;
 }
@@ -27,9 +45,6 @@ export function subscribe(listener: () => void) {
     listeners.delete(listener);
   };
 }
-
-// Pojedyncza klatka nie może zablokować całego ładowania (np. zawieszone połączenie).
-const FRAME_TIMEOUT_MS = 10_000;
 
 function load(i: number) {
   return new Promise<void>((resolve) => {
@@ -45,6 +60,7 @@ function load(i: number) {
         img.decode?.().catch(() => {});
       }
       done++;
+      if (keyFrames.has(i)) keyDone++;
       for (const l of listeners) l();
       resolve();
     };
@@ -55,16 +71,15 @@ function load(i: number) {
   });
 }
 
-/** Rusza pobieranie (tylko raz): najpierw pierwsza klatka, potem reszta po kilka naraz. */
+/** Rusza pobieranie (tylko raz): najpierw klatki kluczowe, potem reszta, po kilka naraz. */
 export function startLoading() {
   if (started || typeof window === "undefined") return;
   started = true;
-  void (async () => {
-    await load(0);
-    let next = 1;
-    const worker = async () => {
-      while (next < MIC_FRAMES) await load(next++);
-    };
-    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
-  })();
+  const all = Array.from({ length: MIC_FRAMES }, (_, i) => i);
+  const queue = [...all.filter((i) => keyFrames.has(i)), ...all.filter((i) => !keyFrames.has(i))];
+  let next = 0;
+  const worker = async () => {
+    while (next < queue.length) await load(queue[next++]!);
+  };
+  void Promise.all(Array.from({ length: CONCURRENCY }, worker));
 }

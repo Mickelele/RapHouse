@@ -33,3 +33,5 @@ dist-ssr
 
 # Oryginały zdjęć do galerii (scripts/galeria.py) — do repo trafiają tylko wersje WebP
 galeria-zrodla/
+# Oryginalne klatki mikrofonu (pełna jakość) - na stronę idą zoptymalizowane z public/mikrofon
+mikrofon-zrodla/

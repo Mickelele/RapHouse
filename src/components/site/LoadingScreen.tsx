@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import logo from "@/assets/raphouse-logo.png";
-import { getDone, MIC_FRAMES, startLoading, subscribe } from "@/lib/mic-frames";
+import { getKeyDone, KEY_FRAMES, startLoading, subscribe } from "@/lib/mic-frames";
 import { cn } from "@/lib/utils";
 
 // Najdłużej, ile czekamy na klatki (wolny internet) - potem strona i tak się pokazuje.
@@ -8,15 +8,16 @@ const MAX_WAIT_MS = 12_000;
 const FADE_MS = 500;
 
 /**
- * Ekran ładowania strony głównej: czeka, aż wczytają się wszystkie klatki mikrofonu.
+ * Ekran ładowania strony głównej: czeka tylko na kluczowe klatki mikrofonu (co 6.) - reszta
+ * dociąga się w tle już po pokazaniu strony.
  * Renderowany już na serwerze, więc nie ma mignięcia treści. Bez JS chowa go samo CSS
  * (animacja `loader-failsafe`), żeby nikt nie utknął na zasłonie.
  */
 export function LoadingScreen() {
-  const done = useSyncExternalStore(subscribe, getDone, () => 0);
+  const done = useSyncExternalStore(subscribe, getKeyDone, () => 0);
   const [timedOut, setTimedOut] = useState(false);
   const [gone, setGone] = useState(false);
-  const finished = done >= MIC_FRAMES || timedOut;
+  const finished = done >= KEY_FRAMES || timedOut;
 
   useEffect(() => {
     startLoading();
@@ -38,7 +39,7 @@ export function LoadingScreen() {
   }, [finished]);
 
   if (gone) return null;
-  const percent = Math.round((done / MIC_FRAMES) * 100);
+  const percent = Math.round((done / KEY_FRAMES) * 100);
 
   return (
     <div

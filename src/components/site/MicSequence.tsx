@@ -31,12 +31,14 @@ export function MicSequence({
     let current = progressRef.current() * last; // aktualna (ułamkowa) pozycja w klatkach
     let raf = 0;
 
-    const nearest = (i: number) => {
-      for (let d = 0; d <= last; d++) {
-        const a = getFrame(i - d) ?? getFrame(i + d);
-        if (a) return a;
-      }
-      return null;
+    // Najbliższa wczytana klatka w dół / w górę od pozycji (gdy część klatek jeszcze się dociąga).
+    const loadedBelow = (pos: number) => {
+      for (let i = Math.floor(pos); i >= 0; i--) if (getFrame(i)) return i;
+      return -1;
+    };
+    const loadedAbove = (pos: number) => {
+      for (let i = Math.floor(pos) + 1; i <= last; i++) if (getFrame(i)) return i;
+      return -1;
     };
 
     const drawImage = (img: HTMLImageElement, alpha: number) => {
@@ -50,15 +52,17 @@ export function MicSequence({
     };
 
     const render = () => {
-      const base = Math.floor(current);
-      const t = current - base;
-      const a = nearest(base);
-      if (!a) return;
+      let lo = loadedBelow(current);
+      let hi = loadedAbove(current);
+      if (lo < 0 && hi < 0) return;
+      if (lo < 0) [lo, hi] = [hi, -1];
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawImage(a, 1);
-      // Przenikanie: następna klatka nałożona z przezroczystością równą części ułamkowej.
-      const b = t > 0.02 ? getFrame(base + 1) : null;
-      if (b) drawImage(b, t);
+      drawImage(getFrame(lo)!, 1);
+      // Przenikanie: następna wczytana klatka nałożona proporcjonalnie do pozycji między nimi.
+      if (hi > lo) {
+        const t = (current - lo) / (hi - lo);
+        if (t > 0.02) drawImage(getFrame(hi)!, t);
+      }
       ctx.globalAlpha = 1;
     };
 
