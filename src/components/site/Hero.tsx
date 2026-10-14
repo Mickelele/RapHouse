@@ -4,8 +4,13 @@ import logo from "@/assets/raphouse-logo.png";
 
 export function Hero() {
   const [offset, setOffset] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  // Napisy rozjeżdżają się szybciej niż przewijanie, żeby efekt był wyraźny.
+  // Limit: dalej napisy i tak są poza ekranem, a ogromne przesunięcia tylko obciążają przeglądarkę.
+  const slide = reduceMotion ? 0 : Math.min(offset, 1500) * 0.9;
 
   useEffect(() => {
+    setReduceMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
@@ -35,10 +40,20 @@ export function Hero() {
 
       <div className="relative mx-auto w-full max-w-[1400px] px-5 pb-16 pt-32 md:px-10 md:pb-20">
         <p className="eyebrow mb-6">Studio nagrań · Warszawa</p>
+        {/* Przy przewijaniu górna linia ucieka w lewo, dolna w prawo. */}
         <h1 className="font-display text-[clamp(3rem,11vw,10rem)]">
-          Nagraj to.
-          <br />
-          <span className="text-primary">Co masz</span> w głowie.
+          <span
+            className="block will-change-transform"
+            style={{ transform: `translate3d(${-slide}px, 0, 0)` }}
+          >
+            Nagraj to.
+          </span>
+          <span
+            className="block will-change-transform"
+            style={{ transform: `translate3d(${slide}px, 0, 0)` }}
+          >
+            <span className="text-primary">Co masz</span> w głowie.
+          </span>
         </h1>
         <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
           Profesjonalne studio nagrań w Warszawie dla artystów, którzy chcą brzmieć dobrze - od

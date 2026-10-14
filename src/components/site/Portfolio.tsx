@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/media";
 import { cn } from "@/lib/utils";
 import { AudioPlayer, LinkList, VideoEmbed } from "./Media";
 import { Reveal } from "./Reveal";
+import { ScatterGrid } from "./ScatterGrid";
 import { YouTubeLite } from "./YouTubeLite";
 
 type Category = "audio" | "video";
@@ -68,7 +69,7 @@ export function Portfolio() {
   const video = (data ?? []).filter((p) => p.category === "video");
 
   return (
-    <section id="realizacje" className="surface-deep border-y border-border">
+    <section id="realizacje" className="surface-deep overflow-x-clip border-y border-border">
       <div className="mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-32">
         <Reveal>
           <p className="eyebrow mb-6">Realizacje</p>
@@ -121,16 +122,12 @@ function AudioGrid({ items }: { items: AudioItem[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-      {items.map((track, i) => {
+    <ScatterGrid className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {items.map((track) => {
         const open = openId === track.id;
         const hasVideo = !!track.video_url;
         return (
-          <Reveal
-            key={track.id}
-            delay={(i % 4) * 80}
-            className={open && hasVideo ? "md:col-span-2" : ""}
-          >
+          <div key={track.id} className={open && hasVideo ? "md:col-span-2" : ""}>
             <div className="card-surface group flex h-full flex-col justify-between gap-6 p-7 transition-all duration-300 hover:border-primary">
               {track.image_url && !open && (
                 <img
@@ -179,10 +176,10 @@ function AudioGrid({ items }: { items: AudioItem[] }) {
               )}
               <LinkList links={track.links} />
             </div>
-          </Reveal>
+          </div>
         );
       })}
-    </div>
+    </ScatterGrid>
   );
 }
 
@@ -204,9 +201,9 @@ export function VideoGrid({ items }: { items: Project[] }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {items.map((clip, i) => (
-        <Reveal key={clip.id} delay={(i % 3) * 80}>
+    <ScatterGrid className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {items.map((clip) => (
+        <div key={clip.id}>
           <article className="card-surface flex h-full flex-col gap-5 p-5 md:p-6">
             <YouTubeLite video={clip.video_url} title={`${clip.artist} - ${clip.title}`} />
             <div>
@@ -228,8 +225,8 @@ export function VideoGrid({ items }: { items: Project[] }) {
             )}
             <LinkList links={clip.links} />
           </article>
-        </Reveal>
+        </div>
       ))}
-    </div>
+    </ScatterGrid>
   );
 }
