@@ -56,7 +56,13 @@ export function MicSequence({
       let hi = loadedAbove(current);
       if (lo < 0 && hi < 0) return;
       if (lo < 0) [lo, hi] = [hi, -1];
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Tło = kolor tła strony, klatki (czarne tło) nakładane trybem "lighten":
+      // czerń klatki staje się dokładnie tłem strony, więc nie widać prostokąta.
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = getComputedStyle(document.body).backgroundColor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.globalCompositeOperation = "lighten";
       drawImage(getFrame(lo)!, 1);
       // Przenikanie: następna wczytana klatka nałożona proporcjonalnie do pozycji między nimi.
       if (hi > lo) {
@@ -64,6 +70,7 @@ export function MicSequence({
         if (t > 0.02) drawImage(getFrame(hi)!, t);
       }
       ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
     };
 
     const tick = () => {

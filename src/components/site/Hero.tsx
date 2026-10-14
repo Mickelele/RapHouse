@@ -30,7 +30,7 @@ export function Hero() {
   return (
     <section id="top" ref={sectionRef} className="grain relative">
       {/* Zdjęcie studia tylko pod pierwszym ekranem. */}
-      <div className="absolute inset-x-0 top-0 h-[100svh] overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-[100svh] overflow-hidden lg:right-[46%]">
         <img
           src={heroStudio}
           alt=""
@@ -40,21 +40,19 @@ export function Hero() {
         />
         <div className="absolute inset-0" style={{ background: "var(--gradient-fade)" }} />
         <div className="absolute inset-0 bg-background/40" />
+        {/* Desktop: zdjęcie płynnie znika w stronę mikrofonu (prawa strona = zwykłe tło strony). */}
+        <div className="absolute inset-y-0 right-0 hidden w-48 bg-gradient-to-r from-transparent to-background lg:block" />
       </div>
-
-      {/* Desktop: prawa strona (pas z mikrofonem) jednolicie czarna, do krawędzi ekranu. */}
-      <div className="absolute inset-y-0 right-0 hidden bg-black lg:block lg:left-[54%]" />
 
       <div className="relative mx-auto grid max-w-[1400px] px-5 md:px-10 lg:grid-cols-[1.15fr_1fr] lg:gap-10">
         {/* Mikrofon: prawa kolumna na desktopie, tło za tekstem na telefonie. */}
         <div className="pointer-events-none absolute inset-0 lg:relative lg:inset-auto lg:order-2">
-          <div className="sticky top-0 ml-auto flex h-[100svh] w-[70%] items-center justify-center pt-20 opacity-45 sm:w-[55%] lg:w-full lg:opacity-100">
+          <div className="sticky top-0 ml-auto flex h-[100svh] w-[70%] items-center justify-center pt-16 opacity-45 sm:w-[55%] lg:w-full lg:opacity-100">
             <div className="absolute size-[60%] rounded-full bg-primary/15 blur-3xl lg:hidden" />
-            {/* Klatki mają czarne tło: na desktopie stoją na czarnym pasie, na telefonie "lighten"
-                chowa je w tle za tekstem. */}
+            {/* Canvas maluje tło kolorem strony (patrz MicSequence); na telefonie brzegi wygaszone maską. */}
             <MicSequence
               getProgress={getProgress}
-              className="relative h-[82%] w-full mix-blend-lighten lg:mix-blend-normal"
+              className="relative h-[94%] w-full max-lg:[mask-image:radial-gradient(closest-side,black_65%,transparent)]"
             />
           </div>
         </div>
