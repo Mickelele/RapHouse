@@ -7,13 +7,12 @@ import { Reveal } from "./Reveal";
 /**
  * Desktop: dwie kolumny - po lewej zwykle przewijana treść (wstęp + "To nie jest tylko studio"),
  * po prawej mikrofon przyklejony do ekranu (sticky), rozbierany w rytm przewijania sekcji.
- * Telefon: mikrofon to osobny blok między wstępem a "Ruchem", rozkładany, gdy przejeżdża przez
- * ekran - bez sticky, z którym przeglądarki w aplikacjach (Messenger, Instagram) na iOS
- * dublują i przesuwają treść.
+ * Telefon: mikrofon w tle pierwszego ekranu, za napisem "Nagraj to…", rozkładany przez pierwsze
+ * ~60% ekranu przewijania (zanim zjedzie) - bez sticky, z którym przeglądarki w aplikacjach
+ * (Messenger, Instagram) na iOS dublują i przesuwają treść.
  */
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const micRef = useRef<HTMLDivElement>(null);
   // Przy włączonym w systemie ograniczeniu animacji mikrofon zostaje złożony.
   const [animate, setAnimate] = useState(true);
 
@@ -31,11 +30,10 @@ export function Hero() {
       const range = r ? r.height - vh : 0;
       return r && range > 0 ? Math.min(1, Math.max(0, -r.top / range)) : 0;
     }
-    // Telefon: blok z mikrofonem - start, gdy wjeżdża od dołu (80% ekranu),
-    // koniec, gdy jego góra dojeżdża prawie do góry ekranu.
-    const r = micRef.current?.getBoundingClientRect();
-    if (!r || r.height === 0) return 0;
-    return Math.min(1, Math.max(0, (0.8 * vh - r.top) / (0.75 * vh)));
+    // Telefon: mikrofon stoi w tle pierwszego ekranu - rozkłada się przez pierwsze 60% ekranu
+    // przewijania, póki jest jeszcze widoczny.
+    const top = sectionRef.current?.getBoundingClientRect().top ?? 0;
+    return Math.min(1, Math.max(0, -top / (0.6 * vh)));
   }, [animate]);
 
   return (
@@ -60,8 +58,17 @@ export function Hero() {
 
       <div className="relative mx-auto grid max-w-[1400px] px-5 md:px-10 lg:grid-cols-[1.15fr_1fr] lg:gap-10">
         <div className="relative">
-          {/* 1. Wstęp */}
-          <div className="flex min-h-[100svh] flex-col justify-end pb-16 pt-32 md:pb-20">
+          {/* Mikrofon. Telefon: tło pierwszego ekranu, za napisem. Desktop: wyniesiony do prawej
+              kolumny (na całą wysokość sekcji), w środku przyklejony do ekranu. */}
+          <div className="pointer-events-none absolute right-0 top-0 h-[100svh] w-[72%] opacity-50 sm:w-[55%] lg:inset-y-0 lg:left-[calc(100%+2.5rem)] lg:right-auto lg:h-auto lg:w-[87%] lg:opacity-100">
+            <div className="flex h-full items-center justify-center pt-16 lg:sticky lg:top-0 lg:h-[100svh] lg:pl-[12%]">
+              {/* Canvas maluje tło kolorem strony (patrz MicSequence), więc nie ma prostokąta. */}
+              <MicSequence getProgress={getProgress} className="relative h-[94%] w-full" />
+            </div>
+          </div>
+
+          {/* 1. Wstęp (relative - nad mikrofonem w tle na telefonie) */}
+          <div className="relative flex min-h-[100svh] flex-col justify-end pb-16 pt-32 md:pb-20">
             <p className="eyebrow mb-6">Studio nagrań · Warszawa</p>
             <h1 className="font-display text-[clamp(3rem,11vw,10rem)] lg:text-[clamp(3.5rem,5.8vw,5.5rem)]">
               Nagraj to.
@@ -87,26 +94,10 @@ export function Hero() {
               <img src={logo} alt="RapHouse" className="h-8 w-auto" />
             </div>
           </div>
-
-          {/* Mikrofon. Telefon: osobny blok w treści. Desktop: wyniesiony do prawej kolumny
-              (obok lewej, na całą wysokość sekcji), w środku przyklejony do ekranu. */}
-          <div
-            ref={micRef}
-            className="pointer-events-none relative h-[78svh] lg:absolute lg:inset-y-0 lg:left-[calc(100%+2.5rem)] lg:h-auto lg:w-[87%]"
-          >
-            <div className="flex h-full items-center justify-center lg:sticky lg:top-0 lg:h-[100svh] lg:pl-[12%] lg:pt-16">
-              {/* Canvas maluje tło kolorem strony (patrz MicSequence), więc nie ma prostokąta. */}
-              <MicSequence
-                getProgress={getProgress}
-                className="relative h-full w-full lg:h-[94%]"
-              />
-            </div>
-          </div>
-
           {/* 2. To nie jest tylko studio (dawna osobna sekcja "Ruch") */}
           <div
             id="studio"
-            className="flex min-h-[100svh] scroll-mt-20 flex-col justify-center py-24"
+            className="relative flex min-h-[100svh] scroll-mt-20 flex-col justify-center py-24"
           >
             <Reveal>
               <p className="eyebrow mb-6">Ruch</p>
