@@ -5,12 +5,15 @@ import { MicSequence } from "./MicSequence";
 import { Reveal } from "./Reveal";
 
 /**
- * Dwie kolumny: po lewej zwykle przewijana treść (wstęp + "To nie jest tylko studio"),
+ * Desktop: dwie kolumny - po lewej zwykle przewijana treść (wstęp + "To nie jest tylko studio"),
  * po prawej mikrofon przyklejony do ekranu (sticky), rozbierany w rytm przewijania sekcji.
- * Na telefonie mikrofon stoi w tle za tekstem.
+ * Telefon: mikrofon to osobny blok między wstępem a "Ruchem", rozkładany, gdy przejeżdża przez
+ * ekran - bez sticky, z którym przeglądarki w aplikacjach (Messenger, Instagram) na iOS
+ * dublują i przesuwają treść.
  */
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
+  const micRef = useRef<HTMLDivElement>(null);
   // Przy włączonym w systemie ograniczeniu animacji mikrofon zostaje złożony.
   const [animate, setAnimate] = useState(true);
 
@@ -18,13 +21,21 @@ export function Hero() {
     setAnimate(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
-  // 0 = złożony (początek sekcji), 1 = rozłożony (koniec sekcji).
+  // 0 = złożony, 1 = rozłożony.
   const getProgress = useCallback(() => {
-    const el = sectionRef.current;
-    if (!el || !animate) return 0;
-    const r = el.getBoundingClientRect();
-    const range = r.height - window.innerHeight;
-    return range > 0 ? Math.min(1, Math.max(0, -r.top / range)) : 0;
+    if (!animate) return 0;
+    const vh = window.innerHeight;
+    if (window.matchMedia("(min-width: 1024px)").matches) {
+      // Desktop: cała sekcja (mikrofon przyklejony obok przewijanej treści).
+      const r = sectionRef.current?.getBoundingClientRect();
+      const range = r ? r.height - vh : 0;
+      return r && range > 0 ? Math.min(1, Math.max(0, -r.top / range)) : 0;
+    }
+    // Telefon: blok z mikrofonem - start, gdy wjeżdża od dołu (80% ekranu),
+    // koniec, gdy jego góra dojeżdża prawie do góry ekranu.
+    const r = micRef.current?.getBoundingClientRect();
+    if (!r || r.height === 0) return 0;
+    return Math.min(1, Math.max(0, (0.8 * vh - r.top) / (0.75 * vh)));
   }, [animate]);
 
   return (
@@ -48,17 +59,7 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto grid max-w-[1400px] px-5 md:px-10 lg:grid-cols-[1.15fr_1fr] lg:gap-10">
-        {/* Mikrofon: na desktopie prawa kolumna przyklejona do ekranu (sticky); na telefonie zwykłe
-            tło pierwszego ekranu - bez sticky i filtrów, z którymi przeglądarki w aplikacjach
-            (Messenger, Instagram) na iOS dublują i przesuwają treść. */}
-        <div className="pointer-events-none absolute inset-0 lg:relative lg:inset-auto lg:order-2">
-          <div className="absolute right-0 top-0 flex h-[100svh] w-[70%] items-center justify-center pt-16 opacity-45 sm:w-[55%] lg:sticky lg:w-full lg:pl-[12%] lg:opacity-100">
-            {/* Canvas maluje tło kolorem strony (patrz MicSequence), więc nie ma prostokąta. */}
-            <MicSequence getProgress={getProgress} className="relative h-[94%] w-full" />
-          </div>
-        </div>
-
-        <div className="relative lg:order-1">
+        <div className="relative">
           {/* 1. Wstęp */}
           <div className="flex min-h-[100svh] flex-col justify-end pb-16 pt-32 md:pb-20">
             <p className="eyebrow mb-6">Studio nagrań · Warszawa</p>
@@ -84,6 +85,21 @@ export function Hero() {
               <span>Warszawa / Polska</span>
               <span className="hidden md:inline">Nagrania • Mix • Mastering</span>
               <img src={logo} alt="RapHouse" className="h-8 w-auto" />
+            </div>
+          </div>
+
+          {/* Mikrofon. Telefon: osobny blok w treści. Desktop: wyniesiony do prawej kolumny
+              (obok lewej, na całą wysokość sekcji), w środku przyklejony do ekranu. */}
+          <div
+            ref={micRef}
+            className="pointer-events-none relative h-[78svh] lg:absolute lg:inset-y-0 lg:left-[calc(100%+2.5rem)] lg:h-auto lg:w-[87%]"
+          >
+            <div className="flex h-full items-center justify-center lg:sticky lg:top-0 lg:h-[100svh] lg:pl-[12%] lg:pt-16">
+              {/* Canvas maluje tło kolorem strony (patrz MicSequence), więc nie ma prostokąta. */}
+              <MicSequence
+                getProgress={getProgress}
+                className="relative h-full w-full lg:h-[94%]"
+              />
             </div>
           </div>
 
