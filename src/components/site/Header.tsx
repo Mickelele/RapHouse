@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
-import logo from "@/assets/raphouse-logo.png";
+import logo from "@/assets/raphouse-logo.webp";
 import { nav, type NavLink } from "@/data/raphouse";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,7 @@ export function Header() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-colors duration-300",
         scrolled
-          ? "border-b border-border bg-background/85 backdrop-blur-xl"
+          ? "border-b border-border bg-background/95 lg:bg-background/85 lg:backdrop-blur-xl"
           : "border-b border-transparent",
       )}
     >
@@ -61,7 +61,7 @@ export function Header() {
       </div>
 
       {open && (
-        <div className="max-h-[calc(100svh-5rem)] overflow-y-auto border-t border-border bg-background/98 backdrop-blur-xl lg:hidden">
+        <div className="max-h-[calc(100svh-5rem)] overflow-y-auto border-t border-border bg-background lg:hidden">
           <nav aria-label="Menu" className="mx-auto flex max-w-[1400px] flex-col px-5 py-4">
             {nav.map((item) =>
               "children" in item ? (

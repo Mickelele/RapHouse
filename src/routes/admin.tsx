@@ -19,7 +19,7 @@ import { GalleryBulkUpload } from "@/components/admin/GalleryBulkUpload";
 import { removeGalleryFiles } from "@/lib/gallery-upload";
 import { formatDate, youTubeId } from "@/lib/media";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
-import logo from "@/assets/raphouse-logo.png";
+import logo from "@/assets/raphouse-logo.webp";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({

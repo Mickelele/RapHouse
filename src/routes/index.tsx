@@ -38,7 +38,22 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     // Pierwsza klatka mikrofonu pobiera się razem z HTML, zanim ruszą skrypty.
-    links: [{ rel: "preload", as: "image", href: frameSrc(0), type: "image/webp" }],
+    links: [
+      {
+        rel: "preload",
+        as: "image",
+        href: frameSrc(0, "/mikrofon"),
+        type: "image/webp",
+        media: "(min-width: 1024px)",
+      },
+      {
+        rel: "preload",
+        as: "image",
+        href: frameSrc(0, "/mikrofon/m"),
+        type: "image/webp",
+        media: "(max-width: 1023px)",
+      },
+    ],
   }),
   component: Index,
 });

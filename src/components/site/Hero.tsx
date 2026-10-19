@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import heroStudio from "@/assets/hero-studio.jpg";
-import logo from "@/assets/raphouse-logo.png";
+import heroStudio from "@/assets/hero-studio.webp";
+import logo from "@/assets/raphouse-logo.webp";
 import { MicSequence } from "./MicSequence";
 import { Reveal } from "./Reveal";
 
@@ -28,16 +28,19 @@ export function Hero() {
   }, [animate]);
 
   return (
-    <section id="top" ref={sectionRef} className="grain relative">
-      {/* Zdjęcie studia tylko pod pierwszym ekranem. */}
-      <div className="absolute inset-x-0 top-0 h-[100svh] overflow-hidden lg:right-[46%]">
-        <img
-          src={heroStudio}
-          alt=""
-          width={1536}
-          height={1152}
-          className="size-full scale-105 object-cover opacity-70"
-        />
+    <section id="top" ref={sectionRef} className="relative">
+      {/* Zdjęcie studia tylko na desktopie, pod pierwszym ekranem (telefon go nie pobiera). */}
+      <div className="absolute inset-x-0 top-0 hidden h-[100svh] overflow-hidden lg:right-[46%] lg:block">
+        <picture>
+          <source media="(min-width: 1024px)" srcSet={heroStudio} />
+          <img
+            src="data:image/gif;base64,R0lGODlhAQABAAAAACw="
+            alt=""
+            width={1536}
+            height={1152}
+            className="size-full scale-105 object-cover opacity-70"
+          />
+        </picture>
         <div className="absolute inset-0" style={{ background: "var(--gradient-fade)" }} />
         <div className="absolute inset-0 bg-background/40" />
         {/* Desktop: zdjęcie płynnie znika w stronę mikrofonu (prawa strona = zwykłe tło strony). */}
@@ -45,15 +48,13 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto grid max-w-[1400px] px-5 md:px-10 lg:grid-cols-[1.15fr_1fr] lg:gap-10">
-        {/* Mikrofon: prawa kolumna na desktopie, tło za tekstem na telefonie. */}
+        {/* Mikrofon: na desktopie prawa kolumna przyklejona do ekranu (sticky); na telefonie zwykłe
+            tło pierwszego ekranu - bez sticky i filtrów, z którymi przeglądarki w aplikacjach
+            (Messenger, Instagram) na iOS dublują i przesuwają treść. */}
         <div className="pointer-events-none absolute inset-0 lg:relative lg:inset-auto lg:order-2">
-          <div className="sticky top-0 ml-auto flex h-[100svh] w-[70%] items-center justify-center pt-16 opacity-45 sm:w-[55%] lg:w-full lg:opacity-100">
-            <div className="absolute size-[60%] rounded-full bg-primary/15 blur-3xl lg:hidden" />
-            {/* Canvas maluje tło kolorem strony (patrz MicSequence); na telefonie brzegi wygaszone maską. */}
-            <MicSequence
-              getProgress={getProgress}
-              className="relative h-[94%] w-full max-lg:[mask-image:radial-gradient(closest-side,black_65%,transparent)]"
-            />
+          <div className="absolute right-0 top-0 flex h-[100svh] w-[70%] items-center justify-center pt-16 opacity-45 sm:w-[55%] lg:sticky lg:w-full lg:pl-[12%] lg:opacity-100">
+            {/* Canvas maluje tło kolorem strony (patrz MicSequence), więc nie ma prostokąta. */}
+            <MicSequence getProgress={getProgress} className="relative h-[94%] w-full" />
           </div>
         </div>
 

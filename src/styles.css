@@ -118,9 +118,14 @@
   background-color: var(--surface-deep);
 }
 
-/* Subtle film grain overlay */
+/* Subtle film grain overlay - tylko desktop (na telefonach warstwa z mix-blend obciąża przewijanie). */
 @utility grain {
   position: relative;
+  @media (max-width: 1023px) {
+    &::after {
+      display: none;
+    }
+  }
   &::after {
     content: "";
     position: absolute;
@@ -243,7 +248,15 @@
 /* ===== Animacje zależne od przewijania (zmienna --p ustawiana w JS, 0 → 1) ===== */
 
 /* Proces: wiersze złożone jak harmonijka rozkładają się kolejno w trakcie przewijania. */
+/* Tylko desktop: na telefonach animacje przewijania są wyłączone (płynność, stabilność w WebView). */
 @utility fold-list {
+  @media (max-width: 1023px) {
+    & > * {
+      transform: none !important;
+      opacity: 1 !important;
+      will-change: auto !important;
+    }
+  }
   perspective: 1400px;
   & > * {
     --q: clamp(0, calc(var(--p, 1) * 1.7 - var(--i, 0) * 0.17), 1);
@@ -258,6 +271,13 @@
 /* Realizacje: karty zebrane w środku rozsypują się na swoje miejsca (i wracają przy przewijaniu w górę). */
 @utility scatter-grid {
   position: relative;
+  @media (max-width: 1023px) {
+    & > * {
+      transform: none !important;
+      opacity: 1 !important;
+      will-change: auto !important;
+    }
+  }
   & > * {
     transform: translate3d(
         calc(var(--dx, 0px) * (1 - var(--p, 1))),

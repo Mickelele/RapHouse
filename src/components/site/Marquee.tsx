@@ -1,4 +1,4 @@
-import logo from "@/assets/raphouse-logo.png";
+import logo from "@/assets/raphouse-logo.webp";
 
 const WORDS = ["Rap", "Hip-Hop", "Muzyka", "Kultura", "Społeczność", "RapHouse"];
 

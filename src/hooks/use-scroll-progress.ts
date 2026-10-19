@@ -15,7 +15,8 @@ export function useScrollProgress<T extends HTMLElement>({ start = 1, end = 0.35
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // Telefony i ograniczenie animacji: stan końcowy, bez nasłuchiwania przewijania.
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 1023px)").matches) {
       el.style.setProperty("--p", "1");
       return;
     }

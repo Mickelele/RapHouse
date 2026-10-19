@@ -1,6 +1,6 @@
 import { useState } from "react";
-import studioMic from "@/assets/studio-mic.jpg";
-import studioDetail from "@/assets/studio-detail.jpg";
+import studioMic from "@/assets/studio-mic.webp";
+import studioDetail from "@/assets/studio-detail.webp";
 import { useGear } from "@/lib/content";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";

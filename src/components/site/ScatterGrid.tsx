@@ -26,7 +26,8 @@ export function ScatterGrid({ className, children }: { className?: string; child
   useEffect(() => {
     const grid = ref.current;
     if (!grid) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // Telefony i ograniczenie animacji: karty od razu na miejscu, bez nasłuchiwania przewijania.
+    if (window.matchMedia("(prefers-reduced-motion: reduce), (max-width: 1023px)").matches) {
       grid.style.setProperty("--p", "1");
       return;
     }

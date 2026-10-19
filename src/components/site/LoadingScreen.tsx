@@ -1,6 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import logo from "@/assets/raphouse-logo.png";
-import { getKeyDone, KEY_FRAMES, startLoading, subscribe } from "@/lib/mic-frames";
+import logo from "@/assets/raphouse-logo.webp";
+import { getKeyCount, getKeyDone, startLoading, subscribe } from "@/lib/mic-frames";
 import { cn } from "@/lib/utils";
 
 // Najdłużej, ile czekamy na klatki (wolny internet) - potem strona i tak się pokazuje.
@@ -17,7 +17,8 @@ export function LoadingScreen() {
   const done = useSyncExternalStore(subscribe, getKeyDone, () => 0);
   const [timedOut, setTimedOut] = useState(false);
   const [gone, setGone] = useState(false);
-  const finished = done >= KEY_FRAMES || timedOut;
+  const keyCount = getKeyCount();
+  const finished = (keyCount > 0 && done >= keyCount) || timedOut;
 
   useEffect(() => {
     startLoading();
@@ -39,7 +40,7 @@ export function LoadingScreen() {
   }, [finished]);
 
   if (gone) return null;
-  const percent = Math.round((done / KEY_FRAMES) * 100);
+  const percent = keyCount ? Math.round((done / keyCount) * 100) : 0;
 
   return (
     <div
@@ -52,7 +53,7 @@ export function LoadingScreen() {
       )}
       style={{ transitionDuration: `${FADE_MS}ms` }}
     >
-      <div className="absolute size-[28rem] max-w-[90vw] rounded-full bg-primary/10 blur-3xl" />
+      <div className="absolute size-[28rem] max-w-[90vw] bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--primary)_12%,transparent),transparent)]" />
       <img src={logo} alt="RapHouse" className="relative h-28 w-auto animate-pulse md:h-36" />
       <div className="relative flex w-64 max-w-[70vw] flex-col items-center gap-3">
         <div className="h-1 w-full overflow-hidden rounded-full bg-border">

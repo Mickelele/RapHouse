@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { getFrame, MIC_FRAMES, startLoading, subscribe } from "@/lib/mic-frames";
+import { getFrame, getFrameCount, startLoading, subscribe } from "@/lib/mic-frames";
 import { cn } from "@/lib/utils";
 
 // Jak szybko animacja dogania przewijanie (0-1): mniej = miękcej, więcej = ciaśniej za scrollem.
@@ -27,7 +27,7 @@ export function MicSequence({
     if (!canvas || !ctx) return;
     startLoading();
 
-    const last = MIC_FRAMES - 1;
+    const last = getFrameCount() - 1;
     let current = progressRef.current() * last; // aktualna (ułamkowa) pozycja w klatkach
     let raf = 0;
 

@@ -2,7 +2,20 @@
 // zoptymalizowane; oryginały w mikrofon-zrodla/). Wspólny magazyn: wczytuje je raz, a animacja
 // i ekran ładowania tylko z niego korzystają.
 
-export const MIC_FRAMES = 144;
+// Desktop: 144 klatki 760 px. Telefon (< 1024 px): co druga klatka, 520 px - ok. 4x mniej danych.
+const DESKTOP_FRAMES = 144;
+const MOBILE_FRAMES = 72;
+const isMobile = () =>
+  typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
+let count = DESKTOP_FRAMES;
+let dir = "/mikrofon";
+let keyFrames = new Set<number>();
+const frames: (HTMLImageElement | null)[] = [];
+
+/** Liczba klatek w wybranym zestawie (ustalana przy starcie ładowania). */
+export function getFrameCount() {
+  return count;
+}
 // Co która klatka jest "kluczowa" - te idą pierwsze i tylko na nie czeka ekran ładowania.
 // Reszta dociąga się w tle, a animacja do tego czasu przenika między kluczowymi.
 const KEY_STEP = 6;
@@ -11,15 +24,13 @@ const CONCURRENCY = 8;
 // Pojedyncza klatka nie może zablokować całego ładowania (np. zawieszone połączenie).
 const FRAME_TIMEOUT_MS = 10_000;
 
-export const frameSrc = (i: number) => `/mikrofon/frame_${String(i + 1).padStart(3, "0")}.webp`;
+export const frameSrc = (i: number, base = dir) =>
+  `${base}/frame_${String(i + 1).padStart(3, "0")}.webp`;
 
-const keyFrames = new Set([
-  ...Array.from({ length: Math.ceil(MIC_FRAMES / KEY_STEP) }, (_, k) => k * KEY_STEP),
-  MIC_FRAMES - 1,
-]);
-export const KEY_FRAMES = keyFrames.size;
-
-const frames: (HTMLImageElement | null)[] = Array(MIC_FRAMES).fill(null);
+/** Ile klatek kluczowych czeka ekran ładowania. */
+export function getKeyCount() {
+  return keyFrames.size;
+}
 let done = 0; // wszystkie klatki: wczytane albo nieudane
 let keyDone = 0; // tylko kluczowe
 let started = false;
@@ -29,12 +40,12 @@ export function getFrame(i: number) {
   return frames[i] ?? null;
 }
 
-/** Ile kluczowych klatek jest gotowych (0 … KEY_FRAMES) - na tym czeka ekran ładowania. */
+/** Ile kluczowych klatek jest gotowych - na tym czeka ekran ładowania. */
 export function getKeyDone() {
   return keyDone;
 }
 
-/** Ile wszystkich klatek jest gotowych (0 … MIC_FRAMES). */
+/** Ile wszystkich klatek jest gotowych. */
 export function getDone() {
   return done;
 }
@@ -75,7 +86,17 @@ function load(i: number) {
 export function startLoading() {
   if (started || typeof window === "undefined") return;
   started = true;
-  const all = Array.from({ length: MIC_FRAMES }, (_, i) => i);
+  if (isMobile()) {
+    count = MOBILE_FRAMES;
+    dir = "/mikrofon/m";
+  }
+  frames.length = count;
+  frames.fill(null);
+  keyFrames = new Set([
+    ...Array.from({ length: Math.ceil(count / KEY_STEP) }, (_, k) => k * KEY_STEP),
+    count - 1,
+  ]);
+  const all = Array.from({ length: count }, (_, i) => i);
   const queue = [...all.filter((i) => keyFrames.has(i)), ...all.filter((i) => !keyFrames.has(i))];
   let next = 0;
   const worker = async () => {

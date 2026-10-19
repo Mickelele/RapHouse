@@ -7,7 +7,7 @@ import {
   Phone,
   Youtube,
 } from "lucide-react";
-import logo from "@/assets/raphouse-logo.png";
+import logo from "@/assets/raphouse-logo.webp";
 import { contact, nav, type NavLink } from "@/data/raphouse";
 
 const socials = [
@@ -46,7 +46,7 @@ export function Footer() {
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] max-w-full -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] max-w-full -translate-x-1/2 bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--primary)_10%,transparent),transparent)]"
       />
 
       {/* pb-28 na telefonie: miejsce na przyklejony pasek "Rezerwuj sesję" (MobileCta). */}
