@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import logo from "@/assets/raphouse-logo.webp";
 import { contact, nav, type NavLink } from "@/data/raphouse";
+import { regulationSlug, useRegulations } from "@/lib/content";
 
 const socials = [
   { label: "Instagram", href: contact.instagram, Icon: Instagram },
@@ -34,6 +35,8 @@ const linkClass =
 
 // Stopka jest jednocześnie sekcją kontaktu (#kontakt) na każdej stronie.
 export function Footer() {
+  // Każdy regulamin z panelu admina jako osobny link na dole stopki.
+  const { data: regulations } = useRegulations();
   return (
     <footer
       id="kontakt"
@@ -145,10 +148,23 @@ export function Footer() {
           />
         </div>
 
-        <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 text-[11px] uppercase tracking-[0.22em] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 text-[11px] uppercase tracking-[0.22em] text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <span>
             © {new Date().getFullYear()} RapHouse · NIP {contact.nip}
           </span>
+          {!!regulations?.length && (
+            <nav aria-label="Regulaminy" className="flex flex-wrap gap-x-6 gap-y-2">
+              {regulations.map((r) => (
+                <a
+                  key={r.id}
+                  href={`/regulaminy#${regulationSlug(r.title)}`}
+                  className="transition-colors hover:text-foreground"
+                >
+                  {r.title}
+                </a>
+              ))}
+            </nav>
+          )}
           <span className="flex items-center gap-6">
             <span>Warszawa / Polska</span>
             <a href="/admin" className="transition-colors hover:text-foreground">

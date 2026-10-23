@@ -260,11 +260,27 @@ export type Regulation = {
   updated_at: string;
 };
 
+// Kotwica regulaminu z tytułu ("Regulamin wynajmu studia" → "regulamin-wynajmu-studia"),
+// żeby linki ze stopki prowadziły prosto do niego.
+export function regulationSlug(title: string) {
+  return (
+    title
+      .toLowerCase()
+      .replace(/ł/g, "l")
+      .normalize("NFD")
+      .replace(/\p{M}/gu, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "regulamin"
+  );
+}
+
 // Regulaminy (podstrona /regulaminy), edytowane w panelu admina.
 export function useRegulations() {
   return useQuery({
     queryKey: ["regulations"],
     enabled: !!supabase,
+    // Stopka pyta o regulaminy na każdej stronie - bez długiego ponawiania przy błędzie.
+    retry: 1,
     queryFn: async () => {
       const { data, error } = await supabase!
         .from("regulations")

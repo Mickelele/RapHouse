@@ -1,6 +1,7 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { EmptyState, PageLayout } from "@/components/site/PageLayout";
-import { useRegulations } from "@/lib/content";
+import { regulationSlug, useRegulations } from "@/lib/content";
 import { formatDate } from "@/lib/media";
 
 const title = "Regulaminy - studio nagrań RapHouse Warszawa";
@@ -22,6 +23,13 @@ function RegulationsPage() {
   const { data, isLoading, isError } = useRegulations();
   const items = data ?? [];
 
+  // Link ze stopki (/regulaminy#nazwa): regulaminy dochodzą z bazy po załadowaniu strony,
+  // więc przeglądarka nie ma jeszcze do czego przewinąć - przewijamy, gdy się pojawią.
+  useEffect(() => {
+    if (!data?.length || !window.location.hash) return;
+    document.getElementById(decodeURIComponent(window.location.hash.slice(1)))?.scrollIntoView();
+  }, [data]);
+
   return (
     <PageLayout eyebrow="Regulaminy" title="Regulaminy" accent="studia.">
       <section className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">
@@ -38,7 +46,7 @@ function RegulationsPage() {
                   {items.map((r) => (
                     <li key={r.id}>
                       <a
-                        href={`#regulamin-${r.id}`}
+                        href={`#${regulationSlug(r.title)}`}
                         className="text-sm font-semibold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:text-primary"
                       >
                         {r.title}
@@ -54,7 +62,7 @@ function RegulationsPage() {
               {items.map((r) => (
                 <article
                   key={r.id}
-                  id={`regulamin-${r.id}`}
+                  id={regulationSlug(r.title)}
                   className="card-surface scroll-mt-28 p-7 md:p-10"
                 >
                   <h2 className="font-display text-3xl md:text-4xl">{r.title}</h2>
