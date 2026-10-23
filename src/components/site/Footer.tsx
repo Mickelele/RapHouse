@@ -18,9 +18,12 @@ const socials = [
 ];
 
 // Kolumny linków z grup menu; pojedyncze pozycje (bez "Kontakt" - to ta stopka) jako "Na skróty".
+// "Regulaminy" mają własną kolumnę (każdy regulamin osobno), więc nie powtarzamy ich w "Studio".
 const linkColumns: { title: string; links: NavLink[] }[] = [
   ...nav.flatMap((item) =>
-    "children" in item ? [{ title: item.label, links: item.children }] : [],
+    "children" in item
+      ? [{ title: item.label, links: item.children.filter((l) => l.href !== "/regulaminy") }]
+      : [],
   ),
   {
     title: "Na skróty",
@@ -35,8 +38,20 @@ const linkClass =
 
 // Stopka jest jednocześnie sekcją kontaktu (#kontakt) na każdej stronie.
 export function Footer() {
-  // Każdy regulamin z panelu admina jako osobny link na dole stopki.
+  // Każdy regulamin z panelu admina jako osobny link w kolumnie "Regulaminy".
   const { data: regulations } = useRegulations();
+  const columns = regulations?.length
+    ? [
+        ...linkColumns,
+        {
+          title: "Regulaminy",
+          links: regulations.map((r) => ({
+            label: r.title,
+            href: `/regulaminy#${regulationSlug(r.title)}`,
+          })),
+        },
+      ]
+    : linkColumns;
   return (
     <footer
       id="kontakt"
@@ -56,7 +71,7 @@ export function Footer() {
       <div className="relative mx-auto max-w-[1400px] px-5 pb-28 pt-16 sm:pb-10 md:px-10 md:pt-24">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           {/* Marka */}
-          <div className="flex flex-col gap-6 lg:col-span-4">
+          <div className="flex flex-col gap-6 lg:col-span-3">
             <a href="/" aria-label="RapHouse - strona główna" className="w-fit">
               <img src={logo} alt="RapHouse" className="h-24 w-auto md:h-28" />
             </a>
@@ -81,8 +96,11 @@ export function Footer() {
           </div>
 
           {/* Linki */}
-          <nav aria-label="Stopka" className="grid grid-cols-3 gap-6 sm:gap-8 lg:col-span-4">
-            {linkColumns.map((col) => (
+          <nav
+            aria-label="Stopka"
+            className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 sm:gap-8 lg:col-span-5"
+          >
+            {columns.map((col) => (
               <div key={col.title}>
                 <p className="eyebrow mb-4">{col.title}</p>
                 <ul className="flex flex-col gap-2.5">
@@ -148,23 +166,10 @@ export function Footer() {
           />
         </div>
 
-        <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 text-[11px] uppercase tracking-[0.22em] text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+        <div className="mt-10 flex flex-col gap-4 border-t border-border pt-6 text-[11px] uppercase tracking-[0.22em] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <span>
             © {new Date().getFullYear()} RapHouse · NIP {contact.nip}
           </span>
-          {!!regulations?.length && (
-            <nav aria-label="Regulaminy" className="flex flex-wrap gap-x-6 gap-y-2">
-              {regulations.map((r) => (
-                <a
-                  key={r.id}
-                  href={`/regulaminy#${regulationSlug(r.title)}`}
-                  className="transition-colors hover:text-foreground"
-                >
-                  {r.title}
-                </a>
-              ))}
-            </nav>
-          )}
           <span className="flex items-center gap-6">
             <span>Warszawa / Polska</span>
             <a href="/admin" className="transition-colors hover:text-foreground">
