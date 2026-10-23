@@ -45,8 +45,8 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <a href="/#kontakt" className="btn-base btn-accent hidden sm:inline-flex">
-            Rezerwuj sesję
+          <a href="/rezerwacja" className="btn-base btn-accent hidden sm:inline-flex">
+            Rezerwuj
           </a>
           <button
             type="button"

@@ -5,8 +5,8 @@ export function MobileCta() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background p-3 sm:hidden">
       <div className="flex gap-2">
-        <a href="#kontakt" className="btn-base btn-accent flex-1">
-          Rezerwuj sesję
+        <a href="/rezerwacja" className="btn-base btn-accent flex-1">
+          Rezerwuj
         </a>
         <a
           href={contact.phoneHref}

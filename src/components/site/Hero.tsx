@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import heroStudio from "@/assets/hero-studio.webp";
 import logo from "@/assets/raphouse-logo.webp";
 import { MicSequence } from "./MicSequence";
+import { MovementShowcase } from "./MovementShowcase";
+import { RecordingRoadmap } from "./RecordingRoadmap";
 import { Reveal } from "./Reveal";
 
 /**
@@ -70,18 +72,13 @@ export function Hero() {
           {/* 1. Wstęp (relative - nad mikrofonem w tle na telefonie) */}
           <div className="relative flex min-h-[100svh] flex-col justify-end pb-16 pt-32 md:pb-20">
             <p className="eyebrow mb-6">Studio nagrań · Warszawa</p>
-            <h1 className="font-display text-[clamp(3rem,11vw,10rem)] lg:text-[clamp(3.5rem,5.8vw,5.5rem)]">
-              Nagraj to.
-              <br />
-              <span className="text-primary">Co masz</span> w głowie.
+            <h1 className="font-display text-[clamp(2.75rem,9vw,7rem)] lg:text-[clamp(3rem,4.6vw,4.5rem)]">
+              Wszystko, czego potrzebuje <span className="text-primary">Twoja Muzyka.</span>
             </h1>
-            <p className="mt-8 max-w-xl text-lg leading-relaxed text-muted-foreground">
-              Profesjonalne studio nagrań w Warszawie dla artystów, którzy chcą brzmieć dobrze - od
-              pierwszego take'a po finalny master.
-            </p>
+            <RecordingRoadmap className="mt-10" />
             <div className="mt-10 flex flex-wrap gap-3">
-              <a href="#kontakt" className="btn-base btn-accent">
-                Zarezerwuj sesję
+              <a href="/rezerwacja" className="btn-base btn-accent">
+                Rezerwuj
               </a>
               <a href="#cennik" className="btn-base btn-ghost-line">
                 Zobacz cennik
@@ -115,6 +112,9 @@ export function Hero() {
                 miksujemy, masterujemy, dzielimy się wiedzą i budujemy społeczność wokół muzyki.
                 Zbudowaliśmy miejsce z klimatem, ale wierzymy, że klimat tworzą ludzie.
               </p>
+            </Reveal>
+            <Reveal delay={200}>
+              <MovementShowcase />
             </Reveal>
           </div>
         </div>

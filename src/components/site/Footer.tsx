@@ -49,7 +49,7 @@ export function Footer() {
         className="pointer-events-none absolute -top-40 left-1/2 h-80 w-[60rem] max-w-full -translate-x-1/2 bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--primary)_10%,transparent),transparent)]"
       />
 
-      {/* pb-28 na telefonie: miejsce na przyklejony pasek "Rezerwuj sesję" (MobileCta). */}
+      {/* pb-28 na telefonie: miejsce na przyklejony pasek "Rezerwuj" (MobileCta). */}
       <div className="relative mx-auto max-w-[1400px] px-5 pb-28 pt-16 sm:pb-10 md:px-10 md:pt-24">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8">
           {/* Marka */}

@@ -15,6 +15,7 @@ import { Route as AktualnosciRouteImport } from './routes/aktualnosci'
 import { Route as BityRouteImport } from './routes/bity'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as KlipyRouteImport } from './routes/klipy'
+import { Route as RezerwacjaRouteImport } from './routes/rezerwacja'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const KlipyRoute = KlipyRouteImport.update({
   path: '/klipy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RezerwacjaRoute = RezerwacjaRouteImport.update({
+  id: '/rezerwacja',
+  path: '/rezerwacja',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
   '/klipy': typeof KlipyRoute
+  '/rezerwacja': typeof RezerwacjaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
   '/klipy': typeof KlipyRoute
+  '/rezerwacja': typeof RezerwacjaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,12 +79,27 @@ export interface FileRoutesById {
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
   '/klipy': typeof KlipyRoute
+  '/rezerwacja': typeof RezerwacjaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria' | '/klipy'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/aktualnosci'
+    | '/bity'
+    | '/galeria'
+    | '/klipy'
+    | '/rezerwacja'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/aktualnosci' | '/bity' | '/galeria' | '/klipy'
+  to:
+    | '/'
+    | '/admin'
+    | '/aktualnosci'
+    | '/bity'
+    | '/galeria'
+    | '/klipy'
+    | '/rezerwacja'
   id:
     | '__root__'
     | '/'
@@ -85,6 +108,7 @@ export interface FileRouteTypes {
     | '/bity'
     | '/galeria'
     | '/klipy'
+    | '/rezerwacja'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +118,7 @@ export interface RootRouteChildren {
   BityRoute: typeof BityRoute
   GaleriaRoute: typeof GaleriaRoute
   KlipyRoute: typeof KlipyRoute
+  RezerwacjaRoute: typeof RezerwacjaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -140,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KlipyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rezerwacja': {
+      id: '/rezerwacja'
+      path: '/rezerwacja'
+      fullPath: '/rezerwacja'
+      preLoaderRoute: typeof RezerwacjaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -150,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   BityRoute: BityRoute,
   GaleriaRoute: GaleriaRoute,
   KlipyRoute: KlipyRoute,
+  RezerwacjaRoute: RezerwacjaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
