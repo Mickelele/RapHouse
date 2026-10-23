@@ -161,6 +161,20 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           hint: "Jedna cena albo kilka wariantów (np. 1h – 2h: 120 PLN/h). Pozycje „Bity z katalogu” i „Bit na zamówienie” pokazują się też na stronie /bity.",
         },
         {
+          name: "link",
+          label: "Odnośnik z karty",
+          type: "text",
+          placeholder: "np. /rezerwacja, /bity#katalog, /klipy",
+          hint: "Puste = karta nieklikalna. Podstrona (/bity), sekcja (/bity#na-zamowienie) albo pełny adres (https://…).",
+        },
+        {
+          name: "link_label",
+          label: "Tekst odnośnika",
+          type: "text",
+          placeholder: "np. Sprawdź wolne terminy",
+          hint: "Puste = „Zobacz więcej”.",
+        },
+        {
           name: "sort_order",
           label: "Kolejność",
           type: "number",
@@ -243,6 +257,49 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     },
   },
   {
+    value: "roadmap",
+    label: "Ścieżka procesu",
+    config: {
+      table: "roadmap_steps",
+      label: "Krok ścieżki",
+      alsoInvalidate: [["roadmap_steps"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: true },
+      ],
+      rowTitle: (r) => `${r["alternative"] ? "↳ albo " : ""}${r["label"] as string}`,
+      rowSubtitle: (r) => (r["link"] as string | null) ?? "Bez odnośnika",
+      fields: [
+        {
+          name: "label",
+          label: "Nazwa kroku",
+          type: "text",
+          required: true,
+          placeholder: "np. Mix / Master",
+        },
+        {
+          name: "link",
+          label: "Odnośnik",
+          type: "text",
+          placeholder: "np. /rezerwacja, /bity, /#cennik",
+          hint: "Gdzie przenosi kliknięcie w krok. Puste = krok nieklikalny.",
+        },
+        {
+          name: "alternative",
+          label: "Alternatywa dla poprzedniego kroku",
+          type: "boolean",
+          hint: "Ścieżka się rozwidla (np. Wynajem studia albo Sesja nagraniowa). Najwyżej 2 kroki obok siebie.",
+        },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wcześniej na ścieżce.",
+        },
+      ],
+    },
+  },
+  {
     value: "gear",
     label: "Sprzęt",
     config: {
@@ -314,7 +371,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           name: "sort_order",
           label: "Kolejność",
           type: "number",
-          hint: "Mniejsza liczba = wcześniej w galerii. Pierwsze 4 pokazują się na stronie głównej.",
+          hint: "Mniejsza liczba = wcześniej w galerii. Pierwsze 5 pokazuje się na stronie głównej, w sekcji Sprzęt.",
         },
       ],
     },

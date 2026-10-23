@@ -1,6 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { galleryImages as staticGallery, type GalleryImage } from "@/data/gallery";
-import { gear as staticGear, pricing as staticPricing, type PriceItem } from "@/data/raphouse";
+import {
+  gear as staticGear,
+  pricing as staticPricing,
+  roadmap as staticRoadmap,
+  type PriceItem,
+  type RoadmapStep,
+} from "@/data/raphouse";
 import { supabase } from "./supabase";
 
 export type LinkItem = { label: string; url: string };
@@ -150,7 +156,8 @@ export function usePricing(): PriceItem[] {
     queryFn: async () => {
       const { data, error } = await supabase!
         .from("pricing")
-        .select("id, title, note, lines")
+        // "*" zamiast listy kolumn: działa też przed migracją dodającą link / link_label.
+        .select("*")
         .eq("published", true)
         .order("sort_order")
         .order("created_at");
@@ -158,7 +165,16 @@ export function usePricing(): PriceItem[] {
       return data as PricingRow[];
     },
   });
-  return data?.length ? data : staticPricing;
+  if (!data?.length) return staticPricing;
+  // Przed migracją z kolumną "link" odnośniki bierzemy ze statycznego cennika (po nazwie).
+  return data.map((row) => {
+    if ("link" in row) return row;
+    // Dopasowanie po początku nazwy ("Klipy" pasuje też do "Klip Standard").
+    const fallback = staticPricing.find((p) =>
+      row.title.toLowerCase().startsWith(p.title.toLowerCase().replace(/y$/, "")),
+    );
+    return { ...row, link: fallback?.link ?? null, link_label: fallback?.link_label ?? null };
+  });
 }
 
 type GalleryRow = {
@@ -215,4 +231,23 @@ export function useGear(): GearItem[] {
     },
   });
   return data?.length ? data : staticGear;
+}
+
+// Ścieżka procesu w hero z bazy; zapasowo statyczna z data/raphouse.ts.
+export function useRoadmap(): RoadmapStep[] {
+  const { data } = useQuery({
+    queryKey: ["roadmap_steps"],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("roadmap_steps")
+        .select("label, link, alternative")
+        .eq("published", true)
+        .order("sort_order")
+        .order("created_at");
+      if (error) throw error;
+      return data as RoadmapStep[];
+    },
+  });
+  return data?.length ? data : staticRoadmap;
 }

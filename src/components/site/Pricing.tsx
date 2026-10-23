@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import { ArrowRight } from "lucide-react";
 import { pricingFootnote } from "@/data/raphouse";
 import { usePricing } from "@/lib/content";
 import { Reveal } from "./Reveal";
@@ -23,7 +25,7 @@ export function Pricing() {
             delay={(i % 4) * 80}
             className="grow basis-full md:basis-[calc(50%-0.5rem)] xl:basis-[calc(25%-0.75rem)]"
           >
-            <div className="card-surface flex h-full flex-col justify-between p-7 transition-colors duration-300 hover:border-primary">
+            <PriceCard link={item.link}>
               <div>
                 <h3 className="font-display text-2xl">{item.title}</h3>
                 {item.note && (
@@ -45,16 +47,13 @@ export function Pricing() {
                   </li>
                 ))}
               </ul>
-              {/* Wynajem i sesje: odnośnik do kalendarza wolnych terminów (/rezerwacja). */}
-              {/wynajem|sesja/i.test(item.title) && (
-                <a
-                  href="/rezerwacja"
-                  className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary"
-                >
-                  Sprawdź wolne terminy →
-                </a>
+              {item.link && (
+                <span className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                  {item.link_label || "Zobacz więcej"}
+                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                </span>
               )}
-            </div>
+            </PriceCard>
           </Reveal>
         ))}
       </div>
@@ -70,5 +69,22 @@ export function Pricing() {
         </div>
       </Reveal>
     </section>
+  );
+}
+
+// Karta z odnośnikiem (ustawianym w panelu admina) jest w całości klikalna.
+function PriceCard({ link, children }: { link?: string | null | undefined; children: ReactNode }) {
+  const className =
+    "card-surface group flex h-full flex-col justify-between p-7 transition-colors duration-300 hover:border-primary";
+  if (!link) return <div className={className}>{children}</div>;
+  const external = /^https?:\/\//.test(link);
+  return (
+    <a
+      href={link}
+      className={`${className} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+    >
+      {children}
+    </a>
   );
 }

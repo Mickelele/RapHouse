@@ -45,7 +45,15 @@ export type Field = {
 };
 
 export type CollectionConfig = {
-  table: "news" | "beats" | "projects" | "beat_categories" | "pricing" | "gear" | "gallery_images";
+  table:
+    | "news"
+    | "beats"
+    | "projects"
+    | "beat_categories"
+    | "pricing"
+    | "gear"
+    | "gallery_images"
+    | "roadmap_steps";
   label: string;
   // Tabela bez kolumny "published" (np. kategorie).
   noPublish?: boolean;

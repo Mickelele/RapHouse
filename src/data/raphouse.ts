@@ -20,6 +20,9 @@ export type PriceItem = {
   title: string;
   note?: string | null;
   lines: { label?: string | null; price: string }[];
+  // Odnośnik z karty (np. /rezerwacja, /bity#katalog) i jego tekst.
+  link?: string | null;
+  link_label?: string | null;
   // Znacznik pozycji czekającej na dane od klienta (nie jest wyświetlany).
   todo?: string;
 };
@@ -27,6 +30,8 @@ export type PriceItem = {
 export const pricing: PriceItem[] = [
   {
     title: "Sesja z realizatorem",
+    link: "/rezerwacja",
+    link_label: "Sprawdź wolne terminy",
     note: "Wybierz tę opcję, jeśli chcesz pracować z naszym realizatorem.",
     lines: [
       { label: "1h – 2h", price: "120 PLN/h" },
@@ -36,6 +41,8 @@ export const pricing: PriceItem[] = [
   },
   {
     title: "Wynajem studia (samoobsługa)",
+    link: "/rezerwacja",
+    link_label: "Sprawdź wolne terminy",
     note: "Wynajem studia bez naszego realizatora. Nagrywasz się sam lub ze znajomymi.",
     lines: [
       { label: "do 3h", price: "60 PLN/h" },
@@ -59,16 +66,22 @@ export const pricing: PriceItem[] = [
   },
   {
     title: "Bity z katalogu",
+    link: "/bity#katalog",
+    link_label: "Zobacz katalog",
     note: "Niespełna setka bitów w naszym katalogu.",
     lines: [{ price: "300 – 700 PLN" }],
   },
   {
     title: "Bit na zamówienie",
+    link: "/bity#na-zamowienie",
+    link_label: "Zamów bit",
     note: "Producent tworzy bit od podstaw, również pod konkretną acapellę.",
     lines: [{ price: "400 – 750 PLN" }],
   },
   {
     title: "Klipy",
+    link: "/klipy",
+    link_label: "Zobacz klipy",
     note: "Realizacja teledysku - koncepcja, zdjęcia, montaż.",
     lines: [{ price: "Wycena indywidualna" }],
     todo: "TODO: cena klipów od klienta",
@@ -93,20 +106,24 @@ export const pricingFootnote = {
   price: "350 PLN",
 };
 
-export const process = [
-  {
-    no: "01",
-    title: "Rezerwujesz",
-    desc: "Dzwonisz lub piszesz - ustalamy termin i zakres sesji.",
-  },
-  {
-    no: "02",
-    title: "Nagrywasz",
-    desc: "Kabina, Apollo Twin, własny miks słuchawkowy z UAD Console.",
-  },
-  { no: "03", title: "Mixujemy", desc: "Strojenie, efekty, przestrzeń - numer zaczyna brzmieć." },
-  { no: "04", title: "Masterujemy", desc: "Głośność, dynamika i spójność na każdym systemie." },
-  { no: "05", title: "Publikujesz", desc: "Dostajesz pliki gotowe do wypuszczenia w serwisach." },
+export type RoadmapStep = {
+  label: string;
+  link?: string | null;
+  // Alternatywa dla poprzedniego kroku (rozwidlenie ścieżki).
+  alternative?: boolean;
+};
+
+// Ścieżka procesu w hero. Edytowalna w panelu admina (tabela roadmap_steps) - to tylko zapas.
+export const roadmap: RoadmapStep[] = [
+  { label: "Pomysł", link: "/#kontakt" },
+  { label: "Tekst", link: "/#cennik" },
+  { label: "Bit", link: "/bity" },
+  { label: "Wynajem studia", link: "/rezerwacja" },
+  { label: "Sesja nagraniowa", link: "/rezerwacja", alternative: true },
+  { label: "Mix / Master", link: "/#realizacje" },
+  { label: "Teledysk", link: "/klipy" },
+  { label: "Materiały promocyjne", link: "/#cennik" },
+  { label: "Dystrybucja", link: "/#kontakt" },
 ];
 
 export const gear = [

@@ -1,28 +1,32 @@
 import { useState } from "react";
-import studioMic from "@/assets/studio-mic.webp";
-import studioDetail from "@/assets/studio-detail.webp";
-import { useGear } from "@/lib/content";
+import { ArrowRight } from "lucide-react";
+import { useGalleryImages, useGear } from "@/lib/content";
+import { GalleryGrid } from "./GalleryGrid";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
+
+const GALLERY_COUNT = 5;
 
 export function Studio() {
   const [active, setActive] = useState(0);
   const gear = useGear();
+  const gallery = useGalleryImages();
 
   return (
-    <section className="mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-32">
+    <section
+      id="galeria"
+      className="mx-auto max-w-[1400px] scroll-mt-20 px-5 py-24 md:px-10 md:py-32"
+    >
       <div className="grid gap-6 md:grid-cols-12">
+        {/* Zdjęcia z galerii (panel admina → Galeria, pierwsze 5): duże + rząd czterech. */}
         <Reveal className="md:col-span-7">
-          <div className="grain overflow-hidden rounded-lg border border-border">
-            <img
-              src={studioMic}
-              alt="Mikrofon pojemnościowy w kabinie nagraniowej RapHouse"
-              width={1024}
-              height={1280}
-              loading="lazy"
-              className="h-[55vh] w-full object-cover md:h-[78vh]"
-            />
-          </div>
+          <GalleryGrid
+            images={gallery.slice(0, GALLERY_COUNT)}
+            className="grid-cols-4 md:grid-cols-4 xl:grid-cols-4 [&>li:first-child]:col-span-4 [&>li:first-child>button]:aspect-[4/3]"
+          />
+          <a href="/galeria" className="btn-base btn-ghost-line mt-6">
+            Zobacz całą galerię <ArrowRight className="size-4" />
+          </a>
         </Reveal>
 
         <div className="flex flex-col gap-6 md:col-span-5">
@@ -65,19 +69,6 @@ export function Studio() {
                 </li>
               ))}
             </ul>
-          </Reveal>
-
-          <Reveal delay={200}>
-            <div className="grain overflow-hidden rounded-lg border border-border">
-              <img
-                src={studioDetail}
-                alt="Odsłuchy studyjne i adaptacja akustyczna w RapHouse"
-                width={1024}
-                height={1024}
-                loading="lazy"
-                className="h-56 w-full object-cover md:h-72"
-              />
-            </div>
           </Reveal>
         </div>
       </div>

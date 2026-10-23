@@ -4,9 +4,7 @@ import { Hero } from "@/components/site/Hero";
 import { LoadingScreen } from "@/components/site/LoadingScreen";
 import { Marquee } from "@/components/site/Marquee";
 import { Pricing } from "@/components/site/Pricing";
-import { Process } from "@/components/site/Process";
 import { Studio } from "@/components/site/Studio";
-import { GalleryTeaser } from "@/components/site/GalleryTeaser";
 import { Portfolio } from "@/components/site/Portfolio";
 import { LatestBeats } from "@/components/site/LatestBeats";
 import { LatestNews } from "@/components/site/LatestNews";
@@ -68,9 +66,7 @@ function Index() {
         <Marquee />
         <Pricing />
         <LatestBeats />
-        <Process />
         <Studio />
-        <GalleryTeaser />
         <Portfolio />
         <LatestNews />
         <Community />
