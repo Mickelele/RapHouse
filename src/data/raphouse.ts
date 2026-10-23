@@ -120,7 +120,7 @@ export const roadmap: RoadmapStep[] = [
   { label: "Bit", link: "/bity" },
   { label: "Wynajem studia", link: "/rezerwacja" },
   { label: "Sesja nagraniowa", link: "/rezerwacja", alternative: true },
-  { label: "Mix / Master", link: "/#realizacje" },
+  { label: "Mix / Master", link: "/realizacje" },
   { label: "Teledysk", link: "/klipy" },
   { label: "Materiały promocyjne", link: "/#cennik" },
   { label: "Dystrybucja", link: "/#kontakt" },
@@ -214,6 +214,7 @@ export const nav: NavItem[] = [
       { label: "O studiu", href: "/#studio" },
       { label: "Galeria", href: "/galeria" },
       { label: "O nas", href: "/#o-nas" },
+      { label: "Regulaminy", href: "/regulaminy" },
     ],
   },
   { label: "Cennik", href: "/#cennik" },
@@ -221,7 +222,7 @@ export const nav: NavItem[] = [
   {
     label: "Realizacje",
     children: [
-      { label: "Nagrania", href: "/#realizacje" },
+      { label: "Nagrania", href: "/realizacje" },
       { label: "Klipy", href: "/klipy" },
     ],
   },

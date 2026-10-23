@@ -1,21 +1,11 @@
 import { useState } from "react";
-import { useNavigate, useSearch } from "@tanstack/react-router";
 import { Play, X } from "lucide-react";
-import { contact, portfolio } from "@/data/raphouse";
-import { useProjects, type Project } from "@/lib/content";
+import { contact } from "@/data/raphouse";
+import type { AudioItem, Project } from "@/lib/content";
 import { formatDate } from "@/lib/media";
-import { cn } from "@/lib/utils";
 import { AudioPlayer, LinkList, VideoEmbed } from "./Media";
-import { Reveal } from "./Reveal";
 import { ScatterGrid } from "./ScatterGrid";
 import { YouTubeLite } from "./YouTubeLite";
-
-type Category = "audio" | "video";
-
-const TABS: { value: Category; label: string }[] = [
-  { value: "audio", label: "Audio" },
-  { value: "video", label: "Video" },
-];
 
 function Waveform() {
   const bars = Array.from({ length: 34 }, (_, i) => 18 + ((i * 37) % 70));
@@ -32,93 +22,7 @@ function Waveform() {
   );
 }
 
-type AudioItem = Pick<
-  Project,
-  "id" | "artist" | "title" | "description" | "audio_url" | "image_url" | "video_url" | "links"
->;
-
-export function Portfolio() {
-  const { data } = useProjects();
-  // Kategoria trzymana w URL (?kategoria=video), żeby dało się podlinkować zakładkę Video.
-  const { kategoria } = useSearch({ from: "/" });
-  const navigate = useNavigate({ from: "/" });
-  const category: Category = kategoria === "video" ? "video" : "audio";
-
-  const setCategory = (c: Category) =>
-    navigate({
-      search: ({ kategoria: _, ...rest }) =>
-        c === "video" ? { ...rest, kategoria: "video" } : rest,
-      replace: true,
-      resetScroll: false,
-    });
-
-  // Dopóki baza nie jest podpięta (albo jest pusta), w Audio pokazujemy statyczną listę.
-  const audio: AudioItem[] =
-    data && data.length
-      ? data.filter((p) => p.category !== "video")
-      : portfolio.map((p) => ({
-          id: p.title,
-          artist: p.artist,
-          title: p.title,
-          description: p.desc,
-          audio_url: null,
-          image_url: null,
-          video_url: null,
-          links: [],
-        }));
-  const video = (data ?? []).filter((p) => p.category === "video");
-
-  return (
-    <section id="realizacje" className="surface-deep overflow-x-clip border-y border-border">
-      <div className="mx-auto max-w-[1400px] px-5 py-24 md:px-10 md:py-32">
-        <Reveal>
-          <p className="eyebrow mb-6">Realizacje</p>
-          <div className="flex flex-wrap items-end justify-between gap-8">
-            <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-              Co tu <span className="text-primary">powstało.</span>
-            </h2>
-            <div
-              role="tablist"
-              aria-label="Kategoria realizacji"
-              className="grid w-full grid-cols-2 rounded-md border border-border p-1 sm:w-auto"
-            >
-              {TABS.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  role="tab"
-                  id={`realizacje-tab-${t.value}`}
-                  aria-selected={category === t.value}
-                  aria-controls="realizacje-panel"
-                  onClick={() => setCategory(t.value)}
-                  className={cn(
-                    "min-h-11 rounded px-6 text-xs font-bold uppercase tracking-[0.18em] transition-colors",
-                    category === t.value
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Reveal>
-
-        <div
-          id="realizacje-panel"
-          role="tabpanel"
-          aria-labelledby={`realizacje-tab-${category}`}
-          className="mt-14"
-        >
-          {category === "audio" ? <AudioGrid items={audio} /> : <VideoGrid items={video} />}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AudioGrid({ items }: { items: AudioItem[] }) {
+export function AudioGrid({ items }: { items: AudioItem[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (

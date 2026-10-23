@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { galleryImages as staticGallery, type GalleryImage } from "@/data/gallery";
 import {
   gear as staticGear,
+  portfolio as staticPortfolio,
   pricing as staticPricing,
   roadmap as staticRoadmap,
   type PriceItem,
@@ -250,4 +251,54 @@ export function useRoadmap(): RoadmapStep[] {
     },
   });
   return data?.length ? data : staticRoadmap;
+}
+
+export type Regulation = {
+  id: string;
+  title: string;
+  body: string;
+  updated_at: string;
+};
+
+// Regulaminy (podstrona /regulaminy), edytowane w panelu admina.
+export function useRegulations() {
+  return useQuery({
+    queryKey: ["regulations"],
+    enabled: !!supabase,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("regulations")
+        .select("id, title, body, updated_at")
+        .eq("published", true)
+        .order("sort_order")
+        .order("created_at");
+      if (error) throw error;
+      return data as Regulation[];
+    },
+  });
+}
+
+export type AudioItem = Pick<
+  Project,
+  "id" | "artist" | "title" | "description" | "audio_url" | "image_url" | "video_url" | "links"
+>;
+
+// Realizacje audio z bazy; dopóki baza nie jest podpięta (albo jest pusta) - statyczna lista.
+export function useAudioProjects() {
+  const query = useProjects();
+  const { data } = query;
+  const items: AudioItem[] =
+    data && data.length
+      ? data.filter((p) => p.category !== "video")
+      : staticPortfolio.map((p) => ({
+          id: p.title,
+          artist: p.artist,
+          title: p.title,
+          description: p.desc,
+          audio_url: null,
+          image_url: null,
+          video_url: null,
+          links: [],
+        }));
+  return { ...query, items };
 }

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 // Czas bezczynności, po którym panel wylogowuje - zmień tutaj.
-export const IDLE_TIMEOUT_MS = 10 * 60 * 1000;
+export const IDLE_TIMEOUT_MS = 60 * 60 * 1000;
 // Na ile wcześniej pokazać ostrzeżenie.
 export const IDLE_WARNING_MS = 60 * 1000;
 

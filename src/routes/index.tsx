@@ -5,10 +5,8 @@ import { LoadingScreen } from "@/components/site/LoadingScreen";
 import { Marquee } from "@/components/site/Marquee";
 import { Pricing } from "@/components/site/Pricing";
 import { Studio } from "@/components/site/Studio";
-import { Portfolio } from "@/components/site/Portfolio";
 import { LatestBeats } from "@/components/site/LatestBeats";
 import { LatestNews } from "@/components/site/LatestNews";
-import { Community } from "@/components/site/Community";
 import { LiveStreams } from "@/components/site/LiveStreams";
 import { Backstage } from "@/components/site/Backstage";
 import { TrackFeedback } from "@/components/site/TrackFeedback";
@@ -23,9 +21,6 @@ const description =
   "Profesjonalne studio nagrań rap i hip-hop w Warszawie (Łojewska 22). Sesje z realizatorem, samoobsługa, mix/mastering i bity.";
 
 export const Route = createFileRoute("/")({
-  // ?kategoria=video otwiera zakładkę Video w Realizacjach; każda inna wartość = Audio.
-  validateSearch: (search: Record<string, unknown>): { kategoria?: "video" } =>
-    search["kategoria"] === "video" ? { kategoria: "video" } : {},
   head: () => ({
     meta: [
       { title },
@@ -67,9 +62,7 @@ function Index() {
         <Pricing />
         <LatestBeats />
         <Studio />
-        <Portfolio />
         <LatestNews />
-        <Community />
         {features.liveStreams && <LiveStreams />}
         {features.backstage && <Backstage />}
         {features.trackFeedback && <TrackFeedback />}

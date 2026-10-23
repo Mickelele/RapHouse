@@ -15,6 +15,8 @@ import { Route as AktualnosciRouteImport } from './routes/aktualnosci'
 import { Route as BityRouteImport } from './routes/bity'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as KlipyRouteImport } from './routes/klipy'
+import { Route as RealizacjeRouteImport } from './routes/realizacje'
+import { Route as RegulaminyRouteImport } from './routes/regulaminy'
 import { Route as RezerwacjaRouteImport } from './routes/rezerwacja'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +49,16 @@ const KlipyRoute = KlipyRouteImport.update({
   path: '/klipy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RealizacjeRoute = RealizacjeRouteImport.update({
+  id: '/realizacje',
+  path: '/realizacje',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegulaminyRoute = RegulaminyRouteImport.update({
+  id: '/regulaminy',
+  path: '/regulaminy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RezerwacjaRoute = RezerwacjaRouteImport.update({
   id: '/rezerwacja',
   path: '/rezerwacja',
@@ -60,6 +72,8 @@ export interface FileRoutesByFullPath {
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
   '/klipy': typeof KlipyRoute
+  '/realizacje': typeof RealizacjeRoute
+  '/regulaminy': typeof RegulaminyRoute
   '/rezerwacja': typeof RezerwacjaRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +83,8 @@ export interface FileRoutesByTo {
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
   '/klipy': typeof KlipyRoute
+  '/realizacje': typeof RealizacjeRoute
+  '/regulaminy': typeof RegulaminyRoute
   '/rezerwacja': typeof RezerwacjaRoute
 }
 export interface FileRoutesById {
@@ -79,6 +95,8 @@ export interface FileRoutesById {
   '/bity': typeof BityRoute
   '/galeria': typeof GaleriaRoute
   '/klipy': typeof KlipyRoute
+  '/realizacje': typeof RealizacjeRoute
+  '/regulaminy': typeof RegulaminyRoute
   '/rezerwacja': typeof RezerwacjaRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +108,8 @@ export interface FileRouteTypes {
     | '/bity'
     | '/galeria'
     | '/klipy'
+    | '/realizacje'
+    | '/regulaminy'
     | '/rezerwacja'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +119,8 @@ export interface FileRouteTypes {
     | '/bity'
     | '/galeria'
     | '/klipy'
+    | '/realizacje'
+    | '/regulaminy'
     | '/rezerwacja'
   id:
     | '__root__'
@@ -108,6 +130,8 @@ export interface FileRouteTypes {
     | '/bity'
     | '/galeria'
     | '/klipy'
+    | '/realizacje'
+    | '/regulaminy'
     | '/rezerwacja'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +142,8 @@ export interface RootRouteChildren {
   BityRoute: typeof BityRoute
   GaleriaRoute: typeof GaleriaRoute
   KlipyRoute: typeof KlipyRoute
+  RealizacjeRoute: typeof RealizacjeRoute
+  RegulaminyRoute: typeof RegulaminyRoute
   RezerwacjaRoute: typeof RezerwacjaRoute
 }
 
@@ -165,6 +191,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KlipyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/realizacje': {
+      id: '/realizacje'
+      path: '/realizacje'
+      fullPath: '/realizacje'
+      preLoaderRoute: typeof RealizacjeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regulaminy': {
+      id: '/regulaminy'
+      path: '/regulaminy'
+      fullPath: '/regulaminy'
+      preLoaderRoute: typeof RegulaminyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rezerwacja': {
       id: '/rezerwacja'
       path: '/rezerwacja'
@@ -182,6 +222,8 @@ const rootRouteChildren: RootRouteChildren = {
   BityRoute: BityRoute,
   GaleriaRoute: GaleriaRoute,
   KlipyRoute: KlipyRoute,
+  RealizacjeRoute: RealizacjeRoute,
+  RegulaminyRoute: RegulaminyRoute,
   RezerwacjaRoute: RezerwacjaRoute,
 }
 export const routeTree = rootRouteImport

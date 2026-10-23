@@ -29,7 +29,9 @@ export function Pricing() {
               <div>
                 <h3 className="font-display text-2xl">{item.title}</h3>
                 {item.note && (
-                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.note}</p>
+                  <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                    {item.note}
+                  </p>
                 )}
               </div>
               <ul className="mt-8 space-y-2 border-t border-border pt-5">

@@ -30,7 +30,7 @@ function ClipsPage() {
       accent="z RapHouse."
       intro="Teledyski artystów, którzy nagrywali u nas. Chcesz klip do swojego numeru? Zrobimy go od pomysłu po montaż."
     >
-      <section className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">
+      <section className="mx-auto max-w-[1400px] overflow-x-clip px-5 pb-24 md:px-10 md:pb-32">
         {isLoading ? (
           <EmptyState>Ładowanie klipów…</EmptyState>
         ) : isError ? (

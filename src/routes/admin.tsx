@@ -153,7 +153,12 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           .join(" · "),
       fields: [
         { name: "title", label: "Nazwa usługi", type: "text", required: true },
-        { name: "note", label: "Opis", type: "textarea" },
+        {
+          name: "note",
+          label: "Opis",
+          type: "textarea",
+          hint: "Enter = nowa linia (na stronie też będzie w nowej linii).",
+        },
         {
           name: "lines",
           label: "Ceny",
@@ -295,6 +300,42 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           label: "Kolejność",
           type: "number",
           hint: "Mniejsza liczba = wcześniej na ścieżce.",
+        },
+      ],
+    },
+  },
+  {
+    value: "regulations",
+    label: "Regulaminy",
+    config: {
+      table: "regulations",
+      label: "Regulamin",
+      alsoInvalidate: [["regulations"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: true },
+      ],
+      rowTitle: (r) => r["title"] as string,
+      rowSubtitle: (r) => `Aktualizacja: ${formatDate(r["updated_at"] as string)}`,
+      fields: [
+        {
+          name: "title",
+          label: "Tytuł",
+          type: "text",
+          required: true,
+          placeholder: "np. Regulamin wynajmu studia",
+        },
+        {
+          name: "body",
+          label: "Treść",
+          type: "textarea",
+          hint: "Enter = nowa linia, pusta linia = nowy akapit. Pokaże się na stronie /regulaminy.",
+        },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wyżej na stronie.",
         },
       ],
     },
