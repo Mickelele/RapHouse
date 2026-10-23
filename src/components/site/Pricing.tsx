@@ -45,6 +45,15 @@ export function Pricing() {
                   </li>
                 ))}
               </ul>
+              {/* Wynajem: odnośnik do kalendarza wolnych terminów. */}
+              {/wynajem/i.test(item.title) && (
+                <a
+                  href="#dostepnosc"
+                  className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary"
+                >
+                  Sprawdź wolne terminy →
+                </a>
+              )}
             </div>
           </Reveal>
         ))}
