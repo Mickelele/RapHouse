@@ -1,13 +1,16 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-// Zakres przewijania (ułamki wysokości okna). Siatka: liczy się jej ŚRODEK - zebrane karty
-// wjeżdżają od dołu ekranu i są rozsypane, gdy środek siatki dojedzie do połowy ekranu.
+// Zakres przewijania (ułamki wysokości okna). Siatka: liczy się jej GÓRNA KRAWĘDŹ - karty
+// zaczynają się rozsypywać, gdy siatka wjeżdża od dołu ekranu, i są na miejscach, zanim jej górna
+// krawędź minie środek ekranu (krótko, niezależnie od liczby kart).
 const GRID_START = 1;
-const GRID_END = 0.5;
+const GRID_END = 0.55;
 // Jedna kolumna (telefon): liczy się górna krawędź każdej karty.
 const CARD_START = 0.95;
 const CARD_END = 0.45;
+// Wejście: siatka widoczna od razu po załadowaniu rozkłada się sama w tym czasie (ms).
+const INTRO_MS = 700;
 // Lekki "losowy" obrót każdej karty w stanie zebranym (stały, żeby nie skakał).
 const ROTATIONS = [-14, 9, -6, 12, -10, 7, -12, 5];
 
@@ -22,6 +25,8 @@ function progress(y: number, vh: number, start: number, end: number) {
  */
 export function ScatterGrid({ className, children }: { className?: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
+  // Start wejścia - raz na życie komponentu (efekt niżej odpala się też przy zmianie kart).
+  const introStart = useRef(0);
 
   useEffect(() => {
     const grid = ref.current;
@@ -53,22 +58,31 @@ export function ScatterGrid({ className, children }: { className?: string; child
       update();
     };
 
+    if (!introStart.current) introStart.current = performance.now();
+    // 0 → 1 z wyhamowaniem; przewijanie nie może rozłożyć kart szybciej niż wejście.
+    const intro = () => {
+      const t = Math.min(1, (performance.now() - introStart.current) / INTRO_MS);
+      return 1 - (1 - t) ** 3;
+    };
+
     const update = () => {
       raf = 0;
       const vh = window.innerHeight;
+      const k = intro();
       const rect = grid.getBoundingClientRect();
       if (singleColumn) {
         grid.style.removeProperty("--p");
         for (const el of grid.children as HTMLCollectionOf<HTMLElement>) {
-          const p = progress(rect.top + el.offsetTop, vh, CARD_START, CARD_END);
+          const p = k * progress(rect.top + el.offsetTop, vh, CARD_START, CARD_END);
           el.style.setProperty("--p", p.toFixed(4));
         }
       } else {
         for (const el of grid.children as HTMLCollectionOf<HTMLElement>)
           el.style.removeProperty("--p");
-        const p = progress(rect.top + rect.height / 2, vh, GRID_START, GRID_END);
+        const p = k * progress(rect.top, vh, GRID_START, GRID_END);
         grid.style.setProperty("--p", p.toFixed(4));
       }
+      if (k < 1) schedule();
     };
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(update);
