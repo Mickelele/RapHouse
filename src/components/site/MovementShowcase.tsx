@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, Instagram } from "lucide-react";
 import { contact } from "@/data/raphouse";
 import {
@@ -13,8 +13,10 @@ import { Lightbox } from "./Lightbox";
 import { GraphicCard, ReelCard } from "./Promo";
 import { YouTubeLite } from "./YouTubeLite";
 
-// Ile pozycji każdego rodzaju trafia do paska.
-const PER_KIND = 4;
+// Ile pozycji każdego rodzaju trafia do paska (losowo wybranych).
+const PER_KIND = 3;
+// Najwięcej zaznaczonych w panelu na rodzaj (żeby pasek nie był nieskończony).
+const MAX_CHOSEN = 8;
 // Prędkość auto-przewijania (px/s).
 const SPEED = 35;
 // Po dotknięciu paska / kliknięciu strzałki auto-przewijanie czeka tyle (ms).
@@ -26,6 +28,22 @@ type Item =
   | { kind: "klip"; p: Project };
 
 const KIND_LABEL = { rolka: "Rolka", grafika: "Grafika", klip: "Klip" } as const;
+
+// n losowych elementów listy (Fisher-Yates na kopii).
+function pickRandom<T>(list: T[], n: number) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j]!, a[i]!];
+  }
+  return a.slice(0, n);
+}
+
+// Zaznaczone w panelu (w ich kolejności), a bez zaznaczonych - PER_KIND losowych.
+function chosenOrRandom<T extends { in_movement?: boolean }>(list: T[]) {
+  const chosen = list.filter((x) => x.in_movement);
+  return chosen.length ? chosen.slice(0, MAX_CHOSEN) : pickRandom(list, PER_KIND);
+}
 
 // Na przemian: rolka, klip, grafika, rolka, … - żeby w pasku od razu było widać wszystkiego po trochu.
 function interleave(lists: Item[][]) {
@@ -46,19 +64,26 @@ function interleave(lists: Item[][]) {
 export function MovementShowcase() {
   const { data: projects } = useProjects();
   const { data: promo } = usePromoMaterials();
-  const graphics = (promo ?? []).filter((m) => m.kind === "grafika" && m.image_url);
-
-  const items = interleave([
-    (promo ?? [])
-      .filter((m) => m.kind === "rolka")
-      .slice(0, PER_KIND)
-      .map((m) => ({ kind: "rolka", m })),
-    (projects ?? [])
-      .filter((p) => p.category === "video" && p.video_url)
-      .slice(0, PER_KIND)
-      .map((p) => ({ kind: "klip", p })),
-    graphics.slice(0, PER_KIND).map((m) => ({ kind: "grafika", m })),
-  ]);
+  // W każdym rodzaju: pozycje zaznaczone w panelu ("Pokaż w sekcji Ruch"), a gdy żadna nie jest
+  // zaznaczona - 3 losowe (przy każdym wejściu na stronę inny zestaw). Losowanie dopiero, gdy
+  // są dane (po stronie przeglądarki), więc nie psuje hydratacji.
+  const { graphics, items } = useMemo(() => {
+    const reels = chosenOrRandom((promo ?? []).filter((m) => m.kind === "rolka"));
+    const clips = chosenOrRandom(
+      (projects ?? []).filter((p) => p.category === "video" && p.video_url),
+    );
+    const graphics = chosenOrRandom(
+      (promo ?? []).filter((m) => m.kind === "grafika" && m.image_url),
+    );
+    return {
+      graphics,
+      items: interleave([
+        reels.map((m): Item => ({ kind: "rolka", m })),
+        clips.map((p): Item => ({ kind: "klip", p })),
+        graphics.map((m): Item => ({ kind: "grafika", m })),
+      ]),
+    };
+  }, [promo, projects]);
 
   const scroller = useRef<HTMLUListElement>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);

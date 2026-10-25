@@ -233,7 +233,9 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
       ],
       rowTitle: (r) => `${r["artist"]} - ${r["title"]}`,
       rowSubtitle: (r) =>
-        r["released_on"] ? formatDate(r["released_on"] as string) : "Bez daty premiery",
+        `${r["in_movement"] ? "★ W sekcji Ruch · " : ""}${
+          r["released_on"] ? formatDate(r["released_on"] as string) : "Bez daty premiery"
+        }`,
       rowImage: (r) => {
         const id = youTubeId(r["video_url"] as string | null);
         return id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : null;
@@ -252,6 +254,12 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { name: "released_on", label: "Data premiery", type: "date", hint: "Opcjonalnie." },
         { name: "description", label: "Opis", type: "textarea" },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
+        {
+          name: "in_movement",
+          label: "Pokaż w sekcji Ruch",
+          type: "boolean",
+          hint: "Przewijany pasek na stronie głównej. Gdy nic z tego rodzaju nie jest zaznaczone, pokazują się 3 losowe.",
+        },
         {
           name: "sort_order",
           label: "Kolejność",
@@ -353,7 +361,8 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
       ],
       rowTitle: (r) =>
         `${r["kind"] === "grafika" ? "Grafika" : "Rolka"}: ${r["artist"] ? `${r["artist"] as string} - ` : ""}${r["title"] as string}`,
-      rowSubtitle: (r) => (r["video_url"] as string | null) ?? "",
+      rowSubtitle: (r) =>
+        `${r["in_movement"] ? "★ W sekcji Ruch · " : ""}${(r["video_url"] as string | null) ?? ""}`,
       rowImage: (r) => {
         if (r["image_url"]) return r["image_url"] as string;
         const id = youTubeId(r["video_url"] as string | null);
@@ -392,10 +401,16 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
         {
+          name: "in_movement",
+          label: "Pokaż w sekcji Ruch",
+          type: "boolean",
+          hint: "Przewijany pasek na stronie głównej. Gdy nic z tego rodzaju nie jest zaznaczone, pokazują się 3 losowe.",
+        },
+        {
           name: "sort_order",
           label: "Kolejność",
           type: "number",
-          hint: "Mniejsza liczba = wcześniej. Pierwsze 4 rolki i 4 grafiki są też na stronie głównej (Ruch).",
+          hint: "Mniejsza liczba = wcześniej (na /klipy i w pasku w sekcji Ruch).",
         },
       ],
     },

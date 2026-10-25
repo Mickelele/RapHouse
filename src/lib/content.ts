@@ -56,6 +56,8 @@ export type Project = {
   // Brak kolumny (przed migracją) = "audio".
   category?: "audio" | "video";
   released_on?: string | null;
+  // Wybrany do paska w sekcji "Ruch" (brak kolumny przed migracją = nie).
+  in_movement?: boolean;
 };
 
 export type BeatCategory = { id: string; name: string; sort_order: number };
@@ -328,6 +330,7 @@ export type PromoMaterial = {
   video_url: string | null;
   description: string;
   links: LinkItem[];
+  in_movement?: boolean;
 };
 
 // Materiały promocyjne (rolki, grafiki) - zakładka na /klipy i pasek w sekcji "Ruch".
@@ -340,7 +343,8 @@ export function usePromoMaterials() {
     queryFn: async () => {
       const { data, error } = await supabase!
         .from("promo_materials")
-        .select("id, kind, title, artist, image_url, video_url, description, links")
+        // "*": działa też przed migracją dodającą in_movement.
+        .select("*")
         .eq("published", true)
         .order("sort_order")
         .order("created_at", { ascending: false });
