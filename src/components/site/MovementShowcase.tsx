@@ -284,7 +284,7 @@ export function MovementShowcase() {
       <ul
         ref={scroller}
         aria-label="Rolki, klipy i grafiki"
-        className="-mx-5 flex gap-3 overflow-x-auto px-5 pb-3 [scrollbar-width:thin] sm:mx-0 sm:px-0"
+        className="-mx-5 flex gap-3 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0"
       >
         {cards(0)}
         {loop && cards(1)}
