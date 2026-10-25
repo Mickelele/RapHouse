@@ -59,7 +59,8 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto grid max-w-[1400px] px-5 md:px-10 lg:grid-cols-[1.15fr_1fr] lg:gap-10">
-        <div className="relative">
+        {/* min-w-0: przewijany w bok pasek w "Ruchu" nie może rozpychać kolumny. */}
+        <div className="relative min-w-0">
           {/* Mikrofon. Telefon: tło pierwszego ekranu, za napisem. Desktop: wyniesiony do prawej
               kolumny (na całą wysokość sekcji), w środku przyklejony do ekranu. */}
           <div className="pointer-events-none absolute right-0 top-0 h-[100svh] w-[72%] opacity-50 sm:w-[55%] lg:inset-y-0 lg:left-[calc(100%+2.5rem)] lg:right-auto lg:h-auto lg:w-[87%] lg:opacity-100">
@@ -103,7 +104,7 @@ export function Hero() {
                 <br />
                 tylko studio.
                 <br />
-                <span className="text-primary">To ruch.</span>
+                <span className="text-primary">To movement.</span>
               </h2>
             </Reveal>
             <Reveal delay={120}>

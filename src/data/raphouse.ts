@@ -88,6 +88,8 @@ export const pricing: PriceItem[] = [
   },
   {
     title: "Promo + opakowanie",
+    link: "/klipy?zakladka=materialy",
+    link_label: "Zobacz materiały",
     note: "Rolki, sesja foto, opisy, okładka, miniaturka, strategia publikacji, dystrybucja.",
     lines: [{ price: "Wycena indywidualna" }],
     todo: "TODO: cena pakietu promo od klienta",
@@ -115,14 +117,14 @@ export type RoadmapStep = {
 
 // Ścieżka procesu w hero. Edytowalna w panelu admina (tabela roadmap_steps) - to tylko zapas.
 export const roadmap: RoadmapStep[] = [
-  { label: "Pomysł", link: "/#kontakt" },
+  { label: "Pomysł" },
   { label: "Tekst", link: "/#cennik" },
   { label: "Bit", link: "/bity" },
   { label: "Wynajem studia", link: "/rezerwacja" },
   { label: "Sesja nagraniowa", link: "/rezerwacja", alternative: true },
   { label: "Mix / Master", link: "/realizacje" },
   { label: "Teledysk", link: "/klipy" },
-  { label: "Materiały promocyjne", link: "/#cennik" },
+  { label: "Materiały promocyjne", link: "/klipy?zakladka=materialy" },
   { label: "Dystrybucja", link: "/#kontakt" },
 ];
 

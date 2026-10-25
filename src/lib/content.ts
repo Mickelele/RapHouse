@@ -318,3 +318,46 @@ export function useAudioProjects() {
         }));
   return { ...query, items };
 }
+
+export type PromoMaterial = {
+  id: string;
+  kind: "rolka" | "grafika";
+  title: string;
+  artist: string | null;
+  image_url: string | null;
+  video_url: string | null;
+  description: string;
+  links: LinkItem[];
+};
+
+// Materiały promocyjne (rolki, grafiki) - zakładka na /klipy i pasek w sekcji "Ruch".
+export function usePromoMaterials() {
+  return useQuery({
+    queryKey: ["promo_materials"],
+    enabled: !!supabase,
+    // Przed migracją tabeli nie ma - bez długiego ponawiania.
+    retry: 1,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("promo_materials")
+        .select("id, kind, title, artist, image_url, video_url, description, links")
+        .eq("published", true)
+        .order("sort_order")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as PromoMaterial[];
+    },
+  });
+}
+
+// Grafika z panelu w formacie, którego oczekuje Lightbox (jeden plik w obu rozmiarach).
+export function promoAsGalleryImage(m: PromoMaterial): GalleryImage {
+  return {
+    id: m.id,
+    alt: m.artist ? `${m.artist} - ${m.title}` : m.title,
+    width: 1280,
+    height: 1280,
+    src640: m.image_url ?? "",
+    src1280: m.image_url ?? "",
+  };
+}

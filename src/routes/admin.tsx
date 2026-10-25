@@ -341,6 +341,66 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     },
   },
   {
+    value: "promo",
+    label: "Materiały promocyjne",
+    config: {
+      table: "promo_materials",
+      label: "Materiał promocyjny",
+      alsoInvalidate: [["promo_materials"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: false },
+      ],
+      rowTitle: (r) =>
+        `${r["kind"] === "grafika" ? "Grafika" : "Rolka"}: ${r["artist"] ? `${r["artist"] as string} - ` : ""}${r["title"] as string}`,
+      rowSubtitle: (r) => (r["video_url"] as string | null) ?? "",
+      rowImage: (r) => {
+        if (r["image_url"]) return r["image_url"] as string;
+        const id = youTubeId(r["video_url"] as string | null);
+        return id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : null;
+      },
+      fields: [
+        {
+          name: "kind",
+          label: "Rodzaj",
+          type: "select",
+          options: [
+            { value: "rolka", label: "Rolka (pionowe wideo)" },
+            { value: "grafika", label: "Grafika / okładka" },
+          ],
+        },
+        { name: "title", label: "Tytuł", type: "text", required: true },
+        { name: "artist", label: "Wykonawca", type: "text", hint: "Opcjonalnie." },
+        {
+          name: "video_url",
+          label: "Link do rolki",
+          type: "url",
+          placeholder: "https://www.youtube.com/shorts/…",
+          hint: "Tylko rolki. YouTube Shorts odtworzy się na stronie; Instagram / TikTok otworzy się w nowej karcie (wtedy dodaj okładkę).",
+        },
+        {
+          name: "image_url",
+          label: "Okładka / grafika",
+          type: "image",
+          hint: "Grafika: sam obrazek. Rolka: okładka (przy YouTube niepotrzebna - weźmiemy miniaturę).",
+        },
+        {
+          name: "description",
+          label: "Opis",
+          type: "textarea",
+          hint: "Opcjonalnie, pod rolką na /klipy.",
+        },
+        { name: "links", label: "Linki", type: "links", hint: linksHint },
+        {
+          name: "sort_order",
+          label: "Kolejność",
+          type: "number",
+          hint: "Mniejsza liczba = wcześniej. Pierwsze 4 rolki i 4 grafiki są też na stronie głównej (Ruch).",
+        },
+      ],
+    },
+  },
+  {
     value: "gear",
     label: "Sprzęt",
     config: {

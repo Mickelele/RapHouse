@@ -54,7 +54,8 @@ export type CollectionConfig = {
     | "gear"
     | "gallery_images"
     | "roadmap_steps"
-    | "regulations";
+    | "regulations"
+    | "promo_materials";
   label: string;
   // Tabela bez kolumny "published" (np. kategorie).
   noPublish?: boolean;
