@@ -6,11 +6,14 @@ import {
   Eye,
   EyeOff,
   GripVertical,
+  ImageOff,
+  Inbox,
   Loader2,
   Pencil,
   Pin,
   PinOff,
   Plus,
+  Search,
   Star,
   Trash2,
   Upload,
@@ -218,6 +221,17 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
     reorder.mutate(next);
   };
 
+  // Wyszukiwarka po tytule i podtytule. Przy wyszukiwaniu kolejności nie zmieniamy
+  // (numery dotyczą całej listy).
+  const [query, setQuery] = useState("");
+  const needle = query.trim().toLowerCase();
+  const rows = (data ?? []).filter(
+    (r) =>
+      !needle ||
+      `${config.rowTitle(r)} ${config.rowSubtitle?.(r) ?? ""}`.toLowerCase().includes(needle),
+  );
+  const canSort = !!config.sortable && !needle;
+
   // Przeciąganie myszą (na telefonie - strzałki góra / dół).
   const [dragFrom, setDragFrom] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
@@ -241,10 +255,27 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
-          {data ? `${data.length} wpisów` : isLoading ? "Ładowanie…" : ""}
-        </p>
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="relative min-w-48 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Szukaj…"
+            aria-label="Szukaj na liście"
+            className="pl-9"
+          />
+        </div>
+        <span className="text-sm tabular-nums text-muted-foreground">
+          {data
+            ? query
+              ? `${rows.length} z ${data.length}`
+              : `${data.length} ${data.length === 1 ? "wpis" : "wpisów"}`
+            : isLoading
+              ? "Ładowanie…"
+              : ""}
+        </span>
         <div className="flex flex-wrap justify-end gap-2">
           {config.toolbar?.(refresh)}
           <Button onClick={() => setEditing(newRow())}>
@@ -253,19 +284,38 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
         </div>
       </div>
 
-      {error && <p className="text-destructive">Błąd: {(error as Error).message}</p>}
-
-      {config.sortable && !!data?.length && (
-        <p className="mb-3 text-xs text-muted-foreground">
-          Kolejność: przeciągnij wpis za uchwyt albo użyj strzałek. Tak samo ułoży się na stronie.
+      {error && (
+        <p className="mb-4 rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          Błąd: {(error as Error).message}
         </p>
       )}
 
+      {canSort && rows.length > 1 && (
+        <p className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
+          <GripVertical className="size-3.5" /> Przeciągnij wpis albo użyj strzałek - tak samo ułoży
+          się na stronie.
+        </p>
+      )}
+
+      {data && !rows.length && (
+        <div className="card-surface flex flex-col items-center gap-3 px-6 py-14 text-center">
+          <Inbox className="size-8 text-muted-foreground" />
+          <p className="text-muted-foreground">
+            {query ? "Nic nie pasuje do wyszukiwania." : "Na razie pusto."}
+          </p>
+          {!query && (
+            <Button variant="outline" onClick={() => setEditing(newRow())}>
+              <Plus className="size-4" /> Dodaj pierwszy wpis
+            </Button>
+          )}
+        </div>
+      )}
+
       <ul className="flex flex-col gap-2">
-        {data?.map((row, index) => (
+        {rows.map((row, index) => (
           <li
             key={row.id}
-            draggable={!!config.sortable}
+            draggable={canSort}
             onDragStart={(e) => {
               setDragFrom(index);
               e.dataTransfer.effectAllowed = "move";
@@ -286,12 +336,12 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
               setDragOver(null);
             }}
             className={cn(
-              "card-surface flex items-center justify-between gap-4 px-5 py-4 transition-colors",
+              "card-surface flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:border-foreground/20 md:px-5",
               dragFrom === index && "opacity-50",
               dragOver === index && dragFrom !== index && "border-primary",
             )}
           >
-            {config.sortable && (
+            {canSort && (
               <div className="-ml-2 flex shrink-0 items-center gap-0.5">
                 <GripVertical
                   className="size-4 cursor-grab text-muted-foreground active:cursor-grabbing"
@@ -312,7 +362,7 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
                     type="button"
                     title="W dół"
                     aria-label="Przesuń w dół"
-                    disabled={index === data.length - 1 || reorder.isPending}
+                    disabled={index === rows.length - 1 || reorder.isPending}
                     onClick={() => move(index, index + 1)}
                     className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-25"
                   >
@@ -321,14 +371,22 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
                 </div>
               </div>
             )}
-            {config.rowImage?.(row) && (
-              <img
-                src={config.rowImage(row)!}
-                alt=""
-                loading="lazy"
-                className="size-14 shrink-0 rounded object-cover"
-              />
-            )}
+            {config.rowImage &&
+              (config.rowImage(row) ? (
+                <img
+                  src={config.rowImage(row)!}
+                  alt=""
+                  loading="lazy"
+                  className={cn(
+                    "size-12 shrink-0 rounded-md object-cover md:size-14",
+                    row.published === false && "opacity-50",
+                  )}
+                />
+              ) : (
+                <span className="flex size-12 shrink-0 items-center justify-center rounded-md bg-secondary text-muted-foreground md:size-14">
+                  <ImageOff className="size-4" />
+                </span>
+              ))}
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-2 font-semibold">
                 {config.pinnable && row["pinned"] === true && (
@@ -336,7 +394,16 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
                     <Pin className="size-3" /> Przypięte
                   </span>
                 )}
-                <span className="truncate">{config.rowTitle(row)}</span>
+                {!config.noPublish && row.published === false && (
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded border border-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+                    <EyeOff className="size-3" /> Ukryte
+                  </span>
+                )}
+                <span
+                  className={cn("truncate", row.published === false && "text-muted-foreground")}
+                >
+                  {config.rowTitle(row)}
+                </span>
               </p>
               {config.rowSubtitle && (
                 <p className="truncate text-sm text-muted-foreground">{config.rowSubtitle(row)}</p>

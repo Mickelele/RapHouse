@@ -1,12 +1,30 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { Session } from "@supabase/supabase-js";
-import { Clock, Loader2, LogOut } from "lucide-react";
+import {
+  Clapperboard,
+  Clock,
+  Disc3,
+  Headphones,
+  Images,
+  LayoutDashboard,
+  Loader2,
+  Megaphone,
+  Music,
+  Newspaper,
+  Receipt,
+  Route as RouteIcon,
+  ScrollText,
+  Sparkles,
+  Tags,
+  Users,
+  type LucideIcon,
+} from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CollectionEditor, type CollectionConfig } from "@/components/admin/CollectionEditor";
 import {
   clearLogoutReason,
@@ -17,6 +35,7 @@ import {
 import { useServerSession } from "@/components/admin/useServerSession";
 import { GalleryBulkUpload } from "@/components/admin/GalleryBulkUpload";
 import { MovementOrderEditor } from "@/components/admin/MovementOrderEditor";
+import { AdminShell, StatTile, type AdminSection } from "@/components/admin/AdminShell";
 import { removeGalleryFiles } from "@/lib/gallery-upload";
 import { formatDate, youTubeId } from "@/lib/media";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -78,6 +97,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { column: "sort_order", ascending: true },
         { column: "created_at", ascending: false },
       ],
+      rowImage: (r) => (r["image_url"] as string | null) ?? null,
       rowTitle: (r) => r["title"] as string,
       rowSubtitle: (r) =>
         [r["category"], r["bpm"] && `${r["bpm"]} BPM`, r["price"]].filter(Boolean).join(" · "),
@@ -191,6 +211,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { column: "sort_order", ascending: true },
         { column: "created_at", ascending: false },
       ],
+      rowImage: (r) => (r["image_url"] as string | null) ?? null,
       rowTitle: (r) => `${r["artist"]} - ${r["title"]}`,
       rowSubtitle: (r) => r["description"] as string,
       fields: [
@@ -495,9 +516,140 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
   },
 ];
 
+// Wygląd i opis każdej zakładki panelu (menu boczne, nagłówek, pulpit).
+const META: Record<string, { icon: LucideIcon; group: string; description: string }> = {
+  beats: {
+    icon: Music,
+    group: "Muzyka",
+    description: "Katalog bitów na stronie /bity i „Najnowsze bity” na stronie głównej.",
+  },
+  beat_categories: {
+    icon: Tags,
+    group: "Muzyka",
+    description: "Filtry nad katalogiem bitów. Zmiana nazwy przenosi się na wszystkie bity.",
+  },
+  projects: {
+    icon: Disc3,
+    group: "Muzyka",
+    description: "Utwory nagrane i zmiksowane w studiu - podstrona /realizacje.",
+  },
+  clips: {
+    icon: Clapperboard,
+    group: "Wideo i promo",
+    description: "Teledyski na /klipy. Gwiazdka = klip w przewijanym pasku w sekcji Ruch.",
+  },
+  promo: {
+    icon: Megaphone,
+    group: "Wideo i promo",
+    description:
+      "Rolki i grafiki: zakładka „Materiały promocyjne” na /klipy i pasek w sekcji Ruch.",
+  },
+  pricing: {
+    icon: Receipt,
+    group: "Strona",
+    description: "Karty w sekcji Cennik. Odnośnik z karty sprawia, że cała karta jest klikalna.",
+  },
+  roadmap: {
+    icon: RouteIcon,
+    group: "Strona",
+    description: "Wężyk procesu na samej górze strony: kroki, ich odnośniki i rozwidlenia.",
+  },
+  team: {
+    icon: Users,
+    group: "Strona",
+    description: "Osoby w sekcji „O nas” - zdjęcie, rola i opis.",
+  },
+  gear: {
+    icon: Headphones,
+    group: "Strona",
+    description: "Lista sprzętu na stronie głównej i na podstronie /sprzet (grupowana po rodzaju).",
+  },
+  gallery: {
+    icon: Images,
+    group: "Strona",
+    description: "Zdjęcia studia na /galeria. Pierwsze 5 pokazuje się też w sekcji Sprzęt.",
+  },
+  news: {
+    icon: Newspaper,
+    group: "Treści",
+    description: "Wpisy na /aktualnosci. Przypięty wpis jest też na stronie głównej.",
+  },
+  regulations: {
+    icon: ScrollText,
+    group: "Treści",
+    description: "Regulaminy na /regulaminy - każdy pojawia się też w stopce.",
+  },
+};
+
+const GROUP_ORDER = ["Start", "Muzyka", "Wideo i promo", "Strona", "Treści"];
+
+// Pulpit: liczba wpisów (i ukrytych) w każdej zakładce.
+function Dashboard({ onSelect }: { onSelect: (value: string) => void }) {
+  const { data } = useQuery({
+    queryKey: ["admin", "counts"],
+    queryFn: async () => {
+      const entries = await Promise.all(
+        collections.map(async (c) => {
+          const base = () => {
+            let q = supabase!.from(c.config.table).select("id", { count: "exact", head: true });
+            if (c.config.filter) q = q.eq(c.config.filter.column, c.config.filter.value);
+            return q;
+          };
+          const [all, hidden] = await Promise.all([
+            base(),
+            c.config.noPublish ? Promise.resolve({ count: 0 }) : base().eq("published", false),
+          ]);
+          return [c.value, { count: all.count ?? undefined, hidden: hidden.count ?? 0 }] as const;
+        }),
+      );
+      return Object.fromEntries(entries);
+    },
+  });
+
+  return (
+    <div className="flex flex-col gap-10">
+      {GROUP_ORDER.filter((g) => g !== "Start").map((g) => (
+        <div key={g}>
+          <p className="eyebrow mb-4">{g}</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {collections
+              .filter((c) => META[c.value]?.group === g)
+              .map((c) => (
+                <StatTile
+                  key={c.value}
+                  icon={META[c.value]!.icon}
+                  label={c.label}
+                  count={data?.[c.value]?.count}
+                  hidden={data?.[c.value]?.hidden}
+                  onClick={() => onSelect(c.value)}
+                />
+              ))}
+            {g === "Wideo i promo" && (
+              <StatTile
+                icon={Sparkles}
+                label="Sekcja Ruch"
+                count={undefined}
+                hidden={undefined}
+                onClick={() => onSelect("movement")}
+              />
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AdminPage() {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  // Otwarta zakładka w adresie (#beats…), żeby odświeżenie strony jej nie gubiło.
+  const [activeValue, setActiveValue] = useState("start");
+
+  useEffect(() => {
+    const fromHash = window.location.hash.slice(1);
+    if (fromHash) setActiveValue(fromHash);
+  }, []);
 
   useEffect(() => {
     if (!supabase) return;
@@ -526,71 +678,94 @@ function AdminPage() {
     void supabase!.auth.signOut();
   };
 
-  let content: React.ReactNode;
+  const select = (value: string) => {
+    setActiveValue(value);
+    history.replaceState(null, "", value === "start" ? "/admin" : `#${value}`);
+    window.scrollTo({ top: 0 });
+  };
+
+  const sections: AdminSection[] = [
+    {
+      value: "start",
+      label: "Pulpit",
+      icon: LayoutDashboard,
+      group: "Start",
+      description:
+        "Wszystko, co możesz zmienić na stronie. Kliknij kafelek, żeby przejść do edycji.",
+      render: () => <Dashboard onSelect={select} />,
+    },
+    ...collections.map((c) => ({
+      value: c.value,
+      label: c.label,
+      icon: META[c.value]?.icon ?? LayoutDashboard,
+      group: META[c.value]?.group ?? "Inne",
+      description: META[c.value]?.description ?? "",
+      render: () => <CollectionEditor key={c.value} config={c.config} />,
+    })),
+    {
+      value: "movement",
+      label: "Sekcja Ruch",
+      icon: Sparkles,
+      group: "Wideo i promo",
+      description:
+        "Kolejność przewijanego paska z rolkami, klipami i grafikami w sekcji Ruch na stronie głównej.",
+      render: () => <MovementOrderEditor />,
+    },
+  ].sort((a, b) => GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group));
+  const active = sections.find((s) => s.value === activeValue) ?? sections[0]!;
+
+  let screen: React.ReactNode = null;
   if (!isSupabaseConfigured) {
-    content = (
+    screen = (
       <Notice>
         Baza danych nie jest jeszcze podłączona. Uzupełnij <code>VITE_SUPABASE_URL</code> i{" "}
         <code>VITE_SUPABASE_ANON_KEY</code> w pliku <code>.env</code>.
       </Notice>
     );
-  } else if (session === undefined) {
-    content = <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />;
+  } else if (session === undefined || (loggedIn && isAdmin === null)) {
+    screen = <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />;
   } else if (!loggedIn) {
-    content = <LoginForm onLoggedIn={resetExpired} />;
-  } else if (isAdmin === null) {
-    content = <Loader2 className="mx-auto size-6 animate-spin text-muted-foreground" />;
+    screen = <LoginForm onLoggedIn={resetExpired} />;
   } else if (!isAdmin) {
-    content = (
+    screen = (
       <Notice>
-        Konto {session.user.email} nie ma uprawnień administratora.
+        Konto {session?.user.email} nie ma uprawnień administratora.
         <Button variant="outline" className="mt-6" onClick={signOut}>
           Wyloguj
         </Button>
       </Notice>
     );
-  } else {
-    content = (
-      <Tabs defaultValue="news">
-        <TabsList className="mb-8 h-auto flex-wrap justify-start">
-          {collections.map((c) => (
-            <TabsTrigger key={c.value} value={c.value}>
-              {c.label}
-            </TabsTrigger>
-          ))}
-          <TabsTrigger value="movement">Sekcja Ruch</TabsTrigger>
-        </TabsList>
-        {collections.map((c) => (
-          <TabsContent key={c.value} value={c.value}>
-            <CollectionEditor config={c.config} />
-          </TabsContent>
-        ))}
-        <TabsContent value="movement">
-          <MovementOrderEditor />
-        </TabsContent>
-      </Tabs>
-    );
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-border">
-        <div className="mx-auto flex h-20 max-w-5xl items-center justify-between px-5">
-          <a href="/" className="flex items-center gap-4">
-            <img src={logo} alt="RapHouse" className="h-10 w-auto" />
+    <>
+      {screen ? (
+        // Logowanie i komunikaty: środek ekranu z zieloną poświatą.
+        <div className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden bg-background px-5 py-16 text-foreground">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/3 h-[36rem] w-[36rem] max-w-full -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,color-mix(in_oklab,var(--primary)_14%,transparent),transparent)]"
+          />
+          <a href="/" className="relative flex flex-col items-center gap-3">
+            <img src={logo} alt="RapHouse" className="h-20 w-auto" />
             <span className="eyebrow">Panel admina</span>
           </a>
-          {loggedIn && (
-            <Button variant="ghost" size="sm" onClick={signOut}>
-              <LogOut className="size-4" /> Wyloguj
-            </Button>
-          )}
+          <div className="relative w-full">{screen}</div>
         </div>
-      </header>
-      <main className="mx-auto max-w-5xl px-5 py-12">{content}</main>
+      ) : (
+        <AdminShell
+          sections={sections}
+          active={active}
+          onSelect={select}
+          email={session?.user.email}
+          onSignOut={signOut}
+        >
+          {active.render()}
+        </AdminShell>
+      )}
       {secondsLeft !== null && <IdleWarning seconds={secondsLeft} onStay={stayLoggedIn} />}
       <Toaster />
-    </div>
+    </>
   );
 }
 
