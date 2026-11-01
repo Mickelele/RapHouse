@@ -29,7 +29,9 @@ export function BeatCard({ beat }: { beat: Beat }) {
         </div>
       </div>
       {beat.description && (
-        <p className="text-sm leading-relaxed text-muted-foreground">{beat.description}</p>
+        <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+          {beat.description}
+        </p>
       )}
       <AudioPlayer src={beat.audio_url} title={beat.title} />
       <VideoEmbed url={beat.video_url} title={beat.title} />

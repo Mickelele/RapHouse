@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
-import { pricingFootnote } from "@/data/raphouse";
 import { usePricing } from "@/lib/content";
 import { Reveal } from "./Reveal";
 
@@ -59,17 +58,6 @@ export function Pricing() {
           </Reveal>
         ))}
       </div>
-
-      <Reveal delay={120} className="mt-12">
-        <div className="flex flex-wrap items-center justify-between gap-6 border-t border-border pt-10">
-          <p className="max-w-lg text-sm leading-relaxed text-muted-foreground">
-            {pricingFootnote.text} {pricingFootnote.price}.
-          </p>
-          <a href="#kontakt" className="btn-base btn-accent">
-            Rezerwuj teraz
-          </a>
-        </div>
-      </Reveal>
     </section>
   );
 }

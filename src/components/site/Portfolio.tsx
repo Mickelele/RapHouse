@@ -72,7 +72,9 @@ export function AudioGrid({ items }: { items: AudioItem[] }) {
                 )}
               </div>
               {open && <VideoEmbed url={track.video_url} title={track.title} />}
-              <p className="text-sm leading-relaxed text-muted-foreground">{track.description}</p>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                {track.description}
+              </p>
               {track.audio_url ? (
                 <AudioPlayer src={track.audio_url} title={track.title} />
               ) : (
@@ -125,7 +127,9 @@ export function VideoGrid({ items }: { items: Project[] }) {
               )}
             </div>
             {clip.description && (
-              <p className="text-sm leading-relaxed text-muted-foreground">{clip.description}</p>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                {clip.description}
+              </p>
             )}
             <LinkList links={clip.links} />
           </article>

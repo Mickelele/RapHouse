@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { galleryImages as staticGallery, type GalleryImage } from "@/data/gallery";
 import {
+  crew as staticCrew,
   gear as staticGear,
   portfolio as staticPortfolio,
   pricing as staticPricing,
@@ -8,6 +9,7 @@ import {
   type PriceItem,
   type RoadmapStep,
 } from "@/data/raphouse";
+import { instagramEmbedUrl } from "./media";
 import { supabase } from "./supabase";
 
 export type LinkItem = { label: string; url: string };
@@ -56,8 +58,9 @@ export type Project = {
   // Brak kolumny (przed migracją) = "audio".
   category?: "audio" | "video";
   released_on?: string | null;
-  // Wybrany do paska w sekcji "Ruch" (brak kolumny przed migracją = nie).
+  // Wybrany do paska w sekcji "Ruch" (brak kolumny przed migracją = nie) i miejsce w nim.
   in_movement?: boolean;
+  movement_order?: number;
 };
 
 export type BeatCategory = { id: string; name: string; sort_order: number };
@@ -331,6 +334,7 @@ export type PromoMaterial = {
   description: string;
   links: LinkItem[];
   in_movement?: boolean;
+  movement_order?: number;
 };
 
 // Materiały promocyjne (rolki, grafiki) - zakładka na /klipy i pasek w sekcji "Ruch".
@@ -354,6 +358,11 @@ export function usePromoMaterials() {
   });
 }
 
+// Grafika do pokazania: wgrany obrazek albo link do posta na Instagramie.
+export function isShowableGraphic(m: PromoMaterial) {
+  return m.kind === "grafika" && (!!m.image_url || !!instagramEmbedUrl(m.video_url));
+}
+
 // Grafika z panelu w formacie, którego oczekuje Lightbox (jeden plik w obu rozmiarach).
 export function promoAsGalleryImage(m: PromoMaterial): GalleryImage {
   return {
@@ -364,4 +373,40 @@ export function promoAsGalleryImage(m: PromoMaterial): GalleryImage {
     src640: m.image_url ?? "",
     src1280: m.image_url ?? "",
   };
+}
+
+export type TeamMember = {
+  id: string;
+  name: string;
+  role: string | null;
+  bio: string;
+  image_url: string | null;
+};
+
+// Ekipa w sekcji "O nas" z panelu admina; zapasowo statyczna z data/raphouse.ts.
+export function useTeam(): TeamMember[] {
+  const { data } = useQuery({
+    queryKey: ["team_members"],
+    enabled: !!supabase,
+    retry: 1,
+    queryFn: async () => {
+      const { data, error } = await supabase!
+        .from("team_members")
+        .select("id, name, role, bio, image_url")
+        .eq("published", true)
+        .order("sort_order")
+        .order("created_at");
+      if (error) throw error;
+      return data as TeamMember[];
+    },
+  });
+  return data?.length
+    ? data
+    : staticCrew.map((c) => ({
+        id: c.name,
+        name: c.name,
+        role: c.role,
+        bio: c.bio,
+        image_url: null,
+      }));
 }

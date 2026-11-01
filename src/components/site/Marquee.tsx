@@ -1,6 +1,7 @@
 import logo from "@/assets/raphouse-logo.webp";
 
-const WORDS = ["Rap", "Hip-Hop", "Muzyka", "Kultura", "Społeczność", "RapHouse"];
+// "RapHouse" = logo zamiast tekstu.
+const WORDS = ["Rap", "Muzyka", "Klipy", "Movement", "RapHouse"];
 
 export function Marquee() {
   const run = [...WORDS, ...WORDS, ...WORDS, ...WORDS];

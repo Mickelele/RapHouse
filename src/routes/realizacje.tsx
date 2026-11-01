@@ -24,7 +24,7 @@ function ProjectsPage() {
 
   return (
     <PageLayout
-      eyebrow="Realizacje"
+      eyebrow="Utwory"
       title="Co tu"
       accent="powstało."
       intro="Numery nagrane, zmiksowane i zmasterowane u nas - od oldschoolu po trap. Teledyski znajdziesz w zakładce Klipy."

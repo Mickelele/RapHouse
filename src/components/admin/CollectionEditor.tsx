@@ -1,6 +1,21 @@
 import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Eye, EyeOff, Loader2, Pencil, Pin, PinOff, Plus, Trash2, Upload, X } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  EyeOff,
+  GripVertical,
+  Loader2,
+  Pencil,
+  Pin,
+  PinOff,
+  Plus,
+  Star,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +32,7 @@ import {
 import { useBeatCategories, type LinkItem } from "@/lib/content";
 import { uploadGalleryImage } from "@/lib/gallery-upload";
 import { MEDIA_BUCKET, supabase } from "@/lib/supabase";
+import { cn } from "@/lib/utils";
 
 export type Field = {
   name: string;
@@ -55,7 +71,8 @@ export type CollectionConfig = {
     | "gallery_images"
     | "roadmap_steps"
     | "regulations"
-    | "promo_materials";
+    | "promo_materials"
+    | "team_members";
   label: string;
   // Tabela bez kolumny "published" (np. kategorie).
   noPublish?: boolean;
@@ -71,6 +88,11 @@ export type CollectionConfig = {
   onDelete?: (row: Row) => Promise<void>;
   // Miniatura na liście wpisów.
   rowImage?: (row: Row) => string | null;
+  // Kolejność ustawiana przeciąganiem / strzałkami (kolumna sort_order, numerowana 1..n).
+  // "top" - nowy wpis trafia na górę listy, "end" - na koniec.
+  sortable?: "top" | "end";
+  // Gwiazdka na liście: szybkie włączenie / wyłączenie w pasku sekcji "Ruch" (kolumna in_movement).
+  movementToggle?: boolean;
   fields: Field[];
   orderBy: { column: string; ascending: boolean }[];
   rowTitle: (row: Row) => string;
@@ -121,6 +143,12 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
   const save = useMutation({
     mutationFn: async (row: Row) => {
       const { id, created_at: _c, ...values } = row;
+      // Nowy wpis w liście z kolejnością: na górę albo na koniec, bez wpisywania liczb.
+      if (!id && config.sortable) {
+        const orders = (data ?? []).map((r) => Number(r["sort_order"]) || 0);
+        values["sort_order"] =
+          config.sortable === "end" ? Math.max(0, ...orders) + 1 : Math.min(1, ...orders) - 1;
+      }
       for (const k of Object.keys(values))
         if (values[k] == null && NOT_NULL.has(k)) delete values[k];
       // Puste wiersze linków / cen nie trafiają do bazy.
@@ -153,6 +181,46 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
     },
     onError: (e: Error) => toast.error(`Błąd usuwania: ${e.message}`),
   });
+
+  // Zapis nowej kolejności: numery 1..n, wysyłane tylko dla wpisów, które się przesunęły.
+  const reorder = useMutation({
+    mutationFn: async (rows: Row[]) => {
+      const changed = rows
+        .map((r, i) => ({ r, order: i + 1 }))
+        .filter(({ r, order }) => r["sort_order"] !== order);
+      const results = await Promise.all(
+        changed.map(({ r, order }) =>
+          supabase!.from(config.table).update({ sort_order: order }).eq("id", r.id!),
+        ),
+      );
+      const failed = results.find((res) => res.error);
+      if (failed?.error) throw failed.error;
+    },
+    // Lista przestawia się od razu, zanim baza odpowie.
+    onMutate: (rows) => {
+      qc.setQueryData(
+        key,
+        rows.map((r, i) => ({ ...r, sort_order: i + 1 })),
+      );
+    },
+    onSuccess: refresh,
+    onError: (e: Error) => {
+      toast.error(`Błąd zmiany kolejności: ${e.message}`);
+      refresh();
+    },
+  });
+
+  const move = (from: number, to: number) => {
+    if (!data || from === to || to < 0 || to >= data.length) return;
+    const next = [...data];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item!);
+    reorder.mutate(next);
+  };
+
+  // Przeciąganie myszą (na telefonie - strzałki góra / dół).
+  const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const [dragOver, setDragOver] = useState<number | null>(null);
 
   const newRow = (): Row => {
     const row: Row = config.noPublish ? {} : { published: true };
@@ -187,12 +255,72 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
 
       {error && <p className="text-destructive">Błąd: {(error as Error).message}</p>}
 
+      {config.sortable && !!data?.length && (
+        <p className="mb-3 text-xs text-muted-foreground">
+          Kolejność: przeciągnij wpis za uchwyt albo użyj strzałek. Tak samo ułoży się na stronie.
+        </p>
+      )}
+
       <ul className="flex flex-col gap-2">
-        {data?.map((row) => (
+        {data?.map((row, index) => (
           <li
             key={row.id}
-            className="card-surface flex items-center justify-between gap-4 px-5 py-4"
+            draggable={!!config.sortable}
+            onDragStart={(e) => {
+              setDragFrom(index);
+              e.dataTransfer.effectAllowed = "move";
+            }}
+            onDragOver={(e) => {
+              if (dragFrom === null) return;
+              e.preventDefault();
+              setDragOver(index);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (dragFrom !== null) move(dragFrom, index);
+              setDragFrom(null);
+              setDragOver(null);
+            }}
+            onDragEnd={() => {
+              setDragFrom(null);
+              setDragOver(null);
+            }}
+            className={cn(
+              "card-surface flex items-center justify-between gap-4 px-5 py-4 transition-colors",
+              dragFrom === index && "opacity-50",
+              dragOver === index && dragFrom !== index && "border-primary",
+            )}
           >
+            {config.sortable && (
+              <div className="-ml-2 flex shrink-0 items-center gap-0.5">
+                <GripVertical
+                  className="size-4 cursor-grab text-muted-foreground active:cursor-grabbing"
+                  aria-hidden
+                />
+                <div className="flex flex-col">
+                  <button
+                    type="button"
+                    title="W górę"
+                    aria-label="Przesuń w górę"
+                    disabled={index === 0 || reorder.isPending}
+                    onClick={() => move(index, index - 1)}
+                    className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-25"
+                  >
+                    <ChevronUp className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    title="W dół"
+                    aria-label="Przesuń w dół"
+                    disabled={index === data.length - 1 || reorder.isPending}
+                    onClick={() => move(index, index + 1)}
+                    className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-25"
+                  >
+                    <ChevronDown className="size-4" />
+                  </button>
+                </div>
+              </div>
+            )}
             {config.rowImage?.(row) && (
               <img
                 src={config.rowImage(row)!}
@@ -215,6 +343,25 @@ export function CollectionEditor({ config }: { config: CollectionConfig }) {
               )}
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              {config.movementToggle && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  title={
+                    row["in_movement"]
+                      ? "Usuń z sekcji Ruch"
+                      : "Pokaż w sekcji Ruch (strona główna)"
+                  }
+                  onClick={() => save.mutate({ id: row.id, in_movement: !row["in_movement"] })}
+                >
+                  <Star
+                    className={cn(
+                      "size-4",
+                      row["in_movement"] ? "fill-primary text-primary" : "text-muted-foreground",
+                    )}
+                  />
+                </Button>
+              )}
               {config.pinnable && (
                 <Button
                   variant="ghost"

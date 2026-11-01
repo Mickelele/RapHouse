@@ -18,6 +18,7 @@ import { Route as KlipyRouteImport } from './routes/klipy'
 import { Route as RealizacjeRouteImport } from './routes/realizacje'
 import { Route as RegulaminyRouteImport } from './routes/regulaminy'
 import { Route as RezerwacjaRouteImport } from './routes/rezerwacja'
+import { Route as SprzetRouteImport } from './routes/sprzet'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const RezerwacjaRoute = RezerwacjaRouteImport.update({
   path: '/rezerwacja',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SprzetRoute = SprzetRouteImport.update({
+  id: '/sprzet',
+  path: '/sprzet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/realizacje': typeof RealizacjeRoute
   '/regulaminy': typeof RegulaminyRoute
   '/rezerwacja': typeof RezerwacjaRoute
+  '/sprzet': typeof SprzetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/realizacje': typeof RealizacjeRoute
   '/regulaminy': typeof RegulaminyRoute
   '/rezerwacja': typeof RezerwacjaRoute
+  '/sprzet': typeof SprzetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/realizacje': typeof RealizacjeRoute
   '/regulaminy': typeof RegulaminyRoute
   '/rezerwacja': typeof RezerwacjaRoute
+  '/sprzet': typeof SprzetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/realizacje'
     | '/regulaminy'
     | '/rezerwacja'
+    | '/sprzet'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/realizacje'
     | '/regulaminy'
     | '/rezerwacja'
+    | '/sprzet'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/realizacje'
     | '/regulaminy'
     | '/rezerwacja'
+    | '/sprzet'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   RealizacjeRoute: typeof RealizacjeRoute
   RegulaminyRoute: typeof RegulaminyRoute
   RezerwacjaRoute: typeof RezerwacjaRoute
+  SprzetRoute: typeof SprzetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RezerwacjaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sprzet': {
+      id: '/sprzet'
+      path: '/sprzet'
+      fullPath: '/sprzet'
+      preLoaderRoute: typeof SprzetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   RealizacjeRoute: RealizacjeRoute,
   RegulaminyRoute: RegulaminyRoute,
   RezerwacjaRoute: RezerwacjaRoute,
+  SprzetRoute: SprzetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

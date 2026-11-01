@@ -102,12 +102,6 @@ export const pricing: PriceItem[] = [
   },
 ];
 
-// Dopisek pod cennikiem.
-export const pricingFootnote = {
-  text: "Dokładna wycena mixu/masteringu następuje po otrzymaniu plików i referencji - cena zaczyna się od",
-  price: "350 PLN",
-};
-
 export type RoadmapStep = {
   label: string;
   link?: string | null;
@@ -121,7 +115,7 @@ export const roadmap: RoadmapStep[] = [
   { label: "Tekst", link: "/#cennik" },
   { label: "Bit", link: "/bity" },
   { label: "Wynajem studia", link: "/rezerwacja" },
-  { label: "Sesja nagraniowa", link: "/rezerwacja", alternative: true },
+  { label: "Sesja nagraniowa", link: "/#kontakt", alternative: true },
   { label: "Mix / Master", link: "/realizacje" },
   { label: "Teledysk", link: "/klipy" },
   { label: "Materiały promocyjne", link: "/klipy?zakladka=materialy" },
@@ -214,20 +208,21 @@ export const nav: NavItem[] = [
     label: "Studio",
     children: [
       { label: "O studiu", href: "/#studio" },
+      { label: "Sprzęt", href: "/sprzet" },
       { label: "Galeria", href: "/galeria" },
       { label: "O nas", href: "/#o-nas" },
       { label: "Regulaminy", href: "/regulaminy" },
     ],
   },
-  { label: "Cennik", href: "/#cennik" },
-  { label: "Bity", href: "/bity" },
   {
     label: "Realizacje",
     children: [
-      { label: "Nagrania", href: "/realizacje" },
+      { label: "Utwory", href: "/realizacje" },
       { label: "Klipy", href: "/klipy" },
     ],
   },
+  { label: "Cennik", href: "/#cennik" },
+  { label: "Bity", href: "/bity" },
   { label: "Aktualności", href: "/aktualnosci" },
   { label: "Kontakt", href: "/#kontakt" },
 ];

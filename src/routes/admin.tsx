@@ -16,6 +16,7 @@ import {
 } from "@/components/admin/useIdleLogout";
 import { useServerSession } from "@/components/admin/useServerSession";
 import { GalleryBulkUpload } from "@/components/admin/GalleryBulkUpload";
+import { MovementOrderEditor } from "@/components/admin/MovementOrderEditor";
 import { removeGalleryFiles } from "@/lib/gallery-upload";
 import { formatDate, youTubeId } from "@/lib/media";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
@@ -72,6 +73,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "beats",
       label: "Bit",
+      sortable: "top",
       orderBy: [
         { column: "sort_order", ascending: true },
         { column: "created_at", ascending: false },
@@ -91,15 +93,14 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { name: "price", label: "Cena", type: "text", placeholder: "np. 400 PLN" },
         { name: "audio_url", label: "Plik audio (mp3)", type: "audio" },
         { name: "image_url", label: "Okładka", type: "image" },
-        { name: "description", label: "Opis", type: "textarea" },
+        {
+          name: "description",
+          label: "Opis",
+          type: "textarea",
+          hint: "Enter = nowa linia (na stronie też będzie w nowej linii).",
+        },
         { name: "video_url", label: "Film", type: "url", hint: videoHint },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wyżej na liście.",
-        },
       ],
     },
   },
@@ -109,6 +110,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "beat_categories",
       label: "Kategoria bitów",
+      sortable: "end",
       noPublish: true,
       alsoInvalidate: [["beats"], ["admin", "beats"]],
       orderBy: [
@@ -126,12 +128,6 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           placeholder: "np. Drill / UK",
           hint: "Zmiana nazwy przeniesie się na wszystkie bity z tej kategorii.",
         },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wcześniej na liście filtrów.",
-        },
       ],
     },
   },
@@ -141,6 +137,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "pricing",
       label: "Pozycja cennika",
+      sortable: "end",
       alsoInvalidate: [["pricing"]],
       orderBy: [
         { column: "sort_order", ascending: true },
@@ -179,21 +176,16 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           placeholder: "np. Sprawdź wolne terminy",
           hint: "Puste = „Zobacz więcej”.",
         },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wcześniej w cenniku.",
-        },
       ],
     },
   },
   {
     value: "projects",
-    label: "Realizacje (audio)",
+    label: "Utwory (audio)",
     config: {
       table: "projects",
       label: "Realizacja audio",
+      sortable: "top",
       filter: { column: "category", value: "audio" },
       orderBy: [
         { column: "sort_order", ascending: true },
@@ -204,18 +196,17 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
       fields: [
         { name: "artist", label: "Wykonawca", type: "text", required: true },
         { name: "title", label: "Tytuł numeru", type: "text", required: true },
-        { name: "description", label: "Opis", type: "textarea" },
+        {
+          name: "description",
+          label: "Opis",
+          type: "textarea",
+          hint: "Enter = nowa linia (na stronie też będzie w nowej linii).",
+        },
         { name: "audio_url", label: "Plik audio (mp3)", type: "audio" },
         { name: "video_url", label: "Teledysk", type: "url", hint: videoHint },
         { name: "image_url", label: "Okładka", type: "image" },
         { name: "released_on", label: "Data premiery", type: "date", hint: "Opcjonalnie." },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wyżej na liście.",
-        },
       ],
     },
   },
@@ -225,6 +216,8 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "projects",
       label: "Klip",
+      sortable: "top",
+      movementToggle: true,
       filter: { column: "category", value: "video" },
       alsoInvalidate: [["admin", "projects"]],
       orderBy: [
@@ -241,6 +234,12 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         return id ? `https://i.ytimg.com/vi/${id}/mqdefault.jpg` : null;
       },
       fields: [
+        {
+          name: "in_movement",
+          label: "Pokaż w sekcji Ruch",
+          type: "boolean",
+          hint: "Przewijany pasek na stronie głównej (to samo co gwiazdka na liście). Kolejność w pasku ułożysz w zakładce „Sekcja Ruch”.",
+        },
         { name: "artist", label: "Wykonawca", type: "text", required: true },
         { name: "title", label: "Tytuł klipu", type: "text", required: true },
         {
@@ -252,20 +251,13 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           hint: "Działa każdy link do filmu (także youtu.be i shorts). Pokaże się w Realizacjach → Video.",
         },
         { name: "released_on", label: "Data premiery", type: "date", hint: "Opcjonalnie." },
-        { name: "description", label: "Opis", type: "textarea" },
+        {
+          name: "description",
+          label: "Opis",
+          type: "textarea",
+          hint: "Enter = nowa linia (na stronie też będzie w nowej linii).",
+        },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
-        {
-          name: "in_movement",
-          label: "Pokaż w sekcji Ruch",
-          type: "boolean",
-          hint: "Przewijany pasek na stronie głównej. Gdy nic z tego rodzaju nie jest zaznaczone, pokazują się 3 losowe.",
-        },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wyżej na liście.",
-        },
       ],
     },
   },
@@ -275,6 +267,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "roadmap_steps",
       label: "Krok ścieżki",
+      sortable: "end",
       alsoInvalidate: [["roadmap_steps"]],
       orderBy: [
         { column: "sort_order", ascending: true },
@@ -303,12 +296,6 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           type: "boolean",
           hint: "Ścieżka się rozwidla (np. Wynajem studia albo Sesja nagraniowa). Najwyżej 2 kroki obok siebie.",
         },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wcześniej na ścieżce.",
-        },
       ],
     },
   },
@@ -318,6 +305,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "regulations",
       label: "Regulamin",
+      sortable: "end",
       alsoInvalidate: [["regulations"]],
       orderBy: [
         { column: "sort_order", ascending: true },
@@ -339,12 +327,6 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           type: "textarea",
           hint: "Enter = nowa linia, pusta linia = nowy akapit. Pokaże się na stronie /regulaminy.",
         },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wyżej na stronie.",
-        },
       ],
     },
   },
@@ -354,6 +336,8 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "promo_materials",
       label: "Materiał promocyjny",
+      sortable: "top",
+      movementToggle: true,
       alsoInvalidate: [["promo_materials"]],
       orderBy: [
         { column: "sort_order", ascending: true },
@@ -370,6 +354,12 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
       },
       fields: [
         {
+          name: "in_movement",
+          label: "Pokaż w sekcji Ruch",
+          type: "boolean",
+          hint: "Przewijany pasek na stronie głównej (to samo co gwiazdka na liście). Kolejność w pasku ułożysz w zakładce „Sekcja Ruch”.",
+        },
+        {
           name: "kind",
           label: "Rodzaj",
           type: "select",
@@ -382,16 +372,16 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { name: "artist", label: "Wykonawca", type: "text", hint: "Opcjonalnie." },
         {
           name: "video_url",
-          label: "Link do rolki",
+          label: "Link (YouTube Shorts / Instagram)",
           type: "url",
-          placeholder: "https://www.youtube.com/shorts/…",
-          hint: "Tylko rolki. YouTube Shorts odtworzy się na stronie; Instagram / TikTok otworzy się w nowej karcie (wtedy dodaj okładkę).",
+          placeholder: "https://www.instagram.com/reel/… albo https://www.youtube.com/shorts/…",
+          hint: "Rolka z YouTube Shorts gra sama (bez dźwięku) w sekcji Ruch. Link do posta / rolki z Instagrama wystarczy zamiast wgrywania zdjęcia - pokaże się prosto z Instagrama.",
         },
         {
           name: "image_url",
-          label: "Okładka / grafika",
+          label: "Okładka / grafika (opcjonalnie)",
           type: "image",
-          hint: "Grafika: sam obrazek. Rolka: okładka (przy YouTube niepotrzebna - weźmiemy miniaturę).",
+          hint: "Niepotrzebna, jeśli wyżej jest link do Instagrama albo YouTube. Wgrany obrazek wygląda najczyściej.",
         },
         {
           name: "description",
@@ -400,17 +390,38 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           hint: "Opcjonalnie, pod rolką na /klipy.",
         },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
+      ],
+    },
+  },
+  {
+    value: "team",
+    label: "O nas (ekipa)",
+    config: {
+      table: "team_members",
+      label: "Osoba",
+      sortable: "end",
+      alsoInvalidate: [["team_members"]],
+      orderBy: [
+        { column: "sort_order", ascending: true },
+        { column: "created_at", ascending: true },
+      ],
+      rowTitle: (r) => r["name"] as string,
+      rowSubtitle: (r) => (r["role"] as string | null) ?? "",
+      rowImage: (r) => (r["image_url"] as string | null) ?? null,
+      fields: [
+        { name: "name", label: "Imię / ksywka", type: "text", required: true },
+        { name: "role", label: "Rola", type: "text", placeholder: "np. Realizator, Producent" },
         {
-          name: "in_movement",
-          label: "Pokaż w sekcji Ruch",
-          type: "boolean",
-          hint: "Przewijany pasek na stronie głównej. Gdy nic z tego rodzaju nie jest zaznaczone, pokazują się 3 losowe.",
+          name: "image_url",
+          label: "Zdjęcie",
+          type: "image",
+          hint: "Najlepiej pionowe albo kwadratowe.",
         },
         {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wcześniej (na /klipy i w pasku w sekcji Ruch).",
+          name: "bio",
+          label: "Opis",
+          type: "textarea",
+          hint: "Enter = nowa linia (na stronie też będzie w nowej linii).",
         },
       ],
     },
@@ -421,6 +432,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "gear",
       label: "Sprzęt",
+      sortable: "end",
       alsoInvalidate: [["gear"]],
       orderBy: [
         { column: "sort_order", ascending: true },
@@ -442,12 +454,6 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           type: "text",
           placeholder: "np. Interface, DAW, Wtyczki",
         },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wyżej na liście.",
-        },
       ],
     },
   },
@@ -457,6 +463,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "gallery_images",
       label: "Zdjęcie galerii",
+      sortable: "top",
       alsoInvalidate: [["gallery_images"]],
       orderBy: [
         { column: "sort_order", ascending: true },
@@ -482,12 +489,6 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           required: true,
           placeholder: "np. Kabina nagraniowa z mikrofonem",
           hint: "Krótko, co widać na zdjęciu - dla niewidomych i dla Google.",
-        },
-        {
-          name: "sort_order",
-          label: "Kolejność",
-          type: "number",
-          hint: "Mniejsza liczba = wcześniej w galerii. Pierwsze 5 pokazuje się na stronie głównej, w sekcji Sprzęt.",
         },
       ],
     },
@@ -557,12 +558,16 @@ function AdminPage() {
               {c.label}
             </TabsTrigger>
           ))}
+          <TabsTrigger value="movement">Sekcja Ruch</TabsTrigger>
         </TabsList>
         {collections.map((c) => (
           <TabsContent key={c.value} value={c.value}>
             <CollectionEditor config={c.config} />
           </TabsContent>
         ))}
+        <TabsContent value="movement">
+          <MovementOrderEditor />
+        </TabsContent>
       </Tabs>
     );
   }

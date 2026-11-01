@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight, Instagram } from "lucide-react";
 import { contact } from "@/data/raphouse";
 import {
+  isShowableGraphic,
   promoAsGalleryImage,
   usePromoMaterials,
   useProjects,
@@ -13,10 +14,8 @@ import { Lightbox } from "./Lightbox";
 import { GraphicCard, ReelCard } from "./Promo";
 import { YouTubeLite } from "./YouTubeLite";
 
-// Ile pozycji każdego rodzaju trafia do paska (losowo wybranych).
+// Ile losowych pozycji każdego rodzaju, gdy nic nie jest wybrane w panelu.
 const PER_KIND = 3;
-// Najwięcej zaznaczonych w panelu na rodzaj (żeby pasek nie był nieskończony).
-const MAX_CHOSEN = 8;
 // Prędkość auto-przewijania (px/s).
 const SPEED = 35;
 // Po dotknięciu paska / kliknięciu strzałki auto-przewijanie czeka tyle (ms).
@@ -39,11 +38,7 @@ function pickRandom<T>(list: T[], n: number) {
   return a.slice(0, n);
 }
 
-// Zaznaczone w panelu (w ich kolejności), a bez zaznaczonych - PER_KIND losowych.
-function chosenOrRandom<T extends { in_movement?: boolean }>(list: T[]) {
-  const chosen = list.filter((x) => x.in_movement);
-  return chosen.length ? chosen.slice(0, MAX_CHOSEN) : pickRandom(list, PER_KIND);
-}
+const orderOf = (it: Item) => (it.kind === "klip" ? it.p : it.m).movement_order ?? 0;
 
 // Na przemian: rolka, klip, grafika, rolka, … - żeby w pasku od razu było widać wszystkiego po trochu.
 function interleave(lists: Item[][]) {
@@ -64,25 +59,29 @@ function interleave(lists: Item[][]) {
 export function MovementShowcase() {
   const { data: projects } = useProjects();
   const { data: promo } = usePromoMaterials();
-  // W każdym rodzaju: pozycje zaznaczone w panelu ("Pokaż w sekcji Ruch"), a gdy żadna nie jest
-  // zaznaczona - 3 losowe (przy każdym wejściu na stronę inny zestaw). Losowanie dopiero, gdy
-  // są dane (po stronie przeglądarki), więc nie psuje hydratacji.
+  // Wybrane w panelu (gwiazdka) - w kolejności z zakładki "Sekcja Ruch". Bez żadnej gwiazdki:
+  // po 3 losowe rolki, klipy i grafiki na przemian (przy każdym wejściu inny zestaw). Losowanie
+  // dopiero, gdy są dane (po stronie przeglądarki), więc nie psuje hydratacji.
   const { graphics, items } = useMemo(() => {
-    const reels = chosenOrRandom((promo ?? []).filter((m) => m.kind === "rolka"));
-    const clips = chosenOrRandom(
-      (projects ?? []).filter((p) => p.category === "video" && p.video_url),
-    );
-    const graphics = chosenOrRandom(
-      (promo ?? []).filter((m) => m.kind === "grafika" && m.image_url),
-    );
-    return {
-      graphics,
-      items: interleave([
-        reels.map((m): Item => ({ kind: "rolka", m })),
-        clips.map((p): Item => ({ kind: "klip", p })),
-        graphics.map((m): Item => ({ kind: "grafika", m })),
-      ]),
-    };
+    const reels = (promo ?? []).filter((m) => m.kind === "rolka");
+    const clips = (projects ?? []).filter((p) => p.category === "video" && p.video_url);
+    const graphicsAll = (promo ?? []).filter(isShowableGraphic);
+
+    const chosen = [
+      ...reels.filter((m) => m.in_movement).map((m): Item => ({ kind: "rolka", m })),
+      ...clips.filter((p) => p.in_movement).map((p): Item => ({ kind: "klip", p })),
+      ...graphicsAll.filter((m) => m.in_movement).map((m): Item => ({ kind: "grafika", m })),
+    ];
+    const items = chosen.length
+      ? chosen.sort((a, b) => orderOf(a) - orderOf(b))
+      : interleave([
+          pickRandom(reels, PER_KIND).map((m): Item => ({ kind: "rolka", m })),
+          pickRandom(clips, PER_KIND).map((p): Item => ({ kind: "klip", p })),
+          pickRandom(graphicsAll, PER_KIND).map((m): Item => ({ kind: "grafika", m })),
+        ]);
+    // Lightbox tylko dla wgranych grafik z paska (embed Instagrama klika się sam).
+    const graphics = items.flatMap((it) => (it.kind === "grafika" && it.m.image_url ? [it.m] : []));
+    return { graphics, items };
   }, [promo, projects]);
 
   const scroller = useRef<HTMLUListElement>(null);
@@ -238,7 +237,7 @@ export function MovementShowcase() {
           >
             <div className="h-60 sm:h-72">
               {it.kind === "rolka" ? (
-                <ReelCard m={it.m} caption={false} className="h-full" />
+                <ReelCard m={it.m} caption={false} autoplay className="h-full" />
               ) : it.kind === "grafika" ? (
                 <GraphicCard
                   m={it.m}
