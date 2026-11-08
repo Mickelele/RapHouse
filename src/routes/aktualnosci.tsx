@@ -36,7 +36,7 @@ function NewsPage() {
     <PageLayout
       eyebrow="Aktualności"
       title="Co słychać"
-      accent="w studiu."
+      accent="w studiu"
       intro="Premiery, nowe numery, transmisje i wszystko, co dzieje się w RapHouse."
     >
       <section className="mx-auto max-w-[1000px] px-5 pb-24 md:px-10 md:pb-32">

@@ -13,7 +13,7 @@ export function Backstage() {
         <Reveal>
           <p className="eyebrow mb-6">Kulisy</p>
           <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-            Zza <span className="text-primary">kulis.</span>
+            Zza <span className="text-primary">kulis</span>
           </h2>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{intro}</p>
         </Reveal>

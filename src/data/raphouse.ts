@@ -30,6 +30,9 @@ export type PriceItem = {
   // Odnośnik z karty (np. /rezerwacja, /bity#katalog) i jego tekst.
   link?: string | null;
   link_label?: string | null;
+  // Drugi, poboczny przycisk (np. "Zobacz studio") - prowadzi tylko pod swój adres.
+  link_secondary?: string | null;
+  link_secondary_label?: string | null;
   // Znacznik pozycji czekającej na dane od klienta (nie jest wyświetlany).
   todo?: string;
 };

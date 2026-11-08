@@ -23,7 +23,7 @@ export function LiveStreams() {
       <Reveal>
         <p className="eyebrow mb-6">Transmisje live</p>
         <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-          Na żywo <span className="text-primary">ze studia.</span>
+          Na żywo <span className="text-primary">ze studia</span>
         </h2>
       </Reveal>
 

@@ -37,7 +37,7 @@ export function Studio() {
             <h2 className="font-display text-[clamp(2.5rem,6vw,4.5rem)]">
               Sprzęt, który
               <br />
-              <span className="text-primary">robi robotę.</span>
+              <span className="text-primary">robi robotę</span>
             </h2>
             <p className="mt-6 leading-relaxed text-muted-foreground">
               Apollo Twin pozwala sterować odsłuchem z kabiny przez UAD Console i nagrywać z

@@ -49,7 +49,7 @@ function ProjectsPage() {
     <PageLayout
       eyebrow="Realizacje"
       title="Co tu"
-      accent="powstało."
+      accent="powstało"
       intro="Utwory nagrane, zmiksowane i zmasterowane u nas, teledyski i cała oprawa wydania - rolki, okładki, grafiki. Wszystko, czego potrzebuje Twój numer."
     >
       <section className="mx-auto max-w-[1400px] overflow-x-clip px-5 pb-24 md:px-10 md:pb-32">
@@ -79,17 +79,17 @@ function ProjectsPage() {
 
         <div className="flex flex-col gap-20">
           {show("utwory") && (
-            <Group title="Utwory" accent="z mixem i masterem." showTitle={!filtr}>
+            <Group title="Utwory" accent="z mixem i masterem" showTitle={!filtr}>
               <Tracks />
             </Group>
           )}
           {show("klipy") && (
-            <Group title="Klipy" accent="od pomysłu po montaż." showTitle={!filtr}>
+            <Group title="Klipy" accent="od pomysłu po montaż" showTitle={!filtr}>
               <Clips />
             </Group>
           )}
           {show("oprawa") && (
-            <Group title="Oprawa wydania" accent="rolki i grafiki." showTitle={!filtr}>
+            <Group title="Oprawa wydania" accent="rolki i grafiki" showTitle={!filtr}>
               <Promo />
             </Group>
           )}

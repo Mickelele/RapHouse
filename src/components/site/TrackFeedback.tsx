@@ -12,7 +12,7 @@ export function TrackFeedback() {
         <Reveal>
           <p className="eyebrow mb-6">Feedback</p>
           <h2 className="font-display text-[clamp(2.5rem,6vw,5rem)]">
-            Feedback Waszych <span className="text-primary">tracków.</span>
+            Feedback Waszych <span className="text-primary">tracków</span>
           </h2>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground">{intro}</p>
           <div className="mt-10 flex flex-wrap items-center gap-6">

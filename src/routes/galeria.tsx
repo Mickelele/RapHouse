@@ -25,7 +25,7 @@ function GalleryPage() {
     <PageLayout
       eyebrow="Galeria"
       title="Studio"
-      accent="od środka."
+      accent="od środka"
       intro="Kabina, stanowisko realizatora i sprzęt, na którym powstają Wasze numery."
     >
       <section className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">

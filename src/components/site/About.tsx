@@ -56,9 +56,9 @@ export function About() {
             <div>
               <p className="eyebrow mb-6">O nas</p>
               <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-                Stworzone przez artystów.
+                Stworzone przez artystów
                 <br />
-                <span className="text-primary">Dla artystów.</span>
+                <span className="text-primary">Dla artystów</span>
               </h2>
             </div>
             {count > 1 && (

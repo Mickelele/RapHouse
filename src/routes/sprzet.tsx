@@ -39,7 +39,7 @@ function GearPage() {
     <PageLayout
       eyebrow="Sprzęt"
       title="Sprzęt, który"
-      accent="robi robotę."
+      accent="robi robotę"
       intro="Apollo Twin pozwala sterować odsłuchem z kabiny przez UAD Console i nagrywać z przedwzmacniaczami UNISON oraz efektami w czasie rzeczywistym - bez odczuwalnych opóźnień. Ślady zostają czyste, więc na miksie masz pełną swobodę."
     >
       <section className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">
@@ -68,7 +68,7 @@ function GearPage() {
           <div className="mt-16">
             <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
               <h2 className="font-display text-[clamp(2rem,4.5vw,3.5rem)]">
-                Zajrzyj <span className="text-primary">do środka.</span>
+                Zajrzyj <span className="text-primary">do środka</span>
               </h2>
               <a href="/galeria" className="btn-base btn-ghost-line">
                 Zobacz całą galerię <ArrowRight className="size-4" />

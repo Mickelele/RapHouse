@@ -18,7 +18,7 @@ export function LatestNews() {
       <Reveal>
         <p className="eyebrow mb-6">Aktualności</p>
         <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-          Co słychać <span className="text-primary">w studiu.</span>
+          Co słychać <span className="text-primary">w studiu</span>
         </h2>
       </Reveal>
 

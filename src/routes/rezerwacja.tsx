@@ -25,7 +25,7 @@ function BookingPage() {
     <PageLayout
       eyebrow="Rezerwacja"
       title="Sprawdź"
-      accent="wolne terminy."
+      accent="wolne terminy"
       intro="Wynajem studia albo sesja z realizatorem - zobacz, kiedy studio jest wolne, i zadzwoń, żeby zarezerwować termin."
     >
       <section className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">

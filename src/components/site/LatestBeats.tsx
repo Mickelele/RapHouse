@@ -13,7 +13,7 @@ export function LatestBeats() {
         <Reveal>
           <p className="eyebrow mb-6">Najnowsze bity</p>
           <h2 className="font-display max-w-4xl text-[clamp(2.5rem,6vw,5rem)]">
-            Świeżo <span className="text-primary">z produkcji.</span>
+            Świeżo <span className="text-primary">z produkcji</span>
           </h2>
         </Reveal>
 

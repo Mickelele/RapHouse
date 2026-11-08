@@ -74,7 +74,7 @@ export function Hero() {
           <div className="relative flex min-h-[100svh] flex-col justify-end pb-16 pt-32 md:pb-20">
             <p className="eyebrow mb-6">Studio nagrań · Warszawa</p>
             <h1 className="font-display text-[clamp(2.75rem,9vw,7rem)] lg:text-[clamp(3rem,4.6vw,4.5rem)]">
-              Wszystko, czego potrzebuje <span className="text-primary">Twoja Muzyka.</span>
+              Wszystko, czego potrzebuje <span className="text-primary">Twoja Muzyka</span>
             </h1>
             <RecordingRoadmap className="mt-10" />
             <div className="mt-10 flex flex-wrap gap-3">
@@ -102,9 +102,9 @@ export function Hero() {
               <h2 className="font-display text-[clamp(2.5rem,6vw,5.5rem)]">
                 To nie jest
                 <br />
-                tylko studio.
+                tylko studio
                 <br />
-                <span className="text-primary">To movement.</span>
+                <span className="text-primary">To movement</span>
               </h2>
             </Reveal>
             <Reveal delay={120}>

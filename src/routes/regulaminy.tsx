@@ -52,7 +52,7 @@ function RegulationsPage() {
   }, [data]);
 
   return (
-    <PageLayout eyebrow="Regulaminy" title="Regulaminy" accent="studia.">
+    <PageLayout eyebrow="Regulaminy" title="Regulaminy" accent="studia">
       <section className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">
         {isLoading ? (
           <EmptyState>Ładowanie regulaminów…</EmptyState>

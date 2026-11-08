@@ -12,9 +12,9 @@ export function Pricing() {
       <Reveal>
         <p className="eyebrow mb-6">Cennik</p>
         <h2 className="font-display max-w-3xl text-[clamp(2.5rem,6vw,5rem)]">
-          Bez gwiazdek.
+          Bez gwiazdek
           <br />
-          <span className="text-primary">Bez ukrytych kosztów.</span>
+          <span className="text-primary">Bez ukrytych kosztów</span>
         </h2>
       </Reveal>
 
@@ -33,7 +33,7 @@ export function Pricing() {
             delay={(i % 4) * 80}
             className="grow basis-full md:basis-[calc(50%-0.5rem)] xl:basis-[calc(25%-0.75rem)]"
           >
-            <PriceCard link={item.link}>
+            <div className="card-surface group relative flex h-full flex-col justify-between p-7 transition-colors duration-300 hover:border-primary">
               <div>
                 <h3 className="font-display text-2xl">{item.title}</h3>
                 {item.note && (
@@ -79,13 +79,30 @@ export function Pricing() {
                   );
                 })}
               </ul>
-              {item.link && (
-                <span className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
-                  {item.link_label || "Zobacz więcej"}
-                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
-                </span>
+              {(item.link || item.link_secondary) && (
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {item.link && (
+                    // Główny przycisk - jego pole kliknięcia (after:) obejmuje całą kartę.
+                    <CardLink
+                      href={item.link}
+                      className="bg-primary text-primary-foreground after:absolute after:inset-0 after:rounded-[inherit] after:content-['']"
+                    >
+                      {item.link_label || "Zobacz więcej"}
+                      <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                    </CardLink>
+                  )}
+                  {item.link_secondary && (
+                    // Poboczny - nad polem głównego, więc prowadzi tylko pod swój adres.
+                    <CardLink
+                      href={item.link_secondary}
+                      className="relative z-10 border border-border text-foreground hover:border-primary hover:text-primary"
+                    >
+                      {item.link_secondary_label || "Więcej"}
+                    </CardLink>
+                  )}
+                </div>
               )}
-            </PriceCard>
+            </div>
           </Reveal>
         ))}
       </div>
@@ -93,17 +110,25 @@ export function Pricing() {
   );
 }
 
-// Karta z odnośnikiem (ustawianym w panelu admina) jest w całości klikalna.
-function PriceCard({ link, children }: { link?: string | null | undefined; children: ReactNode }) {
-  const className =
-    "card-surface group flex h-full flex-col justify-between p-7 transition-colors duration-300 hover:border-primary";
-  if (!link) return <div className={className}>{children}</div>;
-  const external = /^https?:\/\//.test(link);
+// Przycisk na karcie cennika (odnośnik ustawiany w panelu admina).
+function CardLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className: string;
+  children: ReactNode;
+}) {
+  const external = /^https?:\/\//.test(href);
   return (
     <a
-      href={link}
-      className={`${className} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary`}
+      href={href}
       {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      className={cn(
+        "inline-flex min-h-10 items-center gap-2 rounded px-4 text-xs font-bold uppercase tracking-[0.16em] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        className,
+      )}
     >
       {children}
     </a>

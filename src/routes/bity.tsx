@@ -34,7 +34,7 @@ function BeatsPage() {
     <PageLayout
       eyebrow="Bity"
       title="Bity"
-      accent="z RapHouse."
+      accent="z RapHouse"
       intro="Wybierz bit z katalogu albo zamów produkcję od podstaw - pod Twój numer, klimat i tempo."
     >
       <LicenseAndProducer />
@@ -62,7 +62,7 @@ function Catalog() {
         <Reveal>
           <p className="eyebrow mb-6">Katalog bitów</p>
           <h2 className="font-display text-[clamp(2.25rem,5vw,4rem)]">
-            Posłuchaj <span className="text-primary">i wybierz.</span>
+            Posłuchaj <span className="text-primary">i wybierz</span>
           </h2>
           <p className="mt-6 max-w-2xl leading-relaxed text-muted-foreground">
             Bity w różnych klimatach, brzmieniach i tempach - każdy z własną ceną. Spodobał Ci się
@@ -126,7 +126,7 @@ function CustomBeat() {
           <div>
             <p className="eyebrow">Bit na zamówienie</p>
             <h2 className="font-display mt-4 text-4xl md:text-6xl">
-              Od zera, <span className="text-primary">pod Ciebie.</span>
+              Od zera, <span className="text-primary">pod Ciebie</span>
             </h2>
             <p className="mt-6 max-w-xl leading-relaxed text-muted-foreground">
               Producent tworzy bit od podstaw - pod Twój numer, klimat, tempo, a nawet pod gotową
@@ -157,7 +157,7 @@ function LicenseAndProducer() {
             <ShieldCheck className="size-10 shrink-0 text-primary md:size-12" />
             <div>
               <h2 className="font-display text-3xl md:text-5xl">
-                Licencja <span className="text-primary">na wyłączność.</span>
+                Licencja <span className="text-primary">na wyłączność</span>
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-foreground/90">
                 Po zakupie bit zostaje wycofany z katalogu i nie jest sprzedawany innym wykonawcom.
