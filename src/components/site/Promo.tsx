@@ -27,21 +27,31 @@ function ytCommand(
   frame?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args: [] }), "*");
 }
 
+// Ile rolka musi być na ekranie, zanim załaduje się odtwarzacz - przy szybkim przewijaniu
+// mijane rolki nie odpalają YouTube na darmo.
+const MOUNT_DELAY_MS = 350;
+
 /**
- * Rolka w pionie (9:16) z YouTube Shorts - gra sama, bez dźwięku, w pętli. Odtwarzacz ładuje się,
- * gdy rolka zbliża się do ekranu, i pauzuje, gdy z niego zjedzie (kilka rolek naraz nie obciąża
- * telefonu). Po najechaniu (na telefonie zawsze) przycisk włącza / wyłącza dźwięk.
+ * Rolka w pionie (9:16) z YouTube Shorts - gra sama, bez dźwięku, w pętli. Do tego czasu i poza
+ * ekranem widać tylko miniaturę; odtwarzacz (ciężki iframe YouTube) ładuje się dopiero, gdy rolka
+ * chwilę jest na ekranie. Po najechaniu (na telefonie zawsze) przycisk włącza / wyłącza dźwięk.
  * Rolka bez linku do YouTube pokazuje tylko okładkę.
  */
 export function ReelCard({
   m,
   className,
   caption = true,
+  keepMounted = false,
 }: {
   m: PromoMaterial;
   className?: string;
   // false = podpis pod kartą (pasek w sekcji "Ruch"), a nie na obrazku.
   caption?: boolean;
+  // true (pasek w Ruchu, kilka rolek w pętli): odtwarzacz po zjechaniu z ekranu tylko pauzuje,
+  // zamiast znikać - inaczej ładowałby się od nowa przy każdym okrążeniu paska.
+  // false (siatka z wieloma rolkami): poza ekranem odtwarzacz jest usuwany - w pamięci są
+  // tylko te widoczne.
+  keepMounted?: boolean;
 }) {
   const ytId = youTubeId(m.video_url);
   const cover = m.image_url ?? (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : null);
@@ -51,23 +61,32 @@ export function ReelCard({
   const [box, setBox] = useState<HTMLDivElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
+  // Odtwarzacz załadowany - dopiero wtedy zasłania miniaturę (bez czarnego mignięcia).
+  const [ready, setReady] = useState(false);
   const [muted, setMuted] = useState(true);
 
   // Callback ref + state: obserwator startuje dopiero, gdy element naprawdę jest w DOM.
   const boxRef = useCallback((el: HTMLDivElement | null) => setBox(el), []);
   useEffect(() => {
     if (!box || !ytId) return;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        const on = !!e?.isIntersecting;
-        setVisible(on);
-        if (on) setMounted(true);
-      },
-      { rootMargin: "200px" },
-    );
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const io = new IntersectionObserver(([e]) => {
+      const on = !!e?.isIntersecting;
+      setVisible(on);
+      clearTimeout(timer);
+      if (on) timer = setTimeout(() => setMounted(true), MOUNT_DELAY_MS);
+      else if (!keepMounted) {
+        setMounted(false);
+        setReady(false);
+        setMuted(true);
+      }
+    });
     io.observe(box);
-    return () => io.disconnect();
-  }, [box, ytId]);
+    return () => {
+      clearTimeout(timer);
+      io.disconnect();
+    };
+  }, [box, ytId, keepMounted]);
 
   useEffect(() => {
     if (mounted) ytCommand(frame.current, visible ? "playVideo" : "pauseVideo");
@@ -109,7 +128,11 @@ export function ReelCard({
           title={label}
           allow="autoplay; encrypted-media; picture-in-picture"
           tabIndex={-1}
-          className="pointer-events-none absolute inset-0 size-full"
+          onLoad={() => setReady(true)}
+          className={cn(
+            "pointer-events-none absolute inset-0 size-full transition-opacity duration-500",
+            ready ? "opacity-100" : "opacity-0",
+          )}
         />
       )}
       {caption && <Caption m={m} />}
@@ -174,11 +197,17 @@ export function GraphicCard({
   );
 }
 
-/** "Oprawa wydania" na /realizacje: najpierw rolki, potem grafiki. */
+// Ile rolek / grafik pokazujemy na start i dokładamy po "Pokaż więcej".
+const REELS_STEP = 10;
+const GRAPHICS_STEP = 12;
+
+/** "Oprawa wydania" na /realizacje: najpierw rolki, potem grafiki - partiami. */
 export function PromoGrid({ items }: { items: PromoMaterial[] }) {
   const reels = items.filter((m) => m.kind === "rolka");
   const graphics = items.filter(isShowableGraphic);
   const [open, setOpen] = useState<number | null>(null);
+  const [reelCount, setReelCount] = useState(REELS_STEP);
+  const [graphicCount, setGraphicCount] = useState(GRAPHICS_STEP);
 
   if (!reels.length && !graphics.length)
     return (
@@ -196,7 +225,7 @@ export function PromoGrid({ items }: { items: PromoMaterial[] }) {
         <div>
           <p className="eyebrow mb-6">Rolki</p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {reels.map((m) => (
+            {reels.slice(0, reelCount).map((m) => (
               <li key={m.id} className="flex flex-col gap-3">
                 <ReelCard m={m} />
                 {m.description && (
@@ -208,18 +237,28 @@ export function PromoGrid({ items }: { items: PromoMaterial[] }) {
               </li>
             ))}
           </ul>
+          <ShowMore
+            left={reels.length - reelCount}
+            what="rolek"
+            onClick={() => setReelCount((c) => c + REELS_STEP)}
+          />
         </div>
       )}
       {!!graphics.length && (
         <div>
           <p className="eyebrow mb-6">Grafiki i okładki</p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {graphics.map((m, i) => (
+            {graphics.slice(0, graphicCount).map((m, i) => (
               <li key={m.id}>
                 <GraphicCard m={m} onOpen={() => setOpen(i)} className="w-full" />
               </li>
             ))}
           </ul>
+          <ShowMore
+            left={graphics.length - graphicCount}
+            what="grafik"
+            onClick={() => setGraphicCount((c) => c + GRAPHICS_STEP)}
+          />
         </div>
       )}
       {open !== null && (
@@ -230,6 +269,17 @@ export function PromoGrid({ items }: { items: PromoMaterial[] }) {
           onClose={() => setOpen(null)}
         />
       )}
+    </div>
+  );
+}
+
+function ShowMore({ left, what, onClick }: { left: number; what: string; onClick: () => void }) {
+  if (left <= 0) return null;
+  return (
+    <div className="mt-8 flex justify-center">
+      <button type="button" onClick={onClick} className="btn-base btn-ghost-line">
+        Pokaż więcej {what} ({left})
+      </button>
     </div>
   );
 }

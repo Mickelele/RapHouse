@@ -236,7 +236,7 @@ export function MovementShowcase() {
           >
             <div className="h-60 sm:h-72">
               {it.kind === "rolka" ? (
-                <ReelCard m={it.m} caption={false} className="h-full" />
+                <ReelCard m={it.m} caption={false} keepMounted className="h-full" />
               ) : it.kind === "grafika" ? (
                 <GraphicCard
                   m={it.m}
