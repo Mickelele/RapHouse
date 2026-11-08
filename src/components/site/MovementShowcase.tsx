@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight, Instagram } from "lucide-react";
-import { contact } from "@/data/raphouse";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   isShowableGraphic,
   promoAsGalleryImage,
@@ -54,7 +53,7 @@ function interleave(lists: Item[][]) {
 /**
  * Pasek w bloku "Ruch": kilka rolek, klipów i grafik. Sam powoli przewija się w prawo (w pętli),
  * można go też przewinąć palcem albo strzałkami. Rolki i grafiki z panelu (Materiały
- * promocyjne), klipy z Klipów. Na końcu link do Instagrama.
+ * promocyjne), klipy z Klipów. Na końcu karta do wszystkich realizacji.
  */
 export function MovementShowcase() {
   const { data: projects } = useProjects();
@@ -79,7 +78,7 @@ export function MovementShowcase() {
           pickRandom(clips, PER_KIND).map((p): Item => ({ kind: "klip", p })),
           pickRandom(graphicsAll, PER_KIND).map((m): Item => ({ kind: "grafika", m })),
         ]);
-    // Lightbox tylko dla wgranych grafik z paska (embed Instagrama klika się sam).
+    // Lightbox dla grafik z paska.
     const graphics = items.flatMap((it) => (it.kind === "grafika" && it.m.image_url ? [it.m] : []));
     return { graphics, items };
   }, [promo, projects]);
@@ -237,7 +236,7 @@ export function MovementShowcase() {
           >
             <div className="h-60 sm:h-72">
               {it.kind === "rolka" ? (
-                <ReelCard m={it.m} caption={false} autoplay className="h-full" />
+                <ReelCard m={it.m} caption={false} className="h-full" />
               ) : it.kind === "grafika" ? (
                 <GraphicCard
                   m={it.m}
@@ -262,20 +261,18 @@ export function MovementShowcase() {
         );
       }),
       <li
-        key={`${copy}-instagram`}
+        key={`${copy}-all`}
         {...hidden}
         {...(copy && !items.length ? { "data-copy-start": "" } : {})}
         className="flex shrink-0 flex-col gap-2"
       >
         <a
-          href={contact.instagram}
-          target="_blank"
-          rel="noreferrer"
+          href="/realizacje"
           className="card-surface group flex aspect-[9/16] h-60 flex-col items-center justify-center gap-4 p-4 text-center transition-colors hover:border-primary sm:h-72"
         >
-          <Instagram className="size-8 text-primary" />
+          <ArrowRight className="size-8 text-primary transition-transform group-hover:translate-x-1" />
           <span className="text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground transition-colors group-hover:text-foreground">
-            Więcej na Instagramie
+            Wszystkie realizacje
           </span>
         </a>
       </li>,
@@ -286,10 +283,10 @@ export function MovementShowcase() {
     <div className="mt-12">
       <div className="mb-4 flex items-center justify-between gap-4">
         <a
-          href="/klipy"
+          href="/realizacje"
           className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-muted-foreground transition-colors hover:text-primary"
         >
-          Klipy i materiały <ArrowRight className="size-3.5" />
+          Wszystkie realizacje <ArrowRight className="size-3.5" />
         </a>
         {loop && (
           <div className="hidden gap-2 sm:flex">

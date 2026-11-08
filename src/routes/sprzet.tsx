@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { GalleryGrid } from "@/components/site/GalleryGrid";
 import { PageLayout } from "@/components/site/PageLayout";
+import { Skeleton } from "@/components/site/Skeleton";
 import { useGalleryImages, useGear, type GearItem } from "@/lib/content";
 
 const title = "Sprzęt - studio nagrań RapHouse Warszawa";
@@ -43,7 +44,13 @@ function GearPage() {
     >
       <section className="mx-auto max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32">
         <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {groupByTag(gear).map(([tag, names]) => (
+          {!gear &&
+            Array.from({ length: 6 }, (_, i) => (
+              <li key={i}>
+                <Skeleton className="h-40 w-full" />
+              </li>
+            ))}
+          {groupByTag(gear ?? []).map(([tag, names]) => (
             <li key={tag} className="card-surface p-6 md:p-7">
               <p className="eyebrow mb-4">{tag}</p>
               <ul className="flex flex-col gap-2">
@@ -57,7 +64,7 @@ function GearPage() {
           ))}
         </ul>
 
-        {!!gallery.length && (
+        {gallery?.length !== 0 && (
           <div className="mt-16">
             <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
               <h2 className="font-display text-[clamp(2rem,4.5vw,3.5rem)]">
@@ -67,7 +74,11 @@ function GearPage() {
                 Zobacz całą galerię <ArrowRight className="size-4" />
               </a>
             </div>
-            <GalleryGrid images={gallery.slice(0, 4)} className="md:grid-cols-4 xl:grid-cols-4" />
+            <GalleryGrid
+              images={gallery?.slice(0, 4) ?? null}
+              loadingCount={4}
+              className="md:grid-cols-4 xl:grid-cols-4"
+            />
           </div>
         )}
       </section>

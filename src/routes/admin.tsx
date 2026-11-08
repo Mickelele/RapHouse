@@ -180,13 +180,13 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
           name: "lines",
           label: "Ceny",
           type: "price-lines",
-          hint: "Jedna cena albo kilka wariantów (np. 1h – 2h: 120 PLN/h). Pozycje „Bity z katalogu” i „Bit na zamówienie” pokazują się też na stronie /bity.",
+          hint: "Jedna cena albo kilka wariantów (np. 1h – 2h: 120 PLN/h). Wyróżnienie pokaże się jako zielona plakietka przy cenie, a warunek - drobnym drukiem pod nią.",
         },
         {
           name: "link",
           label: "Odnośnik z karty",
           type: "text",
-          placeholder: "np. /rezerwacja, /bity#katalog, /klipy",
+          placeholder: "np. /rezerwacja, /bity#katalog, /realizacje?filtr=klipy",
           hint: "Puste = karta nieklikalna. Podstrona (/bity), sekcja (/bity#na-zamowienie) albo pełny adres (https://…).",
         },
         {
@@ -353,10 +353,10 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
   },
   {
     value: "promo",
-    label: "Materiały promocyjne",
+    label: "Oprawa wydania",
     config: {
       table: "promo_materials",
-      label: "Materiał promocyjny",
+      label: "Oprawa wydania",
       sortable: "top",
       movementToggle: true,
       alsoInvalidate: [["promo_materials"]],
@@ -393,22 +393,22 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
         { name: "artist", label: "Wykonawca", type: "text", hint: "Opcjonalnie." },
         {
           name: "video_url",
-          label: "Link (YouTube Shorts / Instagram)",
+          label: "Link do rolki (YouTube Shorts)",
           type: "url",
-          placeholder: "https://www.instagram.com/reel/… albo https://www.youtube.com/shorts/…",
-          hint: "Rolka z YouTube Shorts gra sama (bez dźwięku) w sekcji Ruch. Link do posta / rolki z Instagrama wystarczy zamiast wgrywania zdjęcia - pokaże się prosto z Instagrama.",
+          placeholder: "https://www.youtube.com/shorts/…",
+          hint: "Tylko rolki. Gra sama, bez dźwięku, na stronie głównej i w Realizacjach - miniatury nie trzeba wgrywać.",
         },
         {
           name: "image_url",
           label: "Okładka / grafika (opcjonalnie)",
           type: "image",
-          hint: "Niepotrzebna, jeśli wyżej jest link do Instagrama albo YouTube. Wgrany obrazek wygląda najczyściej.",
+          hint: "Grafika: wgraj obrazek z dysku. Rolka z YouTube: niepotrzebna (weźmiemy klatkę z filmu).",
         },
         {
           name: "description",
           label: "Opis",
           type: "textarea",
-          hint: "Opcjonalnie, pod rolką na /klipy.",
+          hint: "Opcjonalnie, pod rolką na /realizacje.",
         },
         { name: "links", label: "Linki", type: "links", hint: linksHint },
       ],
@@ -531,18 +531,19 @@ const META: Record<string, { icon: LucideIcon; group: string; description: strin
   projects: {
     icon: Disc3,
     group: "Muzyka",
-    description: "Utwory nagrane i zmiksowane w studiu - podstrona /realizacje.",
+    description: "Utwory nagrane i zmiksowane w studiu - /realizacje (filtr Utwory).",
   },
   clips: {
     icon: Clapperboard,
     group: "Wideo i promo",
-    description: "Teledyski na /klipy. Gwiazdka = klip w przewijanym pasku w sekcji Ruch.",
+    description:
+      "Teledyski na /realizacje (filtr Klipy). Gwiazdka = klip w przewijanym pasku w sekcji Ruch.",
   },
   promo: {
     icon: Megaphone,
     group: "Wideo i promo",
     description:
-      "Rolki i grafiki: zakładka „Materiały promocyjne” na /klipy i pasek w sekcji Ruch.",
+      "Rolki (YouTube Shorts) i grafiki: filtr „Oprawa wydania” na /realizacje i pasek w sekcji Ruch.",
   },
   pricing: {
     icon: Receipt,

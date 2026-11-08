@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useGalleryImages, useGear } from "@/lib/content";
 import { GalleryGrid } from "./GalleryGrid";
+import { Skeleton } from "./Skeleton";
 import { Reveal } from "./Reveal";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,8 @@ export function Studio() {
         {/* Zdjęcia z galerii (panel admina → Galeria, pierwsze 5): duże + rząd czterech. */}
         <Reveal className="md:col-span-7">
           <GalleryGrid
-            images={gallery.slice(0, GALLERY_COUNT)}
+            images={gallery?.slice(0, GALLERY_COUNT) ?? null}
+            loadingCount={GALLERY_COUNT}
             className="grid-cols-4 md:grid-cols-4 xl:grid-cols-4 [&>li:first-child]:col-span-4 [&>li:first-child>button]:aspect-[4/3]"
           />
           <a href="/galeria" className="btn-base btn-ghost-line mt-6">
@@ -46,7 +48,13 @@ export function Studio() {
 
           <Reveal delay={160}>
             <ul className="divide-y divide-border border-y border-border">
-              {gear.map((g, i) => (
+              {!gear &&
+                Array.from({ length: 8 }, (_, i) => (
+                  <li key={i} className="py-3">
+                    <Skeleton className="h-7 w-2/3" />
+                  </li>
+                ))}
+              {gear?.map((g, i) => (
                 <li key={`${g.name}-${i}`}>
                   <button
                     type="button"

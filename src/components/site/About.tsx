@@ -1,6 +1,7 @@
 import { stats } from "@/data/raphouse";
 import { useTeam } from "@/lib/content";
 import { Reveal } from "./Reveal";
+import { Skeleton } from "./Skeleton";
 
 export function About() {
   // Ekipa z panelu admina (zakładka "O nas (ekipa)").
@@ -18,7 +19,8 @@ export function About() {
         </Reveal>
 
         <div className="mt-14 grid gap-4 md:grid-cols-2">
-          {team.map((person, i) => (
+          {!team && [0, 1].map((i) => <Skeleton key={i} className="h-72 w-full" />)}
+          {team?.map((person, i) => (
             <Reveal key={person.id} delay={(i % 2) * 110}>
               <div className="card-surface flex h-full flex-col gap-6 p-6 sm:flex-row md:p-8">
                 {person.image_url && (
@@ -27,7 +29,7 @@ export function About() {
                     alt={person.name}
                     loading="lazy"
                     decoding="async"
-                    className="aspect-[4/5] w-full shrink-0 rounded-md object-cover sm:w-40 lg:w-48"
+                    className="aspect-[4/5] w-full max-w-64 shrink-0 self-start rounded-md object-cover sm:w-40 lg:w-48"
                   />
                 )}
                 <div className="min-w-0 flex-1">

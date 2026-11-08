@@ -118,7 +118,7 @@ const NOT_NULL = new Set([
   "pinned",
 ]);
 
-type PriceLine = { label: string; price: string };
+type PriceLine = { label: string; price: string; badge?: string; note?: string };
 
 export function CollectionEditor({ config }: { config: CollectionConfig }) {
   const qc = useQueryClient();
@@ -840,26 +840,39 @@ function PriceLinesField({
   return (
     <div className="flex flex-col gap-2">
       {value.map((l, i) => (
-        <div key={i} className="flex gap-2">
+        <div key={i} className="flex flex-col gap-2 rounded-md border border-border p-3">
+          <div className="flex gap-2">
+            <Input
+              className="w-1/2"
+              placeholder="Opis (np. Pakiet 4 godzin) - opcjonalnie"
+              value={l.label ?? ""}
+              onChange={(e) => update(i, { label: e.target.value })}
+            />
+            <Input
+              placeholder="Cena (np. 160 zł)"
+              value={l.price}
+              onChange={(e) => update(i, { price: e.target.value })}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              title="Usuń wariant"
+              onClick={() => onChange(value.filter((_, j) => j !== i))}
+            >
+              <X className="size-4" />
+            </Button>
+          </div>
           <Input
-            className="w-1/2"
-            placeholder="Opis (np. 1h – 2h) - opcjonalnie"
-            value={l.label ?? ""}
-            onChange={(e) => update(i, { label: e.target.value })}
+            placeholder="Wyróżnienie - opcjonalnie (np. Oszczędzasz 80 zł)"
+            value={l.badge ?? ""}
+            onChange={(e) => update(i, { badge: e.target.value })}
           />
           <Input
-            placeholder="Cena (np. 120 PLN/h)"
-            value={l.price}
-            onChange={(e) => update(i, { price: e.target.value })}
+            placeholder="Warunek pod ceną - opcjonalnie (np. Cena obowiązuje przy jednorazowej rezerwacji 4 h)"
+            value={l.note ?? ""}
+            onChange={(e) => update(i, { note: e.target.value })}
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            onClick={() => onChange(value.filter((_, j) => j !== i))}
-          >
-            <X className="size-4" />
-          </Button>
         </div>
       ))}
       <Button

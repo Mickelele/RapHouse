@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, BadgePercent, Info } from "lucide-react";
 import { usePricing } from "@/lib/content";
+import { cn } from "@/lib/utils";
 import { Reveal } from "./Reveal";
+import { Skeleton } from "./Skeleton";
 
 export function Pricing() {
   const pricing = usePricing();
@@ -18,7 +20,14 @@ export function Pricing() {
 
       {/* Flex zamiast grida: ostatni rząd rozciąga się na całą szerokość niezależnie od liczby kart. */}
       <div className="mt-14 flex flex-wrap gap-4">
-        {pricing.map((item, i) => (
+        {!pricing &&
+          Array.from({ length: 8 }, (_, i) => (
+            <Skeleton
+              key={i}
+              className="h-72 grow basis-full md:basis-[calc(50%-0.5rem)] xl:basis-[calc(25%-0.75rem)]"
+            />
+          ))}
+        {pricing?.map((item, i) => (
           <Reveal
             key={item.title}
             delay={(i % 4) * 80}
@@ -33,20 +42,42 @@ export function Pricing() {
                   </p>
                 )}
               </div>
-              <ul className="mt-8 space-y-2 border-t border-border pt-5">
-                {item.lines.map((line) => (
-                  <li
-                    key={line.price + (line.label ?? "")}
-                    className="flex items-baseline justify-between gap-4"
-                  >
-                    {line.label && (
-                      <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                        {line.label}
-                      </span>
-                    )}
-                    <span className="font-display text-2xl text-primary">{line.price}</span>
-                  </li>
-                ))}
+              <ul className="mt-8 space-y-3 border-t border-border pt-5">
+                {item.lines.map((line) => {
+                  // Wariant z wyróżnieniem (np. pakiet) dostaje własną ramkę.
+                  const featured = !!line.badge?.trim();
+                  return (
+                    <li
+                      key={line.price + (line.label ?? "")}
+                      className={cn(
+                        featured && "-mx-3 rounded-md border border-primary/40 bg-primary/5 p-3",
+                      )}
+                    >
+                      <div className="flex items-baseline justify-between gap-4">
+                        {line.label && (
+                          <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                            {line.label}
+                          </span>
+                        )}
+                        <span className="font-display ml-auto text-2xl text-primary">
+                          {line.price}
+                        </span>
+                      </div>
+                      {featured && (
+                        <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-primary-foreground">
+                          <BadgePercent className="size-3.5" />
+                          {line.badge}
+                        </span>
+                      )}
+                      {line.note?.trim() && (
+                        <p className="mt-2 flex gap-1.5 text-xs leading-relaxed text-muted-foreground">
+                          <Info className="mt-0.5 size-3.5 shrink-0 text-primary" />
+                          {line.note}
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
               {item.link && (
                 <span className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">

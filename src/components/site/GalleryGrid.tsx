@@ -2,9 +2,19 @@ import { useState } from "react";
 import { gallerySrc, gallerySrcSet, type GalleryImage } from "@/data/gallery";
 import { cn } from "@/lib/utils";
 import { Lightbox } from "./Lightbox";
+import { Skeleton } from "./Skeleton";
 
 // Równa siatka (spójna z kartami na stronie); pełne, nieprzycięte zdjęcie pokazuje lightbox.
-export function GalleryGrid({ images, className }: { images: GalleryImage[]; className?: string }) {
+export function GalleryGrid({
+  images,
+  className,
+  loadingCount = 8,
+}: {
+  // null = zdjęcia jeszcze się ładują (szare kwadraty zamiast starych placeholderów).
+  images: GalleryImage[] | null;
+  className?: string;
+  loadingCount?: number;
+}) {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
@@ -12,7 +22,13 @@ export function GalleryGrid({ images, className }: { images: GalleryImage[]; cla
       <ul
         className={cn("grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 xl:grid-cols-4", className)}
       >
-        {images.map((img, i) => (
+        {!images &&
+          Array.from({ length: loadingCount }, (_, i) => (
+            <li key={i}>
+              <Skeleton className="aspect-square w-full" />
+            </li>
+          ))}
+        {images?.map((img, i) => (
           <li key={img.id}>
             <button
               type="button"
@@ -35,7 +51,7 @@ export function GalleryGrid({ images, className }: { images: GalleryImage[]; cla
           </li>
         ))}
       </ul>
-      {open !== null && (
+      {images && open !== null && (
         <Lightbox
           images={images}
           index={open}

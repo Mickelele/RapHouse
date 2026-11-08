@@ -9,7 +9,6 @@ import {
   type PriceItem,
   type RoadmapStep,
 } from "@/data/raphouse";
-import { instagramEmbedUrl } from "./media";
 import { supabase } from "./supabase";
 
 export type LinkItem = { label: string; url: string };
@@ -152,11 +151,23 @@ export function useLatestBeats(limit = 3) {
   });
 }
 
+// Dane z bazy z zapasem z data/*. null = jeszcze się ładują - komponent pokazuje wtedy szkielet,
+// a nie stare treści zapasowe, które mignęłyby przed prawdziwymi (np. stockowe zdjęcia, stare
+// ceny). Zapas tylko bez podpiętej bazy, przy błędzie albo gdy tabela jest pusta.
+function orFallback<T>(
+  query: { data: T[] | undefined; isPending: boolean },
+  fallback: T[],
+): T[] | null {
+  if (!supabase) return fallback;
+  if (query.isPending) return null;
+  return query.data?.length ? query.data : fallback;
+}
+
 type PricingRow = PriceItem & { id: string };
 
-// Cennik z bazy; dopóki baza nie odpowie (albo jest pusta), statyczny z data/raphouse.ts.
-export function usePricing(): PriceItem[] {
-  const { data } = useQuery({
+// Cennik z bazy (null = ładuje się); zapasowo statyczny z data/raphouse.ts.
+export function usePricing(): PriceItem[] | null {
+  const query = useQuery({
     queryKey: ["pricing"],
     enabled: !!supabase,
     queryFn: async () => {
@@ -171,9 +182,10 @@ export function usePricing(): PriceItem[] {
       return data as PricingRow[];
     },
   });
-  if (!data?.length) return staticPricing;
+  const rows = orFallback<PriceItem>(query, staticPricing);
+  if (!rows || rows === staticPricing) return rows;
   // Przed migracją z kolumną "link" odnośniki bierzemy ze statycznego cennika (po nazwie).
-  return data.map((row) => {
+  return rows.map((row) => {
     if ("link" in row) return row;
     // Dopasowanie po początku nazwy ("Klipy" pasuje też do "Klip Standard").
     const fallback = staticPricing.find((p) =>
@@ -192,9 +204,9 @@ type GalleryRow = {
   height: number;
 };
 
-// Zdjęcia galerii z bazy; dopóki baza nie odpowie (albo jest pusta), placeholdery.
-export function useGalleryImages(): GalleryImage[] {
-  const { data } = useQuery({
+// Zdjęcia galerii z bazy (null = ładują się); placeholdery tylko bez bazy / gdy pusto.
+export function useGalleryImages(): GalleryImage[] | null {
+  const query = useQuery({
     queryKey: ["gallery_images"],
     enabled: !!supabase,
     queryFn: async () => {
@@ -215,14 +227,14 @@ export function useGalleryImages(): GalleryImage[] {
       }));
     },
   });
-  return data?.length ? data : staticGallery;
+  return orFallback(query, staticGallery);
 }
 
 export type GearItem = { name: string; tag: string | null };
 
 // Lista sprzętu z bazy; zapasowo statyczna z data/raphouse.ts.
-export function useGear(): GearItem[] {
-  const { data } = useQuery({
+export function useGear(): GearItem[] | null {
+  const query = useQuery({
     queryKey: ["gear"],
     enabled: !!supabase,
     queryFn: async () => {
@@ -236,12 +248,12 @@ export function useGear(): GearItem[] {
       return data as GearItem[];
     },
   });
-  return data?.length ? data : staticGear;
+  return orFallback(query, staticGear);
 }
 
 // Ścieżka procesu w hero z bazy; zapasowo statyczna z data/raphouse.ts.
-export function useRoadmap(): RoadmapStep[] {
-  const { data } = useQuery({
+export function useRoadmap(): RoadmapStep[] | null {
+  const query = useQuery({
     queryKey: ["roadmap_steps"],
     enabled: !!supabase,
     queryFn: async () => {
@@ -255,7 +267,7 @@ export function useRoadmap(): RoadmapStep[] {
       return data as RoadmapStep[];
     },
   });
-  return data?.length ? data : staticRoadmap;
+  return orFallback(query, staticRoadmap);
 }
 
 export type Regulation = {
@@ -304,23 +316,23 @@ export type AudioItem = Pick<
   "id" | "artist" | "title" | "description" | "audio_url" | "image_url" | "video_url" | "links"
 >;
 
-// Realizacje audio z bazy; dopóki baza nie jest podpięta (albo jest pusta) - statyczna lista.
+// Utwory (realizacje audio) z bazy; items = null, dopóki się ładują.
 export function useAudioProjects() {
   const query = useProjects();
-  const { data } = query;
-  const items: AudioItem[] =
-    data && data.length
-      ? data.filter((p) => p.category !== "video")
-      : staticPortfolio.map((p) => ({
-          id: p.title,
-          artist: p.artist,
-          title: p.title,
-          description: p.desc,
-          audio_url: null,
-          image_url: null,
-          video_url: null,
-          links: [],
-        }));
+  const audio = query.data?.filter((p) => p.category !== "video");
+  const items = orFallback<AudioItem>(
+    { data: audio, isPending: query.isPending },
+    staticPortfolio.map((p) => ({
+      id: p.title,
+      artist: p.artist,
+      title: p.title,
+      description: p.desc,
+      audio_url: null,
+      image_url: null,
+      video_url: null,
+      links: [],
+    })),
+  );
   return { ...query, items };
 }
 
@@ -337,7 +349,7 @@ export type PromoMaterial = {
   movement_order?: number;
 };
 
-// Materiały promocyjne (rolki, grafiki) - zakładka na /klipy i pasek w sekcji "Ruch".
+// Oprawa wydania (rolki, grafiki) - filtr na /realizacje i pasek w sekcji "Ruch".
 export function usePromoMaterials() {
   return useQuery({
     queryKey: ["promo_materials"],
@@ -358,9 +370,9 @@ export function usePromoMaterials() {
   });
 }
 
-// Grafika do pokazania: wgrany obrazek albo link do posta na Instagramie.
+// Grafika do pokazania = wgrany obrazek.
 export function isShowableGraphic(m: PromoMaterial) {
-  return m.kind === "grafika" && (!!m.image_url || !!instagramEmbedUrl(m.video_url));
+  return m.kind === "grafika" && !!m.image_url;
 }
 
 // Grafika z panelu w formacie, którego oczekuje Lightbox (jeden plik w obu rozmiarach).
@@ -384,8 +396,8 @@ export type TeamMember = {
 };
 
 // Ekipa w sekcji "O nas" z panelu admina; zapasowo statyczna z data/raphouse.ts.
-export function useTeam(): TeamMember[] {
-  const { data } = useQuery({
+export function useTeam(): TeamMember[] | null {
+  const query = useQuery({
     queryKey: ["team_members"],
     enabled: !!supabase,
     retry: 1,
@@ -400,13 +412,14 @@ export function useTeam(): TeamMember[] {
       return data as TeamMember[];
     },
   });
-  return data?.length
-    ? data
-    : staticCrew.map((c) => ({
-        id: c.name,
-        name: c.name,
-        role: c.role,
-        bio: c.bio,
-        image_url: null,
-      }));
+  return orFallback(
+    query,
+    staticCrew.map((c) => ({
+      id: c.name,
+      name: c.name,
+      role: c.role,
+      bio: c.bio,
+      image_url: null,
+    })),
+  );
 }

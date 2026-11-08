@@ -155,7 +155,7 @@ export function MovementOrderEditor() {
   return (
     <div>
       <p className="mb-6 max-w-2xl text-sm text-muted-foreground">
-        Tu jest wszystko, co ma gwiazdkę w zakładkach „Klipy (video)” i „Materiały promocyjne”. Ułóż
+        Tu jest wszystko, co ma gwiazdkę w zakładkach „Klipy (video)” i „Oprawa wydania”. Ułóż
         kolejność przeciąganiem albo strzałkami - tak samo przewija się pasek w sekcji Ruch na
         stronie głównej. Bez żadnej gwiazdki pasek pokazuje 3 losowe rolki, klipy i grafiki.
       </p>

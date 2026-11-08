@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { ShieldCheck } from "lucide-react";
 import { EmptyState, PageLayout } from "@/components/site/PageLayout";
 import { BeatCard } from "@/components/site/BeatCard";
 import { Reveal } from "@/components/site/Reveal";
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/bity")({
 
 // Cena z cennika (edytowalnego w panelu) po tytule pozycji.
 function usePrice(name: string) {
-  return usePricing().find((p) => p.title === name)?.lines[0]?.price;
+  return usePricing()?.find((p) => p.title === name)?.lines[0]?.price;
 }
 
 function BeatsPage() {
@@ -36,16 +37,15 @@ function BeatsPage() {
       accent="z RapHouse."
       intro="Wybierz bit z katalogu albo zamów produkcję od podstaw - pod Twój numer, klimat i tempo."
     >
+      <LicenseAndProducer />
       <Catalog />
       <CustomBeat />
-      <Producer />
     </PageLayout>
   );
 }
 
 function Catalog() {
   const { data, isLoading, isError } = useBeats();
-  const catalogPrice = usePrice("Bity z katalogu");
   const { data: allCategories } = useBeatCategories();
   const [category, setCategory] = useState<string | null>(null);
 
@@ -65,9 +65,8 @@ function Catalog() {
             Posłuchaj <span className="text-primary">i wybierz.</span>
           </h2>
           <p className="mt-6 max-w-2xl leading-relaxed text-muted-foreground">
-            Bity w różnych klimatach, brzmieniach i tempach
-            {catalogPrice && <> - w cenach {catalogPrice}</>}. Spodobał Ci się któryś? Zadzwoń albo
-            napisz, podając tytuł bitu - wrócimy z finalną wyceną.
+            Bity w różnych klimatach, brzmieniach i tempach - każdy z własną ceną. Spodobał Ci się
+            któryś? Zadzwoń albo napisz, podając tytuł bitu.
           </p>
         </Reveal>
 
@@ -148,44 +147,41 @@ function CustomBeat() {
   );
 }
 
-const artists =
-  "Alberto, ReTo, Filipek, VNM, Bonus RPK, Zbuku, Hades, DJ Kebs, Kuba Knap, Frosti, WdoWA, Epis DYM KNF, Rufuz, Bober i wielu innych.";
-
-function Producer() {
+// Na górze strony: licencja (najważniejsza informacja przy zakupie) i krótko o producencie.
+function LicenseAndProducer() {
   return (
-    <section id="producent" className="surface-deep border-t border-border">
-      <div className="mx-auto grid max-w-[1400px] gap-12 px-5 py-20 md:px-10 md:py-28 lg:grid-cols-[1fr_1.3fr]">
+    <section className="mx-auto max-w-[1400px] px-5 pb-16 md:px-10 md:pb-20">
+      <div className="grid gap-4 lg:grid-cols-[1.1fr_1fr]">
         <Reveal>
-          <p className="eyebrow mb-6">Producent</p>
-          <h2 className="font-display text-[clamp(3rem,8vw,6.5rem)]">
-            Jezzy<span className="text-primary">.C</span>
-          </h2>
-          <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-            Blisko 300 utworów z premierą na koncie.
-          </p>
+          <div className="card-surface flex h-full gap-5 border-primary/50 bg-primary/5 p-7 md:p-10">
+            <ShieldCheck className="size-10 shrink-0 text-primary md:size-12" />
+            <div>
+              <h2 className="font-display text-3xl md:text-5xl">
+                Licencja <span className="text-primary">na wyłączność.</span>
+              </h2>
+              <p className="mt-4 text-lg leading-relaxed text-foreground/90">
+                Po zakupie bit zostaje wycofany z katalogu i nie jest sprzedawany innym wykonawcom.
+              </p>
+            </div>
+          </div>
         </Reveal>
         <Reveal delay={90}>
-          <dl className="flex flex-col gap-8">
-            <div>
-              <dt className="eyebrow mb-3">Wykształcenie</dt>
-              <dd className="leading-relaxed text-muted-foreground">
-                Państwowa Szkoła Muzyczna I stopnia w Sanoku (perkusja, fortepian, keyboard) oraz
-                studia „Music Production BSc” w Derby (UK) - produkcja i realizacja muzyki,
-                akustyka, prawo autorskie.
-              </dd>
-            </div>
-            <div>
-              <dt className="eyebrow mb-3">Wykonawcy na bitach</dt>
-              <dd className="leading-relaxed text-muted-foreground">{artists}</dd>
-            </div>
-            <div>
-              <dt className="eyebrow mb-3">Inne współprace</dt>
-              <dd className="leading-relaxed text-muted-foreground">
-                Step, Asfalt, QueQuality, DeNekstBest, MaxFlo Records &amp; Środowisko Miejskie.
-                Muzyka do reklam odzieżowych i do podcastu Lecha Poznań „Mecz? I co dalej”.
-              </dd>
-            </div>
-          </dl>
+          <div id="producent" className="card-surface h-full scroll-mt-24 p-7 md:p-10">
+            <p className="eyebrow mb-4">Producent</p>
+            <h2 className="font-display text-3xl md:text-4xl">
+              Jezzy<span className="text-primary">.C</span>
+              <span className="ml-3 align-middle text-sm font-normal normal-case tracking-normal text-muted-foreground">
+                producent muzyczny
+              </span>
+            </h2>
+            <p className="mt-4 leading-relaxed text-muted-foreground">
+              Absolwent Music Production BSc w Wielkiej Brytanii oraz Państwowej Szkoły Muzycznej I
+              stopnia w Sanoku, gdzie kształcił się w klasie fortepianu i perkusji. Jego produkcje
+              znalazły się na blisko 300 wydanych utworach, m.in. Alberto, ReTo, Filipka, VNM-a,
+              Bonusa RPK i Zbuka. Współpracował z wytwórniami Step Records, Asfalt Records,
+              QueQuality, DeNekstBest i MaxFlo Records.
+            </p>
+          </div>
         </Reveal>
       </div>
     </section>

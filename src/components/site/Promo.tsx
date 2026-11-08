@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { ExternalLink, Image as ImageIcon, Instagram, Play } from "lucide-react";
-import { contact } from "@/data/raphouse";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Film, Image as ImageIcon, Volume2, VolumeX } from "lucide-react";
 import { isShowableGraphic, promoAsGalleryImage, type PromoMaterial } from "@/lib/content";
-import { instagramEmbedUrl, youTubeId } from "@/lib/media";
+import { youTubeId } from "@/lib/media";
 import { cn } from "@/lib/utils";
 import { Lightbox } from "./Lightbox";
 import { LinkList } from "./Media";
@@ -20,170 +19,73 @@ function Caption({ m }: { m: PromoMaterial }) {
   );
 }
 
-// true, gdy element jest (prawie) na ekranie - od tego momentu zostaje true.
-// Ciężkie iframe'y (YouTube, Instagram) ładują się dopiero wtedy.
-function useSeen<T extends Element>() {
-  const ref = useRef<T>(null);
-  const [seen, setSeen] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || seen) return;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e?.isIntersecting) {
-          setSeen(true);
-          io.disconnect();
-        }
-      },
-      { rootMargin: "300px" },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [seen]);
-  return { ref, seen };
-}
-
-// Szerokość, w której renderujemy embed Instagrama (Instagram nie schodzi poniżej 326 px),
-// i wysokość jego górnego paska (avatar + nazwa) - chowamy go, przesuwając iframe w górę.
-const IG_WIDTH = 400;
-const IG_HEADER = 56;
-
-/**
- * Post / rolka z Instagrama po samym linku (oficjalny embed). Embed ma stałą szerokość, więc
- * skalujemy go do wielkości karty. Kliknięcie otwiera post na Instagramie.
- */
-function InstagramFrame({ url, title }: { url: string; title: string }) {
-  const { ref, seen } = useSeen<HTMLDivElement>();
-  const [box, setBox] = useState({ w: 0, h: 0 });
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setBox({ w: el.clientWidth, h: el.clientHeight }));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [ref]);
-  const scale = box.w ? box.w / IG_WIDTH : 1;
-
-  return (
-    <div ref={ref} className="absolute inset-0 overflow-hidden bg-white">
-      {seen && box.w > 0 && (
-        <iframe
-          src={url}
-          title={title}
-          loading="lazy"
-          scrolling="no"
-          className="absolute left-0 origin-top-left border-0"
-          style={{
-            width: IG_WIDTH,
-            height: box.h / scale + IG_HEADER,
-            top: -IG_HEADER * scale,
-            transform: `scale(${scale})`,
-          }}
-        />
-      )}
-    </div>
-  );
+// Polecenie dla odtwarzacza YouTube w iframe (wymaga enablejsapi=1 w adresie).
+function ytCommand(
+  frame: HTMLIFrameElement | null,
+  func: "playVideo" | "pauseVideo" | "mute" | "unMute",
+) {
+  frame?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args: [] }), "*");
 }
 
 /**
- * Rolka w pionie (9:16).
- * - YouTube Shorts: w pasku "Ruch" (autoplay) gra sama, bez dźwięku, w pętli; gdzie indziej
- *   okładka i odtwarzanie po kliknięciu.
- * - Instagram bez okładki: embed posta prosto z linku.
- * - Instagram / TikTok z okładką: okładka, kliknięcie otwiera rolkę w nowej karcie.
+ * Rolka w pionie (9:16) z YouTube Shorts - gra sama, bez dźwięku, w pętli. Odtwarzacz ładuje się,
+ * gdy rolka zbliża się do ekranu, i pauzuje, gdy z niego zjedzie (kilka rolek naraz nie obciąża
+ * telefonu). Po najechaniu (na telefonie zawsze) przycisk włącza / wyłącza dźwięk.
+ * Rolka bez linku do YouTube pokazuje tylko okładkę.
  */
 export function ReelCard({
   m,
   className,
   caption = true,
-  autoplay = false,
 }: {
   m: PromoMaterial;
   className?: string;
   // false = podpis pod kartą (pasek w sekcji "Ruch"), a nie na obrazku.
   caption?: boolean;
-  autoplay?: boolean;
 }) {
-  const [playing, setPlaying] = useState(false);
-  const { ref, seen } = useSeen<HTMLDivElement>();
   const ytId = youTubeId(m.video_url);
-  const igEmbed = instagramEmbedUrl(m.video_url);
   const cover = m.image_url ?? (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : null);
   const label = m.artist ? `${m.artist} - ${m.title}` : m.title;
 
-  const box = cn(
-    "group relative block aspect-[9/16] overflow-hidden rounded-md border border-border bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-    className,
-  );
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [box, setBox] = useState<HTMLDivElement | null>(null);
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [muted, setMuted] = useState(true);
 
-  if (ytId && (playing || autoplay)) {
-    const params = playing
-      ? "autoplay=1&rel=0&playsinline=1"
-      : `autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&rel=0&playsinline=1&modestbranding=1`;
-    return (
-      <div ref={ref} className={box}>
-        {/* Do załadowania (i poza ekranem) - okładka. */}
-        {cover && <img src={cover} alt="" className="size-full object-cover" />}
-        {seen && (
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${ytId}?${params}`}
-            title={label}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="absolute inset-0 size-full"
-          />
-        )}
-        {/* Autoplay bez dźwięku: kliknięcie włącza od początku z dźwiękiem i kontrolkami. */}
-        {!playing && (
-          <button
-            type="button"
-            onClick={() => setPlaying(true)}
-            aria-label={`Odtwórz z dźwiękiem: ${label}`}
-            className="absolute inset-0 size-full"
-          />
-        )}
-      </div>
+  // Callback ref + state: obserwator startuje dopiero, gdy element naprawdę jest w DOM.
+  const boxRef = useCallback((el: HTMLDivElement | null) => setBox(el), []);
+  useEffect(() => {
+    if (!box || !ytId) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        const on = !!e?.isIntersecting;
+        setVisible(on);
+        if (on) setMounted(true);
+      },
+      { rootMargin: "200px" },
     );
-  }
+    io.observe(box);
+    return () => io.disconnect();
+  }, [box, ytId]);
 
-  if (ytId)
-    return (
-      <button
-        type="button"
-        onClick={() => setPlaying(true)}
-        aria-label={`Odtwórz rolkę: ${label}`}
-        className={box}
-      >
-        {cover && (
-          <img
-            src={cover}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="size-full object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
-          />
-        )}
-        <span className="absolute left-1/2 top-1/2 inline-flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-110">
-          <Play className="ml-0.5 size-5 fill-current" />
-        </span>
-        {caption && <Caption m={m} />}
-      </button>
-    );
+  useEffect(() => {
+    if (mounted) ytCommand(frame.current, visible ? "playVideo" : "pauseVideo");
+  }, [visible, mounted]);
 
-  if (igEmbed && !m.image_url)
-    return (
-      <div className={box}>
-        <InstagramFrame url={igEmbed} title={label} />
-      </div>
-    );
+  const toggleSound = () => {
+    ytCommand(frame.current, muted ? "unMute" : "mute");
+    if (muted) ytCommand(frame.current, "playVideo");
+    setMuted(!muted);
+  };
 
   return (
-    <a
-      href={m.video_url ?? contact.instagram}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={`Rolka: ${label} (otwiera się w nowej karcie)`}
-      className={box}
+    <div
+      ref={boxRef}
+      className={cn(
+        "group relative aspect-[9/16] overflow-hidden rounded-md border border-border bg-black",
+        className,
+      )}
     >
       {cover ? (
         <img
@@ -191,25 +93,48 @@ export function ReelCard({
           alt=""
           loading="lazy"
           decoding="async"
-          className="size-full object-cover opacity-85 transition-all duration-500 group-hover:scale-105 group-hover:opacity-100"
+          className="absolute inset-0 size-full object-cover"
         />
       ) : (
-        <span className="flex size-full items-center justify-center bg-gradient-to-br from-primary/25 to-secondary">
-          <Instagram className="size-8 text-primary" />
+        <span className="absolute inset-0 flex items-center justify-center bg-secondary">
+          <Film className="size-8 text-muted-foreground" />
         </span>
       )}
-      <span className="absolute left-1/2 top-1/2 inline-flex size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform duration-300 group-hover:scale-110">
-        <ExternalLink className="size-5" />
-      </span>
+      {ytId && mounted && (
+        // Pionowy Short w pionowej karcie wypełnia ją w całości. Kliknięcia przechodzą przez
+        // odtwarzacz (pointer-events-none) - dźwięk włącza przycisk, a pasek dalej się przewija.
+        <iframe
+          ref={frame}
+          src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&rel=0&playsinline=1&modestbranding=1&enablejsapi=1`}
+          title={label}
+          allow="autoplay; encrypted-media; picture-in-picture"
+          tabIndex={-1}
+          className="pointer-events-none absolute inset-0 size-full"
+        />
+      )}
       {caption && <Caption m={m} />}
-    </a>
+      {ytId && (
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-label={muted ? `Włącz dźwięk: ${label}` : `Wycisz: ${label}`}
+          aria-pressed={!muted}
+          className={cn(
+            "absolute right-2 top-2 inline-flex size-10 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100",
+            // Myszka: widać po najechaniu (albo gdy dźwięk włączony). Dotyk: zawsze.
+            muted
+              ? "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
+              : "opacity-100",
+          )}
+        >
+          {muted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
+        </button>
+      )}
+    </div>
   );
 }
 
-/**
- * Grafika (kwadrat, przycięta). Wgrany obrazek - pełny po kliknięciu w lightboxie;
- * sam link do Instagrama - embed posta.
- */
+/** Grafika (kwadrat, przycięta) - pełny obraz po kliknięciu w lightboxie. */
 export function GraphicCard({
   m,
   onOpen,
@@ -221,25 +146,15 @@ export function GraphicCard({
   className?: string;
   caption?: boolean;
 }) {
-  const box = cn(
-    "group relative block aspect-square overflow-hidden rounded-md border border-border bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-    className,
-  );
-  const igEmbed = instagramEmbedUrl(m.video_url);
-
-  if (!m.image_url && igEmbed)
-    return (
-      <div className={box}>
-        <InstagramFrame url={igEmbed} title={m.title} />
-      </div>
-    );
-
   return (
     <button
       type="button"
       onClick={onOpen}
       aria-label={`Powiększ grafikę: ${m.title}`}
-      className={box}
+      className={cn(
+        "group relative block aspect-square overflow-hidden rounded-md border border-border bg-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        className,
+      )}
     >
       {m.image_url ? (
         <img
@@ -259,25 +174,18 @@ export function GraphicCard({
   );
 }
 
-/** Zakładka "Materiały promocyjne" na /klipy: najpierw rolki, potem grafiki. */
+/** "Oprawa wydania" na /realizacje: najpierw rolki, potem grafiki. */
 export function PromoGrid({ items }: { items: PromoMaterial[] }) {
   const reels = items.filter((m) => m.kind === "rolka");
   const graphics = items.filter(isShowableGraphic);
-  // Lightbox tylko dla wgranych obrazków (embed Instagrama jest klikalny sam w sobie).
-  const images = graphics.filter((m) => m.image_url);
   const [open, setOpen] = useState<number | null>(null);
 
   if (!reels.length && !graphics.length)
     return (
       <div className="card-surface flex flex-col items-center gap-6 p-10 text-center text-muted-foreground">
         <p>Rolki, okładki i grafiki już wkrótce.</p>
-        <a
-          href={contact.instagram}
-          target="_blank"
-          rel="noreferrer"
-          className="btn-base btn-ghost-line"
-        >
-          Zobacz nasz Instagram
+        <a href="/#kontakt" className="btn-base btn-ghost-line">
+          Zapytaj o oprawę wydania
         </a>
       </div>
     );
@@ -306,21 +214,17 @@ export function PromoGrid({ items }: { items: PromoMaterial[] }) {
         <div>
           <p className="eyebrow mb-6">Grafiki i okładki</p>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {graphics.map((m) => (
+            {graphics.map((m, i) => (
               <li key={m.id}>
-                <GraphicCard
-                  m={m}
-                  onOpen={() => setOpen(images.findIndex((g) => g.id === m.id))}
-                  className="w-full"
-                />
+                <GraphicCard m={m} onOpen={() => setOpen(i)} className="w-full" />
               </li>
             ))}
           </ul>
         </div>
       )}
-      {open !== null && open >= 0 && (
+      {open !== null && (
         <Lightbox
-          images={images.map(promoAsGalleryImage)}
+          images={graphics.map(promoAsGalleryImage)}
           index={open}
           onIndex={(update) => setOpen((i) => (i === null ? null : update(i)))}
           onClose={() => setOpen(null)}

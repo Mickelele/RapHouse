@@ -19,7 +19,14 @@ export const contact = {
 export type PriceItem = {
   title: string;
   note?: string | null;
-  lines: { label?: string | null; price: string }[];
+  // badge - wyróżnienie przy cenie (np. "Oszczędzasz 80 zł"),
+  // note - warunek pod ceną (np. "Cena obowiązuje przy jednorazowej rezerwacji 4 h").
+  lines: {
+    label?: string | null;
+    price: string;
+    badge?: string | null;
+    note?: string | null;
+  }[];
   // Odnośnik z karty (np. /rezerwacja, /bity#katalog) i jego tekst.
   link?: string | null;
   link_label?: string | null;
@@ -80,7 +87,7 @@ export const pricing: PriceItem[] = [
   },
   {
     title: "Klipy",
-    link: "/klipy",
+    link: "/realizacje?filtr=klipy",
     link_label: "Zobacz klipy",
     note: "Realizacja teledysku - koncepcja, zdjęcia, montaż.",
     lines: [{ price: "Wycena indywidualna" }],
@@ -88,8 +95,8 @@ export const pricing: PriceItem[] = [
   },
   {
     title: "Promo + opakowanie",
-    link: "/klipy?zakladka=materialy",
-    link_label: "Zobacz materiały",
+    link: "/realizacje?filtr=oprawa",
+    link_label: "Zobacz oprawę wydania",
     note: "Rolki, sesja foto, opisy, okładka, miniaturka, strategia publikacji, dystrybucja.",
     lines: [{ price: "Wycena indywidualna" }],
     todo: "TODO: cena pakietu promo od klienta",
@@ -116,9 +123,9 @@ export const roadmap: RoadmapStep[] = [
   { label: "Bit", link: "/bity" },
   { label: "Wynajem studia", link: "/rezerwacja" },
   { label: "Sesja nagraniowa", link: "/#kontakt", alternative: true },
-  { label: "Mix / Master", link: "/realizacje" },
-  { label: "Teledysk", link: "/klipy" },
-  { label: "Materiały promocyjne", link: "/klipy?zakladka=materialy" },
+  { label: "Mix / Master", link: "/realizacje?filtr=utwory" },
+  { label: "Teledysk", link: "/realizacje?filtr=klipy" },
+  { label: "Oprawa wydania", link: "/realizacje?filtr=oprawa" },
   { label: "Dystrybucja", link: "/#kontakt" },
 ];
 
@@ -214,13 +221,7 @@ export const nav: NavItem[] = [
       { label: "Regulaminy", href: "/regulaminy" },
     ],
   },
-  {
-    label: "Realizacje",
-    children: [
-      { label: "Utwory", href: "/realizacje" },
-      { label: "Klipy", href: "/klipy" },
-    ],
-  },
+  { label: "Realizacje", href: "/realizacje" },
   { label: "Cennik", href: "/#cennik" },
   { label: "Bity", href: "/bity" },
   { label: "Aktualności", href: "/aktualnosci" },

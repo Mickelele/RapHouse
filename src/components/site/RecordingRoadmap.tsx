@@ -4,7 +4,7 @@ import { useRoadmap } from "@/lib/content";
 
 /**
  * Ścieżka powstawania numeru (domyślnie Pomysł → Tekst → Bit → Wynajem studia | Sesja nagraniowa
- * → Mix / Master → Teledysk → Materiały promocyjne → Dystrybucja). Kroki i ich odnośniki są
+ * → Mix / Master → Teledysk → Oprawa wydania → Dystrybucja). Kroki i ich odnośniki są
  * edytowane w panelu admina; krok oznaczony jako alternatywa staje obok poprzedniego (rozwidlenie).
  * Linie rysują się po kolei przy wejściu, potem po trasie w pętli biegnie "sygnał",
  * a mijane punkty się podświetlają (animacje w styles.css, klasy roadmap-*).
@@ -172,8 +172,18 @@ export function RecordingRoadmap({ className }: { className?: string }) {
   const steps = useRoadmap();
   return (
     <nav aria-label="Proces: od pomysłu do dystrybucji" className={className}>
-      <Roadmap steps={steps} horizontal className="hidden w-full max-w-[680px] sm:block" />
-      <Roadmap steps={steps} horizontal={false} className="w-full max-w-[360px] sm:hidden" />
+      {steps ? (
+        <>
+          <Roadmap steps={steps} horizontal className="hidden w-full max-w-[680px] sm:block" />
+          <Roadmap steps={steps} horizontal={false} className="w-full max-w-[360px] sm:hidden" />
+        </>
+      ) : (
+        // Do załadowania kroków z bazy - puste miejsce tej samej wielkości (strona nie skacze).
+        <>
+          <div className="hidden aspect-[640/150] w-full max-w-[680px] sm:block" />
+          <div className="aspect-[330/290] w-full max-w-[360px] sm:hidden" />
+        </>
+      )}
     </nav>
   );
 }

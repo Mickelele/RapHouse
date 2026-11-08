@@ -45,18 +45,3 @@ export function formatDate(iso: string) {
     year: "numeric",
   });
 }
-
-// Adres osadzenia posta / rolki z Instagrama (oficjalny embed, bez logowania) albo null.
-export function instagramEmbedUrl(input: string | null | undefined): string | null {
-  if (!input) return null;
-  try {
-    const u = new URL(input.trim());
-    if (!/(^|\.)instagram\.com$/.test(u.hostname)) return null;
-    const m = u.pathname.match(/^\/(?:[\w.]+\/)?(p|reels?|tv)\/([\w-]+)/);
-    if (!m) return null;
-    const type = m[1] === "p" ? "p" : m[1] === "tv" ? "tv" : "reel";
-    return `https://www.instagram.com/${type}/${m[2]}/embed/`;
-  } catch {
-    return null;
-  }
-}
