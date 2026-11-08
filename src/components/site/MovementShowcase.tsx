@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Lightbox } from "./Lightbox";
 import { GraphicCard, ReelCard } from "./Promo";
-import { YouTubeLite } from "./YouTubeLite";
+import { AutoplayYouTube } from "./AutoplayYouTube";
 
 // Ile losowych pozycji każdego rodzaju, gdy nic nie jest wybrane w panelu.
 const PER_KIND = 3;
@@ -245,9 +245,14 @@ export function MovementShowcase() {
                   onOpen={() => setLightbox(graphics.findIndex((g) => g.id === it.m.id))}
                 />
               ) : (
-                <div className="aspect-video h-full">
-                  <YouTubeLite video={it.p.video_url} title={title} />
-                </div>
+                // Klip gra sam, tak jak rolki (bez dźwięku, z przyciskiem głośnika).
+                <AutoplayYouTube
+                  video={it.p.video_url}
+                  title={title}
+                  cover={it.p.image_url}
+                  keepMounted
+                  className="aspect-video h-full"
+                />
               )}
             </div>
             {/* Szerokość podpisu = szerokość karty (w-0 + min-w-full). */}

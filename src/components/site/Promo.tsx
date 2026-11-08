@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Film, Image as ImageIcon, Volume2, VolumeX } from "lucide-react";
+import { useState } from "react";
+import { Image as ImageIcon } from "lucide-react";
 import { isShowableGraphic, promoAsGalleryImage, type PromoMaterial } from "@/lib/content";
-import { youTubeId } from "@/lib/media";
 import { cn } from "@/lib/utils";
+import { AutoplayYouTube } from "./AutoplayYouTube";
 import { Lightbox } from "./Lightbox";
 import { LinkList } from "./Media";
 
@@ -19,23 +19,9 @@ function Caption({ m }: { m: PromoMaterial }) {
   );
 }
 
-// Polecenie dla odtwarzacza YouTube w iframe (wymaga enablejsapi=1 w adresie).
-function ytCommand(
-  frame: HTMLIFrameElement | null,
-  func: "playVideo" | "pauseVideo" | "mute" | "unMute",
-) {
-  frame?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args: [] }), "*");
-}
-
-// Ile rolka musi być na ekranie, zanim załaduje się odtwarzacz - przy szybkim przewijaniu
-// mijane rolki nie odpalają YouTube na darmo.
-const MOUNT_DELAY_MS = 350;
-
 /**
- * Rolka w pionie (9:16) z YouTube Shorts - gra sama, bez dźwięku, w pętli. Do tego czasu i poza
- * ekranem widać tylko miniaturę; odtwarzacz (ciężki iframe YouTube) ładuje się dopiero, gdy rolka
- * chwilę jest na ekranie. Po najechaniu (na telefonie zawsze) przycisk włącza / wyłącza dźwięk.
- * Rolka bez linku do YouTube pokazuje tylko okładkę.
+ * Rolka w pionie (9:16) z YouTube Shorts - gra sama, bez dźwięku, w pętli (szczegóły
+ * w AutoplayYouTube). Rolka bez linku do YouTube pokazuje tylko okładkę.
  */
 export function ReelCard({
   m,
@@ -47,113 +33,19 @@ export function ReelCard({
   className?: string;
   // false = podpis pod kartą (pasek w sekcji "Ruch"), a nie na obrazku.
   caption?: boolean;
-  // true (pasek w Ruchu, kilka rolek w pętli): odtwarzacz po zjechaniu z ekranu tylko pauzuje,
-  // zamiast znikać - inaczej ładowałby się od nowa przy każdym okrążeniu paska.
-  // false (siatka z wieloma rolkami): poza ekranem odtwarzacz jest usuwany - w pamięci są
-  // tylko te widoczne.
+  // true w pasku Ruchu (odtwarzacz pauzuje zamiast znikać) - patrz AutoplayYouTube.
   keepMounted?: boolean;
 }) {
-  const ytId = youTubeId(m.video_url);
-  const cover = m.image_url ?? (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : null);
-  const label = m.artist ? `${m.artist} - ${m.title}` : m.title;
-
-  const frame = useRef<HTMLIFrameElement>(null);
-  const [box, setBox] = useState<HTMLDivElement | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const [visible, setVisible] = useState(false);
-  // Odtwarzacz załadowany - dopiero wtedy zasłania miniaturę (bez czarnego mignięcia).
-  const [ready, setReady] = useState(false);
-  const [muted, setMuted] = useState(true);
-
-  // Callback ref + state: obserwator startuje dopiero, gdy element naprawdę jest w DOM.
-  const boxRef = useCallback((el: HTMLDivElement | null) => setBox(el), []);
-  useEffect(() => {
-    if (!box || !ytId) return;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const io = new IntersectionObserver(([e]) => {
-      const on = !!e?.isIntersecting;
-      setVisible(on);
-      clearTimeout(timer);
-      if (on) timer = setTimeout(() => setMounted(true), MOUNT_DELAY_MS);
-      else if (!keepMounted) {
-        setMounted(false);
-        setReady(false);
-        setMuted(true);
-      }
-    });
-    io.observe(box);
-    return () => {
-      clearTimeout(timer);
-      io.disconnect();
-    };
-  }, [box, ytId, keepMounted]);
-
-  useEffect(() => {
-    if (mounted) ytCommand(frame.current, visible ? "playVideo" : "pauseVideo");
-  }, [visible, mounted]);
-
-  const toggleSound = () => {
-    ytCommand(frame.current, muted ? "unMute" : "mute");
-    if (muted) ytCommand(frame.current, "playVideo");
-    setMuted(!muted);
-  };
-
   return (
-    <div
-      ref={boxRef}
-      className={cn(
-        "group relative aspect-[9/16] overflow-hidden rounded-md border border-border bg-black",
-        className,
-      )}
+    <AutoplayYouTube
+      video={m.video_url}
+      title={m.artist ? `${m.artist} - ${m.title}` : m.title}
+      cover={m.image_url}
+      keepMounted={keepMounted}
+      className={cn("aspect-[9/16]", className)}
     >
-      {cover ? (
-        <img
-          src={cover}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 size-full object-cover"
-        />
-      ) : (
-        <span className="absolute inset-0 flex items-center justify-center bg-secondary">
-          <Film className="size-8 text-muted-foreground" />
-        </span>
-      )}
-      {ytId && mounted && (
-        // Pionowy Short w pionowej karcie wypełnia ją w całości. Kliknięcia przechodzą przez
-        // odtwarzacz (pointer-events-none) - dźwięk włącza przycisk, a pasek dalej się przewija.
-        <iframe
-          ref={frame}
-          src={`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&rel=0&playsinline=1&modestbranding=1&enablejsapi=1`}
-          title={label}
-          allow="autoplay; encrypted-media; picture-in-picture"
-          tabIndex={-1}
-          onLoad={() => setReady(true)}
-          className={cn(
-            "pointer-events-none absolute inset-0 size-full transition-opacity duration-500",
-            ready ? "opacity-100" : "opacity-0",
-          )}
-        />
-      )}
       {caption && <Caption m={m} />}
-      {ytId && (
-        <button
-          type="button"
-          onClick={toggleSound}
-          aria-label={muted ? `Włącz dźwięk: ${label}` : `Wycisz: ${label}`}
-          aria-pressed={!muted}
-          className={cn(
-            "absolute right-2 top-2 inline-flex size-10 items-center justify-center rounded-full bg-black/60 text-white transition-opacity hover:bg-primary hover:text-primary-foreground focus-visible:opacity-100",
-            // Myszka: widać po najechaniu (albo gdy dźwięk włączony). Dotyk: zawsze.
-            muted
-              ? "opacity-0 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
-              : "opacity-100",
-          )}
-        >
-          {muted ? <VolumeX className="size-5" /> : <Volume2 className="size-5" />}
-        </button>
-      )}
-    </div>
+    </AutoplayYouTube>
   );
 }
 
