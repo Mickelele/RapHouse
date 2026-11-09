@@ -34,6 +34,7 @@ import {
 } from "@/components/admin/useIdleLogout";
 import { useServerSession } from "@/components/admin/useServerSession";
 import { GalleryBulkUpload } from "@/components/admin/GalleryBulkUpload";
+import { BeatAudioUpload } from "@/components/admin/BeatAudioUpload";
 import { MovementOrderEditor } from "@/components/admin/MovementOrderEditor";
 import { AdminShell, StatTile, type AdminSection } from "@/components/admin/AdminShell";
 import { removeGalleryFiles } from "@/lib/gallery-upload";
@@ -92,6 +93,7 @@ const collections: { value: string; label: string; config: CollectionConfig }[] 
     config: {
       table: "beats",
       label: "Bit",
+      toolbar: (refresh) => <BeatAudioUpload onDone={refresh} />,
       sortable: "top",
       orderBy: [
         { column: "sort_order", ascending: true },
