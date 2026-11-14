@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mapa strony dla Google - lista aktualnych podstron. Nowa podstrona = nowy <url>. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.raphouse.pl/</loc><lastmod>2026-11-14</lastmod><priority>1.0</priority></url>
+  <url><loc>https://www.raphouse.pl/realizacje</loc><lastmod>2026-11-14</lastmod><priority>0.8</priority></url>
+  <url><loc>https://www.raphouse.pl/bity</loc><lastmod>2026-11-14</lastmod><priority>0.8</priority></url>
+  <url><loc>https://www.raphouse.pl/rezerwacja</loc><lastmod>2026-11-14</lastmod><priority>0.8</priority></url>
+  <url><loc>https://www.raphouse.pl/sprzet</loc><lastmod>2026-11-14</lastmod><priority>0.6</priority></url>
+  <url><loc>https://www.raphouse.pl/galeria</loc><lastmod>2026-11-14</lastmod><priority>0.6</priority></url>
+  <url><loc>https://www.raphouse.pl/aktualnosci</loc><lastmod>2026-11-14</lastmod><priority>0.6</priority></url>
+  <url><loc>https://www.raphouse.pl/regulaminy</loc><lastmod>2026-11-14</lastmod><priority>0.3</priority></url>
+</urlset>
