@@ -14,6 +14,7 @@ import {
 import { pl } from "date-fns/locale";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PUBLIC_CALENDAR_URL, useBusySlots, type BusySlot } from "@/lib/availability";
+import { contact } from "@/data/raphouse";
 import { cn } from "@/lib/utils";
 
 type View = "month" | "week";
@@ -25,8 +26,8 @@ const VIEWS: { value: View; label: string }[] = [
 const WEEKDAYS = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Nd"];
 const WEEK = { weekStartsOn: 1 } as const;
 // Domyślny zakres godzin w widoku tygodnia; rozszerza się, jeśli rezerwacja wychodzi poza niego.
-const DAY_START = 10;
-const DAY_END = 24;
+const DAY_START = Number(contact.hours.opens.slice(0, 2));
+const DAY_END = Number(contact.hours.closes.slice(0, 2));
 const HOUR_PX = 36;
 
 const iso = (d: Date) => format(d, "yyyy-MM-dd");

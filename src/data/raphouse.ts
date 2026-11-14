@@ -9,6 +9,9 @@ export const contact = {
   phone: "+48 502 491 642",
   phoneHref: "tel:+48502491642",
   nip: "5273175451",
+  // Godziny otwarcia - takie same jak w wizytówce Google. Używane w stopce, w kalendarzu
+  // rezerwacji i w danych dla Google (JSON-LD na stronie głównej).
+  hours: { label: "Codziennie 8:00–22:00", opens: "08:00", closes: "22:00" },
   instagram: "https://www.instagram.com/raphousewwa/",
   youtube: "https://www.youtube.com/@RapHousewwa",
   facebook: "https://www.facebook.com/RapHouseWwa",

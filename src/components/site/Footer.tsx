@@ -1,5 +1,6 @@
 import {
   ArrowUpRight,
+  Clock,
   Facebook,
   Instagram,
   MapPin,
@@ -139,6 +140,10 @@ export function Footer() {
               </span>
               <ArrowUpRight className="mt-0.5 size-4 opacity-0 transition-opacity group-hover:opacity-100" />
             </a>
+            <p className="flex items-center gap-3 text-muted-foreground">
+              <Clock className="size-5 shrink-0 text-primary" />
+              {contact.hours.label}
+            </p>
             <div className="flex flex-wrap gap-3">
               <a href={contact.phoneHref} className="btn-base btn-accent">
                 <Phone className="size-4" /> Zadzwoń
